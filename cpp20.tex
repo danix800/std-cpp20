@@ -1,0 +1,149 @@
+\documentclass[cn,9pt,fancy,hide,normal]{elegantbook}
+
+\newcommand{\cpp}{C++}
+\newcommand{\isocppthr}{ISO C++ 2003}
+\newcommand{\isocppelv}{ISO C++ 2011}
+\newcommand{\isocppfor}{ISO C++ 2014}
+\newcommand{\isocppsvn}{ISO C++ 2017}
+\newcommand{\isoc}{ISO C}
+\renewcommand{\c}{C}
+
+\title{ISO/IEC 14882:2020(E) }
+\subtitle{编程语言：\cpp}
+
+\author{danix800}
+\institute{ISO/IEC}
+\date{2020-12}
+\version{第六版}
+
+\equote{Victory won\rq t come to us unless we go to it. --- M. Moore}
+
+\logo{logo.png}
+\cover{cover.jpg}
+
+% \usepackage{enumitem}
+\setlist[enumerate,1]{label={(\arabic{paragraph}.\arabic*) \quad --}}
+\setlist[enumerate,2]{label={(\arabic{paragraph}.\arabic{enumi}.\arabic*) \quad
+\quad \quad \ --}}
+\setlist[enumerate,3]{label={
+(\arabic{paragraph}.\arabic{enumi}.\arabic{enumii}.\arabic*) \quad \quad \quad
+\quad \quad \ --}}
+
+\usepackage{tablefootnote}
+\usepackage{multirow}
+% footnote counter is interrupted by chapter (start over from 1 in new chapters)
+% remove this feature, so the counter increases throughout the whole document.
+\usepackage{chngcntr}
+\counterwithout{footnote}{chapter}
+\counterwithout{table}{chapter}
+\counterwithout{figure}{chapter}
+
+% space btw footnotes
+% \setlength{\footnotesep}{0.5cm}
+
+% \lstset{basicstyle=\fontsize{11}{13}\selectfont\ttfamily}
+% \lstset{frame=none}
+\lstset{showstringspaces=false,
+        language=C++,
+        columns=fixed,
+        basicstyle=\linespread{1.0}\ttfamily\scriptsize,
+        basewidth=0.5em}
+
+\renewcommand{\theparagraph}{\arabic{paragraph}}
+\renewcommand{\thefigure}{\arabic{figure}}
+\renewcommand{\thetable}{\arabic{table}}
+
+% syntax command
+\newcommand{\tm}[1]{\texttt{#1}} % terminals
+\newcommand{\nt}[1]{\textit{#1}} % non-terminals
+\newcommand{\tb}[1]{\textbf{#1}} % bold
+
+% syntax symbol
+\newcommand{\synsym}[2][]{\parindent0pt\mbox{\qquad\textit{#2:} #1}\linebreak}
+% syntax production
+\newcommand{\synprd}[2][\linebreak]{\mbox{\qquad\qquad #2}#1}
+
+% doc structures
+\newcommand{\chptr}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}}
+
+\newcommand{\sect}[2]{\section[#1]{#1\hfill[#2\label{#2}]}}
+\newcommand{\ssect}[2]{\subsection[#1]{#1\hfill[#2\label{#2}]}}
+
+\renewcommand{\appendixname}{附录 \thechapter}
+\newcommand{\annex}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}}
+
+\newcounter{ssssectcntr} % create new counter for \subsubsubsection
+\newcommand{\sssect}[2]{
+  \subsubsection[#1]{#1\hfill[#2\label{#2}]}
+  \setcounter{ssssectcntr}{0} % start from 0
+}
+
+\newcounter{sssssectcntr} % create new counter for \subsubsubsection
+% use paragraph as the next level section
+\newcommand{\ssssect}[2]{{ % two level nesting
+  \titleformat{\paragraph}[hang]{\bfseries}
+    {\hspace{-2.45em}\bfseries\color{structurecolor}\theparagraph\enspace}
+    {1pt}{\color{structurecolor}\bfseries\filright}
+  % label = subsubsection + ssssectcntr
+  \renewcommand{\theparagraph}{\thesubsubsection.\thessssectcntr}
+  \stepcounter{ssssectcntr} % step \ssssectcntr
+  \paragraph{#1\hfill[#2\label{#2}]}  % the \subsubsubsection
+  \setcounter{paragraph}{0} % restart paragraph
+  \setcounter{sssssectcntr}{0} % start from 0
+}}
+
+% use paragraph as the next level section
+\newcommand{\sssssect}[2]{{ % two level nesting
+  \titleformat{\paragraph}[hang]{\bfseries}
+    {\hspace{-2.45em}\bfseries\color{structurecolor}\theparagraph\enspace}
+    {1pt}{\color{structurecolor}\bfseries\filright}
+  % label = subsubsection + ssssectcntr + sssssectcntr
+  \renewcommand{\theparagraph}
+    {\thesubsubsection.\thessssectcntr.\thesssssectcntr}
+  \stepcounter{sssssectcntr} % step \ssssectcntr
+  \paragraph{#1\hfill[#2\label{#2}]}  % the \subsubsubsubsection
+  \setcounter{paragraph}{0} % restart paragraph
+}}
+
+% text style shortcuts
+\newcommand{\bs}{\textbackslash}
+\newcommand{\dq}{\textquotedbl}
+\newcommand{\sq}{\textquotesingle}
+\newcommand{\tg}{\textgreater}
+\newcommand{\tl}{\textless}
+
+\newcommand{\dsh}{\textendash}
+\newcommand{\ttim}{\texttimes}
+\newcommand{\tsub}{\textsubscript}
+\newcommand{\tsup}{\textsuperscript}
+
+% terms & definitions
+\newcommand{\defns}[4]{\sect{#1}{#2} \tb{#3}\par #4}
+
+% toc style
+\usepackage{tocloft}
+                                         % default
+% \setlength{\cftchapindent}{0em}        % 0.0em
+\setlength{\cftchapnumwidth}{1.5em}      % 1.5em
+\setlength{\cftsecindent}{1.5em}         % 1.5em
+\setlength{\cftsecnumwidth}{2.5em}       % 2.3em
+\setlength{\cftsubsecindent}{4.0em}      % 3.8em
+\setlength{\cftsubsecnumwidth}{3.7em}    % 3.2em
+\setlength{\cftsubsubsecindent}{7.7em}   % 7.0em
+
+% for \cleartooddpage
+\usepackage{nextpage}
+
+\begin{document}
+\maketitle
+\cleartooddpage % start toc on odd page
+\tableofcontents
+
+% \thispagestyle{empty}
+
+\mainmatter
+\hypersetup{pageanchor=true}
+
+\include{phrase}
+\include{chapters}
+\end{document}
