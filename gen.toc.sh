@@ -41,9 +41,18 @@ EOF
     echo -n > "${file}"
   elif [[ "${chapter}" == '3' || "${id}" =~ ^30\.2\. ]]; then
     zh="${zh%%\[*}"
+    deffile=chapters/paragraphs/${chapter}/${id}.${ref}.tex
+    if [[ ! -f "${deffile}" ]]; then
+      cat > "${deffile}" << EOF
+% ${id}.${ref}:
+% ${zh}
+% ${en}
+EOF
+    fi
     cat >> "${file}" << EOF
-\\defns{${zh}}{${ref}}{${en}}{<++>}
-
+\\defns{${zh}}{${ref}}
+{${en}}
+{\\input{chapters/paragraphs/${chapter}/${id}.${ref}.tex}}
 EOF
     continue
   fi
