@@ -64,10 +64,30 @@
 \newcommand{\synprd}[2][\linebreak]{\mbox{\qquad\qquad #2}#1}
 
 % doc structures
-\newcommand{\chptr}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}}
+\newcounter{notecounter}
+\renewcommand{\note}[1]{
+\stepcounter{notecounter}
+「\nt{注\thenotecounter}：#1 --- \nt{注终}」
+}
+\newcounter{excounter}
+\newcommand{\ex}[1]{
+\stepcounter{excounter}
+「\nt{例\theexcounter}：#1 --- \nt{例终}」
+}
 
-\newcommand{\sect}[2]{\section[#1]{#1\hfill[#2\label{#2}]}}
-\newcommand{\ssect}[2]{\subsection[#1]{#1\hfill[#2\label{#2}]}}
+\newcommand{\chptr}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}
+  \setcounter{notecounter}{0}
+  \setcounter{excounter}{0}
+}
+
+\newcommand{\sect}[2]{\section[#1]{#1\hfill[#2\label{#2}]}
+  \setcounter{notecounter}{0}
+  \setcounter{excounter}{0}
+}
+\newcommand{\ssect}[2]{\subsection[#1]{#1\hfill[#2\label{#2}]}
+  \setcounter{notecounter}{0}
+  \setcounter{excounter}{0}
+}
 
 \renewcommand{\appendixname}{附录 \thechapter}
 \newcommand{\annex}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}}
@@ -76,6 +96,8 @@
 \newcommand{\sssect}[2]{
   \subsubsection[#1]{#1\hfill[#2\label{#2}]}
   \setcounter{ssssectcntr}{0} % start from 0
+  \setcounter{notecounter}{0}
+  \setcounter{excounter}{0}
 }
 
 \newcounter{sssssectcntr} % create new counter for \subsubsubsection
@@ -90,6 +112,8 @@
   \paragraph{#1\hfill[#2\label{#2}]}  % the \subsubsubsection
   \setcounter{paragraph}{0} % restart paragraph
   \setcounter{sssssectcntr}{0} % start from 0
+  \setcounter{notecounter}{0}
+  \setcounter{excounter}{0}
 }}
 
 % use paragraph as the next level section
@@ -103,6 +127,8 @@
   \stepcounter{sssssectcntr} % step \ssssectcntr
   \paragraph{#1\hfill[#2\label{#2}]}  % the \subsubsubsubsection
   \setcounter{paragraph}{0} % restart paragraph
+  \setcounter{notecounter}{0}
+  \setcounter{excounter}{0}
 }}
 
 % text style shortcuts
