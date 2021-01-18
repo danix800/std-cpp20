@@ -1,0 +1,88 @@
+ISO（国际标准化组织，the International Organization for Standization）和IEC（国
+际电工委员会，the International Electrotechnical Commission）构成全球标准化专业
+系统。ISO或IEC的成员国家机构通过各自组织成立的技术委员会参与国际标准的制定，以处
+理特定的技术活动领域。ISO和IEC技术委员会在共有兴趣领域进行合作。与ISO和IEC有联系
+的其他国际组织，政府和非政府组织也参加这项工作。
+
+本文件的开发及其后续维护程序在ISO/IEC指令第1部分中叙述。特别的，应该注意不同类型
+文件所需的不同审核标准。本文件根据ISO/IEC指令第2部分的编辑规则进行起草（见
+\href{https://www.iso.org/directives}{www.iso.org/directives}）。
+
+请注意本文件的某些内容可能是专利法主体。ISO和IEC不负责识别任何或所有此类专利权。
+在文件开发过程中确定的任何专利权的详细信息将在“简介”和/或ISO收到的专利声明清单
+（请参见www.iso.org/patents）或IEC收到的专利声明清单（见
+\href{http://patents.iec.ch}{http://patents.iec.ch}）。
+
+本文件中所用任何商标名仅为方便向用户提供信息而不是构成背书。
+
+关于标准的自愿性质与合格评定有关的ISO特定术语和所表达含义的解释，以及有关ISO遵循
+世界贸易组织（WTO）贸易技术壁垒（TBT）原则的信息，见
+\href{www.iso.org/iso/foreword.html}{www.iso.org/iso/foreword.html}。
+
+本文件由联合技术委员会ISO/IEC JTC 1\textit{信息技术}SC 22\textit{编程语言，环境
+和系统软件接口}小组委员会编写。
+
+第六版取消并代替第五版（ISO/IEC 14882:2017），该版本已经过技术修订。
+
+\noindent
+与上一版相比主要变化如下：
+\begin{itemize}
+  \renewcommand{\labelitemi}{---}
+    \item{包含ISO/IEC TS 19217:2015，ISO/IEC TS 21425:2017，
+    ISO/IEC TS 22277:2017，ISO/IEC TS 21544:2018，ISO/IEC TS 19571:2016的部分和
+    ISO/IEC TS 19568:2017的部分规定}
+  \item{添加概念，\nt{requires-clause}，\nt{requires-expression}和
+    \tm{<concepts>}（\ref{concepts.syn}）头}
+  \item{添加协程，包括\tm{co\_yield}，\tm{co\_await}和\tm{co\_return}关键字以及
+    头\tm{coroutine}（\ref{coroutine.syn}）}
+  \item{添加模块，\nt{import-declaration}和\nt{export-declaration}}
+  \item{添加三路比较，缺省比较，比较运算符表达式重写以及\tm{<compare>}
+    （\ref{compare.syn}）头}
+  \item{添加指定初始化}
+  \item{支持类类型和符点类型作为非类型模板形参的类型}
+  \item{新属性\tm{[[no\_unique\_address]]}，\tm{[[likely]]}，\tm{[[unlikely]]}}
+  \item{支持\tm{[[nodiscard]]}属性中可选的原因字符串}
+  \item{使用\tm{constinit}关键字要求常量初始化的能力}
+  \item{使用\tm{constinit}关键字要求常量求值的能力}
+  \item{常量求值扩展}
+  \item{支持类特定运算符删除函数的受控析构}
+  \item{添加\tm{using enum}声明}
+  \item{添加\tm{char8\_t}类型}
+  \item{支持基于范围的\tm{for}循环中的初始化语句}
+  \item{支持位域的缺省成员初始化}
+  \item{支持括号聚合初始化}
+  \item{扩展lambda表达式}
+  \item{扩展结构化绑定}
+  \item{支持嵌套命名空间定义中的内联命名空间}
+  \item{支持条件显式成员函数}
+  \item{扩展类模板实参推导}
+  \item{减少需要\tm{typename}的情形}
+  \item{支持通过实参依赖名查询的未声明\tm{template-id}调用}
+  \item{修正的内存模型}
+  \item{扩展支持\tm{\_\_VA\_OPT\_\_}变参宏}
+  \item{特征测试宏和\tm{<version>}（\ref{version.syn}）头}
+  \item{添加范围和\tm{<ranges>}（\ref{ranges.syn}）头}
+  \item{添加日历和时区支持}
+  \item{添加文本格式化库和\tm{<format>}（\ref{format.syn}）头}
+  \item{添加\tm{<barrier>}（\ref{barrier.syn}），\tm{<latch>}（\ref{latch.syn}）
+    和\tm{<semaphore>}（\ref{semaphore.syn}）头}
+  \item{添加数学常量库和\tm{<numbers>}（\ref{numbers.syn}）头}
+  \item{支持源码位置表示和\tm{<source\_location>}（\ref{source.location.syn}）
+    头}
+  \item{添加\tm{span}视图和\tm{<span>}（\ref{span.syn}）头}
+  \item{添加汇合线程类和\tm{<stop\_token>}（\ref{thread.stoptoken.syn}）头}
+  \item{扩展原子类型和操作}
+  \item{添加\tm{unsequenced}执行策略}
+  \item{添加新功能函数，类型和模板到标准库中}
+  \item{添加位操作库和\tm{<bit>}（\ref{bit.syn}）头}
+  \item{添加同步缓冲输出流和\tm{<syncstream>}（\ref{syncstream.syn}）头}
+  \item{支持无序容器异构查询}
+  \item{支持联合容器元素存在性检查}
+  \item{支持\tm{<numerics>}（\ref{numeric.ops.overview}）算法中的移动语义}
+  \item{支持\tm{basic\_stringbuf}缓冲的有效访问}
+  \item{支持标准库中的常量表达式求值}
+\end{itemize}
+
+\noindent
+针对本文档的任何反馈或者问题应直接发送给用户的国家标准机构。 这些机构的完整列表
+可在\href{www.iso.org/members.html}{www.iso.org/members.html}上找到。
