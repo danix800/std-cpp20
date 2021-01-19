@@ -65,15 +65,14 @@
 
 % doc structures
 \newcounter{notecounter}
-\renewcommand{\note}[1]{
-\stepcounter{notecounter}
-「\nt{注\thenotecounter}：#1 --- \nt{注终}」
-}
+\renewenvironment{note}[1][]
+{\stepcounter{notecounter}#1$\llbracket$\nt{注\thenotecounter}：}
+{--- \nt{注终}$\rrbracket$}
+
 \newcounter{excounter}
-\newcommand{\ex}[1]{
-\stepcounter{excounter}
-「\nt{例\theexcounter}：#1 --- \nt{例终}」
-}
+\renewenvironment{example}[1][]
+{\stepcounter{excounter}#1「\nt{例\theexcounter}：}
+{--- \nt{例终}」}
 
 \newcommand{\chptr}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}
   \setcounter{notecounter}{0}
@@ -144,7 +143,13 @@
 \newcommand{\tsup}{\textsuperscript}
 
 % terms & definitions
-\newcommand{\defns}[4]{\sect{#1}{#2} \tb{#3}\par #4}
+\newcommand{\defnsty}[1]{$\langle$ #1 $\rangle$}
+\newcommand{\defns}[4]{
+\sect{#1}{#2}
+\noindent \tb{#3}
+\par \noindent
+#4
+}
 
 % toc style
 \usepackage{tocloft}
