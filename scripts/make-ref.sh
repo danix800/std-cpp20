@@ -25,8 +25,6 @@ function make_ref() {
         local ref_id="${BASH_REMATCH[1]}"
         ref_ids["${ref_id}"]="${ref_id}"
         line="${line#*\\ref\{${ref_id}\}}"
-        echo "found new ref_id: ${ref_id}"
-        echo "remaining: [${line}]"
       else
         break;
       fi
@@ -41,6 +39,7 @@ function make_ref() {
       echo "warning: ref not found for [${ref_id}]"
       continue
     else
+      echo "replace ${ref_id//\\/} to ${ref}"
       sed -i "s/[\]ref{${ref_id}}/\\\\ref{${ref}}/" "${file}"
     fi
   done
