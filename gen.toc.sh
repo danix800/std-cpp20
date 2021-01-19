@@ -80,7 +80,7 @@ EOF
       echo "% $oid $en [$ref]" >> "${parafile}"
       for i in $(seq 1 "${paras}"); do
         cat >> "${parafile}" << EOF
-\paragraph{}
+\paragraph{} % ${i}
 <++>
 
 EOF
