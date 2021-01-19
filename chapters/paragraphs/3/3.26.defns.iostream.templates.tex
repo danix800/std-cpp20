@@ -1,3 +1,10 @@
 % 3.26.defns.iostream.templates:
 % \tm{iostream}类模板
-% iostream-class-templates
+% iostream class templates
+\defnsty{标准库}声明于头\tm{<iosfwd>}中取两个模板实参的模板
+
+\begin{note}[\noindent]
+实参命名为\tm{charT}和\tm{traits}。实参\tm{charT}为字符容器类，实参\tm{traits}为
+类，定义了\tm{charT}所表示（对实现\tm{iostream}类模板来说必须）字符类型的额外特
+征和函数。
+\end{note}
