@@ -1,7 +1,20 @@
 % 4.3 Syntax notation [syntax]
 \paragraph{} % 1
-<++>
+本文件所使用的语法记号中，语法类别使用斜体\nt{italic}表示，字面单词和字符使用等
+宽\tm{constant width}类型表示。备选在独立行上列出，除了某些情况下很长的备选列表
+使用短语“one of”来标记。如果备选文件太长而不能在一行中列出，则文本在下一行继续并
+相对第一行进行缩进。可选终结符或非终结符使用下标“\tsub{\nt{opt}}”表示，因此
+\par\hspace{-3.8em}\synprd{\tm{\{} \nt{expression\tsub{opt}} \tm{\}}}
+表示包含于花括号内的可选表达式。
 
 \paragraph{} % 2
-<++>
-
+语法类型名一般按以下规则进行选择：
+\begin{enumerate}
+  \item \nt{X-name}表示在确定其涵义的上下文中对一个标识符的使用（如
+        \nt{class-name}，\nt{typedef-name}）。
+  \item \nt{X-id}表示无上下文相关涵义的标识符（如\nt{qualified-id}）。
+  \item \nt{X-seq}表示中间没有分隔符的一个或多个\nt{X}（如\nt{declaration-seq}为
+        声明的序列）。
+  \item \nt{X-list}为使用逗号分隔的一个或多个\nt{X}（如\nt{identifier-list}为逗
+        号分隔的标识符序列）。
+\end{enumerate}
