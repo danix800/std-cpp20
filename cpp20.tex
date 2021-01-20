@@ -53,26 +53,29 @@
 \renewcommand{\thefigure}{\arabic{figure}}
 \renewcommand{\thetable}{\arabic{table}}
 
+% text format
+\newcommand{\df}[1]{\textit{#1}} % term & definition
+
 % syntax command
 \newcommand{\tm}[1]{\texttt{#1}} % terminals
 \newcommand{\nt}[1]{\textit{#1}} % non-terminals
 \newcommand{\tb}[1]{\textbf{#1}} % bold
 
 % syntax symbol
-\newcommand{\synsym}[2][]{\parindent0pt\mbox{\qquad\textit{#2:} #1}\linebreak}
+\newcommand{\synsym}[2][]{\parindent0pt\mbox{\qquad\nt{#2:} #1}\linebreak}
 % syntax production
 \newcommand{\synprd}[2][\linebreak]{\mbox{\qquad\qquad #2}#1}
 
 % doc structures
 \newcounter{notecounter}
 \renewenvironment{note}[1][]
-{\stepcounter{notecounter}#1$\llbracket$\nt{注\thenotecounter}：}
-{--- \nt{注终}$\rrbracket$}
+{\stepcounter{notecounter}#1$\llbracket$\textit{注\thenotecounter}：}
+{--- \textit{注终}$\rrbracket$}
 
 \newcounter{excounter}
 \renewenvironment{example}[1][]
-{\stepcounter{excounter}#1「\nt{例\theexcounter}：}
-{--- \nt{例终}」}
+{\stepcounter{excounter}#1「\textit{例\theexcounter}：}
+{--- \textit{例终}」}
 
 \newcommand{\chptr}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}
   \setcounter{notecounter}{0}
@@ -136,6 +139,8 @@
 \newcommand{\sq}{\textquotesingle}
 \newcommand{\tg}{\textgreater}
 \newcommand{\tl}{\textless}
+\newcommand{\tac}{\textasciicircum}
+\newcommand{\tat}{\textasciitilde}
 
 \newcommand{\dsh}{\textendash}
 \newcommand{\ttim}{\texttimes}
