@@ -249,7 +249,7 @@
 \renewcommand{\indexname}{索\hspace{2em}引}
 \newcommand\figref[1]{\textbf{图}~\ref{#1}}
 \newcommand\tabref[1]{\textbf{表}~\ref{#1}}
-\renewcommand{\chaptername}{第 \thechapter\;章}
+\renewcommand{\chaptername}{第 \thechapter\;条}
 \RequirePackage[authoryear]{gbt7714}
 % \bibliographystyle{aer}
 }{\relax}
