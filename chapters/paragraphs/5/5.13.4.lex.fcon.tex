@@ -8,9 +8,11 @@
   \synprd{\nt{digit-sequence exponent-part floating-point-suffix\tsub{opt}}}
 \synsym{hexadecimal-floating-point-literal}
   \synprd{\nt{hexadecimal-prefix hexadecimal-fractional-constant
-    binary-exponent-part floating-point-suffix\tsub{opt}}}
-  \synprd{\nt{hexadecimal-prefix hexadecimal-digit-sequence binary-exponent-part
-    floating-point-suffix\tsub{opt}}}
+    binary-exponent-part}} % cont
+  \synprd{\tm{\ \ \ \ }\nt{floating-point-suffix\tsub{opt}}}
+  \synprd{\nt{hexadecimal-prefix hexadecimal-digit-sequence
+    binary-exponent-part}} % cont
+  \synprd{\tm{\ \ \ \ }\nt{floating-point-suffix\tsub{opt}}}
 \synsym{fractional-constant}
   \synprd{\nt{digit-sequence\tsub{opt}} \tm{.} \nt{digit-sequence}}
   \synprd{\nt{digit-sequence} \tm{.}}
@@ -33,7 +35,7 @@
 按表\ref{tab:lex.fcon.type}中所指定，一个\nt{floating-point-literal}的类型由其
 \nt{floating-point-suffix}确定。
 
-\begin{table}[h!]
+\begin{table}[!ht]
   \centering
   \caption{\nt{floating-point-literal}的类型[tab:lex.fcon.type]}
   \begin{tabular}{|ll|}
@@ -68,9 +70,11 @@
 放值为$s \times 2^e$。
 
 \begin{example}
+  \begin{sloppypar}
   \nt{floating-point-literal} \tm{49.625}和\tm{0xC.68p+2}具有相同值。
   \nt{floating-point-literal} \tm{1.602'176'565e-19}和\tm{1.602176565e-19}具有相
   同值。
+  \end{sloppypar}
 \end{example}
 
 \paragraph{} % 3

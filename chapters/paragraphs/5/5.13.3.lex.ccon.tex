@@ -63,10 +63,12 @@ UTF-16字符字面值是\illform{}的。
 10646中的码点值。包含多个\nt{c-char}的\tm{char32\_t}字符字面值是\illform{}的。
 
 \paragraph{} % 5
+\begin{sloppypar}
 以字母\tm{L}开头的\nt{character-literal}为\nt{宽字符字面值}，比如\tm{L'z'}。宽字
 符字面值类型为\tm{wchar\_t}。\footnote{适用于字符不能用单个字节表示的字符集。}包
 含单个\nt{c-char}的宽字符字面值的值等于执行宽字符集中\nt{c-char}编码的数值，除非
 \nt{c-char}不能用执行宽字符集表示，在这种情况下，该值由实现定义。
+\end{sloppypar}
 
 \begin{note} % 3
   类型\tm{wchar\_t}可以表示执行宽字符集所有成员（见\ref{basic.fundamental}）。
@@ -82,7 +84,7 @@ UTF-16字符字面值是\illform{}的。
 义序列\tm{\bs'}和\tm{\bs\bs}表示。表\ref{tab:lex.ccon.esc}中没有列出反斜杠后跟字
 符的转义序列是条件支持的，具有实现定义的语义。一个转义序列指定单个字符。
 
-\begin{table}[h!]
+\begin{table}[!ht]
   \centering
   \caption{转义序列[tab:lex:ccon.esc]}
   \begin{tabular}{|lll|}

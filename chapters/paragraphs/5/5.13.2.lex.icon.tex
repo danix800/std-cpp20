@@ -53,7 +53,7 @@
   在确定其值时忽略前缀和任何可选的分隔单引号。
 \end{note}
 
-\begin{table}[h!]
+\begin{table}[!ht]
   \centering
   \caption{\nt{integer-literal}的基[tab:lex.icon.base]}
   \begin{tabular}{|lr|}
@@ -73,9 +73,11 @@
 \nt{hexdecimal-digit} \tm{a}到\tm{f}和\tm{A}到\tm{F}具有十进制值十到十五。
 
 \begin{example}
+  \begin{sloppypar}
   数字十二可以写成\tm{12}，\tm{014}，\tm{0XC}或者\tm{0b1100}。
   \nt{integer-literal} \tm{1048576}，\tm{1'048'576}，\tm{0x100000}，
   \tm{0x10'0000}和\tm{0'004'000'000}都具有相同的值。
+  \end{sloppypar}
 \end{example}
 
 \paragraph{} % 3
@@ -83,7 +85,7 @@
 \nt{integer-suffix}的列表中可表示其值的第一个类型。一个\nt{integer-literal}为一
 个\prvalue{}。
 
-\begin{table}[h!]
+\begin{table}[!ht]
   \centering
   \caption{\nt{integer-literal}类型[tab:lex.icon.type]}
   \begin{tabular}{|l|l|l|}
