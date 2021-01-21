@@ -1,13 +1,131 @@
 % 5.13.2 Integer literals [lex.icon]
+\synsym{integer-literal}
+  \synprd{\nt{binary-literal integer-suffix\tsub{opt}}}
+  \synprd{\nt{octal-literal integer-suffix\tsub{opt}}}
+  \synprd{\nt{decimal-literal integer-suffix\tsub{opt}}}
+  \synprd{\nt{hexdecimal-literal integer-suffix\tsub{opt}}}
+\synsym{binary-literal}
+  \synprd{\tm{0b} \nt{binary-digit}}
+  \synprd{\tm{0B} \nt{binary-digit}}
+  \synprd{\nt{binary-literal} \tm{\sq}\nt{\tsub{opt} binary-digit}}
+\synsym{octal-literal}
+  \synprd{\tm{0}}
+  \synprd{\nt{octal-literal} \tm{\sq}\nt{\tsub{opt} octal-digit}}
+\synsym{decimal-literal}
+  \synprd{\nt{nonzero-digit}}
+  \synprd{\nt{decimal-literal} \tm{\sq}\nt{\tsub{opt} digit}}
+\synsym{hexdecimal-literal}
+  \synprd{\nt{hexdecimal-prefix hexdecimal-digit-sequence}}
+\synsym[one of]{binary-digit}
+  \synprd{\tm{0 1}}
+\synsym[one of]{octal-digit}
+  \synprd{\tm{0 1 2 3 4 5 6 7}}
+\synsym[one of]{nonzero-digit}
+  \synprd{\tm{1 2 3 4 5 6 7}}
+\synsym[one of]{hexdecimal-prefix}
+  \synprd{\tm{0x 0X}}
+\synsym{hexdecimal-digit-sequence}
+  \synprd{\nt{hexdecimal-digit}}
+  \synprd{\nt{hexdecimal-digit-sequence} \tm{\sq}\nt{\tsub{opt}
+    hexdecimal-digit}}
+\synsym[one of]{hexdecimal-digit}
+  \synprd{\tm{0 1 2 3 4 5 6 7 8 9}}
+  \synprd{\tm{a b c d e f}}
+  \synprd{\tm{A B C D E F}}
+\synsym{integer-suffix}
+  \synprd{\nt{unsigned-suffix long-suffix\tsub{opt}}}
+  \synprd{\nt{unsigned-suffix long-long-suffix\tsub{opt}}}
+  \synprd{\nt{long-suffix unsigned-suffix\tsub{opt}}}
+  \synprd{\nt{long-long-suffix unsigned-suffix\tsub{opt}}}
+\synsym[one of]{unsigned-prefix}
+  \synprd{\tm{u U}}
+\synsym[one of]{long-prefix}
+  \synprd{\tm{l L}}
+\synsym[one of]{long-long-prefix}
+  \synprd[]{\tm{ll LL}}
+
 \paragraph{} % 1
-<++>
+在一个\nt{integer-literal}中，\nt{binary-digit}，\nt{octal-digit}，\nt{digit}或
+者\nt{hexdecimal-digit}的序列按表\ref{tab:lex.icon.base}中所示解释为以\nt{N}为基
+的整数；数字序列的词法上首个数字为最高位。
+
+\begin{note}
+  在确定其值时忽略前缀和任何可选的分隔单引号。
+\end{note}
+
+\begin{table}[h!]
+  \centering
+  \caption{\nt{integer-literal}的基[tab:lex.icon.base]}
+  \begin{tabular}{|lr|}
+    \hline
+    \tb{\nt{integer-literal}类型} & \tb{基\nt{N}}                             \\
+    \hline\hline
+    \nt{binary-literal}           & 2                                         \\
+    \nt{octal-literal}            & 8                                         \\
+    \nt{decimal-literal}          & 10                                        \\
+    \nt{hexdecimal-literal}       & 16                                        \\
+    \hline
+  \end{tabular}
+  \label{tab:lex.icon.base}
+\end{table}
 
 \paragraph{} % 2
-<++>
+\nt{hexdecimal-digit} \tm{a}到\tm{f}和\tm{A}到\tm{F}具有十进制值十到十五。
+
+\begin{example}
+  数字十二可以写成\tm{12}，\tm{014}，\tm{0XC}或者\tm{0b1100}。
+  \nt{integer-literal} \tm{1048576}，\tm{1'048'576}，\tm{0x100000}，
+  \tm{0x10'0000}和\tm{0'004'000'000}都具有相同的值。
+\end{example}
 
 \paragraph{} % 3
-<++>
+\nt{integer-literal}的类型为表\ref{tab:lex.icon.type}中对应于其可选
+\nt{integer-suffix}的列表中可表示其值的第一个类型。一个\nt{integer-literal}为一
+个\prvalue{}。
+
+\begin{table}[h!]
+  \centering
+  \caption{\nt{integer-literal}类型[tab:lex.icon.type]}
+  \begin{tabular}{|l|l|l|}
+    \hline
+    \tb{\nt{integer-suffix}} & \tb{\nt{decimal-literal}} &
+      \tb{除\nt{decimal-literal}外的\nt{integer-literal}}                     \\
+    \hline\hline
+    none & \tm{int}           & \tm{int}                                      \\
+         & \tm{long int}      & \tm{unsigned int}                             \\
+         & \tm{long long int} & \tm{long int}                                 \\
+         &                    & \tm{unsigned long int}                        \\
+         &                    & \tm{long long int}                            \\
+         &                    & \tm{unsigned long long int}                   \\
+    \hline
+    \tm{u}或\tm{U} & \tm{unsigned int}           & \tm{unsigned int}          \\
+                   & \tm{unsigned long int}      & \tm{unsigned long int}     \\
+                   & \tm{unsigned long long int} & \tm{unsigned long long int}\\
+    \hline
+    \tm{l}或\tm{L} & \tm{long int}      & \tm{long int}                       \\
+                   & \tm{long long int} & \tm{unsigned long int}              \\
+                   &                    & \tm{long long int}                  \\
+                   &                    & \tm{unsigned long long int}         \\
+    \hline
+    \tm{u}或\tm{U}   & \tm{unsigned long int}      & \tm{unsigned long int}   \\
+    和\tm{l}或\tm{L} & \tm{unsigned long long int} & \tm{unsigned long long int}
+                                                                              \\
+    \hline
+    \tm{ll}或\tm{LL} & \tm{long long int} & \tm{long lont int}                \\
+                     &                    & \tm{unsigned long long int}       \\
+    \hline
+    \tm{u}或\tm{U}   & \tm{unsigned long long int} & \tm{unsigned long long int}
+                                                                              \\
+    和\tm{ll}或\tm{LL} & &                                                    \\
+    \hline
+  \end{tabular}
+  \label{tab:lex.icon.type}
+\end{table}
 
 \paragraph{} % 4
-<++>
-
+如果一个\nt{integer-literal}不能使用其列表中的任何类型表示而一个扩展整型
+（\ref{basic.fundamental}）可以表示其值，则它可以具有扩展整型。如果
+\nt{integer-literal}列表中的所有类型均为有符号，则扩展整型应该为有符号。如果
+\nt{integer-literal}列表中的所有类型均为无符号，则扩展整型应该为无符号。如果列表
+即包括有符号类型也包括无符号类型，则扩展整型可能为有符号或无符号。如程序的一个翻
+译单元包括不能用任何允许的类型表示的\nt{integer-literal}则程序为\illform{}。

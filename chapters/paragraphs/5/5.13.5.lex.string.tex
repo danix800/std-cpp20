@@ -1,43 +1,188 @@
 % 5.13.5 String literals [lex.string]
+\synsym{string-literal}
+  \synprd{\nt{encoding-prefix\tsub{opt}}
+    \tm{"}\nt{s-char-sequence\tsub{opt}}\tm{\dq}}
+  \synprd{\nt{encoding-prefix\tsub{opt}} \tm{R} \nt{raw-string}}
+\synsym{s-char-sequence}
+  \synprd{\nt{s-char}}
+  \synprd{\nt{s-char-sequence s-char}}
+\synsym{s-char}
+  \synprd{除双引号\tm{"}、反斜杠\tm{\bs}或新行字符以外的基本源码字符集成员}
+  \synprd{\nt{escape-sequence}}
+  \synprd{\nt{universal-character-name}}
+\synsym{raw-string}
+  \synprd{\tm{"} \nt{d-char-sequence\tsub{opt}} \tm{(}
+    \nt{r-char-sequence\tsub{opt}} \tm{)} \nt{d-char-sequence\tsub{opt}}
+    \tm{\dq}}
+\synsym{r-char-sequence}
+  \synprd{\nt{r-char}}
+  \synprd{\nt{r-char-sequence r-char}}
+\synsym{r-char}
+  \synprd{除右括号\tm{)}后跟初始\nt{d-char-sequence}（可空）再跟上双引号\tm{"}的
+    源码字符集成员}
+\synsym{d-char-sequence}
+  \synprd{\nt{d-char}}
+  \synprd{\nt{d-char-sequence d-char}}
+\synsym{d-char}
+  \synprd{除空格、左括号\tm{(}、右括号\tm{)}、反斜杠\tm{\bs}和表示水平制表、垂直
+    制表、换页和新}
+  \synprd[]{行的控制字符以外的基本源码字符集成员。}
+
 \paragraph{} % 1
-<++>
+前缀中含有\tm{R}的\nt{string-literal}为\df{原始字符串字面值}。
+\nt{d-char-sequence}作为一个分隔符。\nt{raw-string}的终止
+\nt{d-char-sequence}与其起始\nt{d-char-sequence}字符序列一样。
+\nt{d-char-sequence}应该包含至多16个字符。
 
 \paragraph{} % 2
-<++>
+\begin{note} % 1
+  \nt{raw-string}中字符\tm{'('}和\tm{')'}是允许的。因此
+  \tm{R"delimiter((a|b))delimiter"}等价于\tm{"(a|b)"}。」
+\end{note}
 
 \paragraph{} % 3
-<++>
+\begin{note} % 2
+  原始字符串中的源文件新行在所产生的执行字符串字面值中生成一个新行。以下例子中假定
+  行起始处无空白，则断言成立：
+  \begin{lstlisting}
+  const char* p = R"(a\
+  b
+  c)";
+  assert(std::strcmp(p, "a(\\\nb\nc") == 0);
+  \end{lstlisting}
+\end{note}
 
 \paragraph{} % 4
-<++>
+\begin{example}
+  原始字符串
+  \begin{lstlisting}
+  R"a(
+  )\
+  a"
+  )a"
+  \end{lstlisting}
+  等价于\tm{"\bs n)\bs\bs\bs na\bs"\bs n"}。原始字符串
+  \begin{lstlisting}
+  R"(x = "\"y\"")"
+  \end{lstlisting}
+  等价于\tm{"x = \bs"\bs\bs\bs"y\bs\bs\bs"\bs""}。
+\end{example}
 
 \paragraph{} % 5
-<++>
+在翻译阶段\ref{tpit6}之后，不以\nt{encoding-prefix}开头的\nt{raw-string}为\nt{普
+通字符串字面值}。一个普通字符串字面值的类型为“\nt{n}个\tm{const char}的数组”，其
+\nt{n}为以下定义字符串的大小，具有静态存储期（\ref{basic.stc}），并以给定字符进
+行初始化。
 
 \paragraph{} % 6
-<++>
+以\tm{u8}开头的\nt{string-literal}，如\tm{u8"asdf"}，为\nt{UTF-8字符串字面值}。
+一个UTF-8字符串字面值的类型为“\nt{n}个\tm{const char8\_t}的数组”，其\nt{n}为以下
+定义的字符串大小；对象表示（\ref{basic.types}）的每一个后续元素具有字符串的UTF-8
+编码中对应码元的值。
 
 \paragraph{} % 7
-<++>
+普通字符串字面值和UTF-8字符串字面值也称为窄字符串字面值。
 
 \paragraph{} % 8
-<++>
+以\tm{u}开头的\nt{string-literal}如\tm{u"asdf"}，为一个\df{UTF-16字符串字面值}，
+UTF-16字符串字面值类型为“\nt{n}个\tm{const char16\_t}的数组”，这里\nt{n}为如下定
+义的字符串大小；数组的每一个后续元素具有字符串UTF-16编码中对应码元的值。
+
+\begin{note} % 3
+  在替代配对形式中单个\nt{c-char}可能产生多于一个的\tm{char16\_t}字符。替代配对
+  指单个码点表示为两个16位编码单元的序列。
+\end{note}
 
 \paragraph{} % 9
-<++>
+以\tm{U}开头的\nt{string-literal}为\nt{UTF-32字符串字面值}，比如\tm{U"asdf"}。
+UTF-32字符串字面值具有类型“\nt{n}个\tm{const char32\_t}的数组”，这里的\nt{n}指如
+下定义的字符串大小；数组的每一个后续元素具有字符串UTF-32编码中对应码元的值。
 
 \paragraph{} % 10
-<++>
+以\tm{L}开头的\nt{string-literal}为\nt{宽字符串字面值}，比如\tm{L"asdf"}。宽字符
+串字面值具有类型“\nt{n}个\tm{const wchar\_t}的数组”，这里\nt{n}指如下定义的字符
+串大小；该数组以给定字符进行初始化。
 
 \paragraph{} % 11
-<++>
+在翻译阶段\ref{tpit6}（\ref{lex.phases}），相邻\nt{string-literal}连接到一起。如
+果两个\nt{string-literal}具有相同的\nt{encoding-prefix}，所产生的连接
+\nt{string-literal}具有相同的\nt{encoding-prefix}。如果其中一个
+\nt{string-literal}无\nt{encoding-prefix}，则将其当作与另一个操作数具有相同
+\nt{encoding-prefix}。如果一个UTF-8字符串字面值符号与一个宽字符串字面值符号相邻
+则程序为\illform{}。任何其他连接为条件支持，具有实现定义行为。
+
+\begin{note}
+  该连接为一种解释而不是转换。因为解释发生在翻译阶段\ref{tpit6}（在
+  \nt{string-literal}中的每个字符被翻译成合适字符集中的值之后），
+  \nt{string-literal}的初始原始性对解释和连接的格式\wellform{}性不再起作用。
+\end{note}
+
+表\ref{tab:lex.string.concat}列出一些合法连接的示例。
+\begin{table}[h!]
+  \centering
+  \caption{字符串字面值连接[tab:lex.string.concat]}
+  \begin{tabular}{|ccc|ccc|ccc|}
+    \hline
+    \multicolumn{2}{|c}{\tb{源}}    & \tb{意义}       &
+    \multicolumn{2}{c}{\tb{源}}     & \tb{意义}       &
+    \multicolumn{2}{c}{\tb{源}}     & \tb{意义}       \\
+    \tm{u\dq a\dq} & \tm{u\dq b\dq} & \tm{u\dq ab\dq} &
+    \tm{U\dq a\dq} & \tm{U\dq b\dq} & \tm{U\dq ab\dq} &
+    \tm{L\dq a\dq} & \tm{L\dq b\dq} & \tm{L\dq ab\dq} \\
+    \tm{u\dq a\dq} & \tm{ \dq b\dq} & \tm{u\dq ab\dq} &
+    \tm{U\dq a\dq} & \tm{ \dq b\dq} & \tm{U\dq ab\dq} &
+    \tm{L\dq a\dq} & \tm{ \dq b\dq} & \tm{L\dq ab\dq} \\
+    \tm{ \dq a\dq} & \tm{u\dq b\dq} & \tm{u\dq ab\dq} &
+    \tm{ \dq a\dq} & \tm{U\dq b\dq} & \tm{U\dq ab\dq} &
+    \tm{ \dq a\dq} & \tm{L\dq b\dq} & \tm{L\dq ab\dq} \\
+    \hline
+  \end{tabular}
+  \label{tab:lex.string.concat}
+\end{table}
+
+被连接字符串中的字符保持独立。
+
+\begin{example}
+  \begin{lstlisting}
+  "\xA" "B"
+  \end{lstlisting}
+  在连接后包含两个字符\tm{'\bs xA'}和\tm{'B'}（而不是单个十六进制字符
+  \tm{'\bs xAB'}）。
+\end{example}
 
 \paragraph{} % 12
-<++>
+翻译阶段\ref{tpit7}（\ref{lex.phases}）中，在必要的连接完成后，\tm{'\bs 0'}被扩
+充到每一个字符串字面值，使得扫描字符串的程序能找到其结尾。
 
 \paragraph{} % 13
-<++>
+非原始字符串字面值中的转义序列和\nt{universal-character-name}与
+\nt{character-literal}（\ref{lex.ccon}）中具有相同涵义，除了单引号\tm{'}可由其自
+身或由转义\tm{\bs'}表示，双引号应该使用\nt{\bs}转义，且UTF-16字符串字面值中的
+\nt{universal-character-name}可能产生代理对。在窄字符串字面值中，一个
+\nt{universal-character-name}可能由于\df{多字节编码}映射到多于一个\tm{char}或
+\tm{char8\_t}元素。\tm{char32\_t}或宽字符串字面值的大小为转义序列，
+\nt{universal-character-name}和其他字符总数，且为结尾的\tm{U'\bs 0'}或
+\tm{L'\bs 0'}加一。\tm{char16\_t}字符串字面值的大小为转义序列，
+\nt{universal-character-name}和其他字符总数，对每一个需要代理对的字符加一，再加
+上结尾的\tm{u'\bs 0'}。
+
+\begin{note}
+  一个\tm{char16\_t}字符串字面值的大小为代码单元总数，而不是字符总数。
+\end{note}
+
+\begin{note}
+  任何\nt{universal-character-name}应该在区间[0, D800]或[E000, 10FFFF]（十六进
+  制）中（\ref{lex.charset}）。
+\end{note}
+
+窄字符串字面值的大小为转义序列和其他字符总数，对每一个
+\nt{universal-character-name}的多字节编码至少加一，再加上结尾的\tm{'\bs 0'}。
 
 \paragraph{} % 14
-<++>
+对\nt{string-literal}求值产生一个静态存储期字符串字面值对象，按上述使用给定的字
+符进行初始化。所有\nt{string-literal}是否不同（即存储于不重叠对象）或
+\nt{string-literal}后续求值是否产生相同或不同对象未指定。
 
+\begin{note}
+  尝试修改\nt{string-literal}的效果未定义。
+\end{note}

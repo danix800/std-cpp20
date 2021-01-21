@@ -1,7 +1,21 @@
 % 5.9 Preprocessing numbers [lex.ppnumber]
+\synsym{pp-number}
+  \synprd{\nt{digit}}
+  \synprd{\tm{.} \nt{digit}}
+  \synprd{\nt{pp-number digit}}
+  \synprd{\nt{pp-number identifier-nondigit}}
+  \synprd{\nt{pp-number} \tm{\sq} \nt{digit}}
+  \synprd{\nt{pp-number} \tm{\sq} \nt{nondigit}}
+  \synprd{\nt{pp-number} \tm{e} \nt{sign}}
+  \synprd{\nt{pp-number} \tm{E} \nt{sign}}
+  \synprd{\nt{pp-number} \tm{p} \nt{sign}}
+  \synprd{\nt{pp-number} \tm{P} \nt{sign}}
+  \synprd[]{\nt{pp-number} \tm{.}}
+
 \paragraph{} % 1
-<++>
+预处理数字符号在词法上包括所有\nt{integer-literal}符号（\ref{lex.icon}）和所有
+\nt{floating-point-literal}符号（\ref{lex.fcon}）。
 
 \paragraph{} % 2
-<++>
-
+预处理数字没有类型或值；二者在成功转换成\nt{integer-literal}符号或
+\nt{floating-point-literal}符号之后取得。

@@ -1,7 +1,30 @@
 % 5.8 Header names [lex.header]
+\synsym{header-name}
+  \synprd{\tm{<} \nt{h-char-sequence} \tm{>}}
+  \synprd{\tm{\dq} \nt{h-char-sequence} \tm{\dq}}
+\synsym{h-char-sequence}
+  \synprd{\nt{h-char}}
+  \synprd{\nt{h-char-sequence h-char}}
+\synsym{h-char}
+  \synprd{除新行和\tm{>}以外的任何源码字符集成员}
+\synsym{q-char-sequence}
+  \synprd{\nt{q-char}}
+  \synprd{\nt{q-char-sequence q-char}}
+\synsym{q-char}
+  \synprd[]{除新行和\tm{\dq}以外的任何源码字符集成员}
+
 \paragraph{} % 1
-<++>
+\begin{note}
+  头名称预处理符号只会出现在\tm{\#include}预处理指令，一个\tm{\_\_has\_include}
+  预处理表达式或者一个\tm{import}符号的某些情况中（见\ref{lex.pptoken}）。
+\end{note}
+
+两种形式的\nt{header-name}中的序列以实现定义方式映射到\ref{cpp.include}中规定的
+头或者外部源文件名。
 
 \paragraph{} % 2
-<++>
-
+在一个\nt{q-char-sequence}或\nt{h-char-sequence}中，\tm{\sq}或\tm{\dq}字符，或字
+符序列\tm{/*}或\tm{//}的出现为条件支持，具有实现定义的语义，在一个
+\nt{h-char-sequence}中出现\tm{\dq}字符亦是如此。\footnote{因此根据不同的实现，类
+似于转义序列的字符序列解释成对应于转义序列的字符可能产生错误，或者具有完全不同的
+意义。}

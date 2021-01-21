@@ -1,19 +1,84 @@
 % 5.4 Preprocessing tokens [lex.pptoken]
+\synsym{preprocessing-token}
+  \synprd{\nt{header-name}}
+  \synprd{\nt{import-keyword}}
+  \synprd{\nt{module-keyword}}
+  \synprd{\nt{export-keyword}}
+  \synprd{\nt{identifier}}
+  \synprd{\nt{pp-number}}
+  \synprd{\nt{character-literal}}
+  \synprd{\nt{user-defined-character-literal}}
+  \synprd{\nt{string-literal}}
+  \synprd{\nt{user-defined-string-literal}}
+  \synprd{\nt{preprocessing-op-or-punc}}
+  \synprd[]{不是以上列出之一的每一个非空白字符}
+
 \paragraph{} % 1
-<++>
+每一个被转换成符号（\ref{lex.token}）的预处理符号应该具有关键字、标识符、字面值
+、运算符或标点的词法形式。
 
 \paragraph{} % 2
-<++>
+预处理符号是翻译阶段\ref{tpit3}到\ref{tpit6}中语言的最小词法元素。预处理符号类别
+包括：头名称、预处理\tm{import}和\tm{module}指令所产生的占位符
+（\nt{import-keyword}，\nt{module-keyword}和\nt{export-keyword}），标识符、预处
+理数字、字符字面值（含用户定义字符字面值）、字符串字面值（含用户定义字符串字面值
+）、预处理运算符和标点，以及词法上不匹配其他预处理符号类别的单个非空白字符。如
+果一个\tm{\sq{}}和\tm{\dq{}}字符匹配最后一个类型，则行为未定义。预处理符号可由空
+白分隔；由注释（\ref{lex.comment}）或空白字符（空格、水平制表符、新行、垂直制表
+符和换页符）组成。如第\ref{diagnostics}条所述，在翻译阶段\ref{tpit4}的某些情况下
+，空白（或不存在空白）不止具有分隔预处理符号的作用。空白只能作为头名称的一部分或
+字符或字符串字面值的引号字符间的一部分出现在预处理符号中。
 
 \paragraph{} % 3
-<++>
+如果输入流已被分析为预处理符号直到一个给定字符：
+\begin{enumerate}
+  \item 如果下一个字符开始一个原始字符串字面值的前缀和起始双引号字符序列，比如
+        \tm{R"}，则下一个预处理符号应该是一个原始字符串字面值。在原始字符串起始
+        和终止双引号之间，第\ref{tpit1}阶段和第\ref{tpit2}阶段所做的所有变换都被
+        复原（\nt{universal-character-name}和行连接）；该复原应该在\nt{d-char}，
+        \nt{r-char}或者分隔括号识别之前应用。原始字符串字面值定义为匹配原始字符
+        串模式的最短字符序列\par
+        \mbox{\qquad{\nt{encoding-prefix\tsub{opt}} \tm{R} \nt{raw-string}}}
+  \item 否则，如果接下来的三个字符为\tm{<::}且下一个字符既不是\tm{:}也不是\tm{<}
+        则\tm{<}本身当作一个预处理符号而不是备选符号\tm{<:}的首字符。
+  \item 否则，下一个预处理符号为匹配预处理符号语法的最长字符序列，即使这样进一步
+        分析会失败，除了一个\nt{header-name}（\ref{lex.header}）仅在
+        \begin{enumerate}
+          \item 一个\tm{\#include}（\ref{cpp.include}）或\tm{import}
+                （\ref{cpp.import}）指令的\tm{include}或\tm{import}预处理符号之
+                后，或者
+          \item 一个\tm{has-include-expression}中
+        \end{enumerate}
+        形成。
+\end{enumerate}
+
+\begin{example} % 1
+  \begin{lstlisting}
+  #define R "x"
+  const char* s = R"y";         // ill-formed raw string, not "x" "y"
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 4
-<++>
+\nt{import-keyword}通过处理一个\tm{import}指令产生（\ref{cpp.import}），
+\nt{module-keyword}通过预处理一个\tm{module}指令产生（\ref{cpp.module}），
+\nt{export-keyword}通过预处理前两个指令之一产生。
+
+\begin{note} % 1
+  二者均无可见拼写。
+\end{note}
 
 \paragraph{} % 5
-<++>
+\begin{example} % 2
+  程序片段\tm{0xe+foo}分析为一个预处理数字符号（既不是合法\nt{integer-literal}也
+  不是合法\nt{floating-point-literal}符号），即使分析为三个预处理符号\tm{0xe}，
+  \tm{+}和\tm{foo}可以产生一个合法的表达式（比如\tm{foo}是定义为\tm{1}的宏）。类
+  似的，程序片段\tm{1E1}分析为一个预处理数字 （合法的\nt{floating-point-literal}
+  符号），无论\tm{E}是否为宏名。
+\end{example}
 
 \paragraph{} % 6
-<++>
-
+\begin{example} % 3
+  程序片段\tm{x+++++y}分析为\tm{x ++ ++ + y}，如果\tm{x}和\tm{y}为整型，则违反自
+  增运算符约束，即使分析为\tm{x ++ + ++ y}可以产生正确的表达式。
+\end{example}

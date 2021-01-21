@@ -1,10 +1,90 @@
 % 5.10 Identifiers [lex.name]
+\synsym{identifier}
+  \synprd{\nt{identifier-nondigit}}
+  \synprd{\nt{identifier identifier-nondigit}}
+  \synprd{\nt{identifier digit}}
+\synsym{identifier-nondigit}
+  \synprd{\nt{nondigit}}
+  \synprd{\nt{universal-character-name}}
+\synsym[one of]{nondigit}
+  \synprd{\tm{a b c d e f g h i j k l m}}
+  \synprd{\tm{n o p q r s t u v w x y z}}
+  \synprd{\tm{A B C D E F G H I J K L M}}
+  \synprd{\tm{N O P Q R S T U V W X Y Z \_}}
+\synsym[one of]{digit}
+  \synprd[]{\tm{0 1 2 3 4 5 6 7 8 9}}
+
 \paragraph{} % 1
-<++>
+标识符指任意长字母和数字序列。标识符中的每一个\nt{universal-character-name}应该
+表示编码在ISO/IEC 10646中，表\ref{tab:lex.name.allowed}中所列范围内的字符。起始
+元素不能是编码在表\ref{tab:lex.name.disallowed}中所列范围内的
+\nt{universal-character-name}。大小写字符不同。所有字符均有意义。\footnote{在链
+接器不能接受扩展字符的系统上，\nt{universal-character-name}的编码可能用来形成有
+效外部字符。比如，某些未用字符或序列可能用来编码\nt{universal-character-name}中
+的\tm{\bs u}。扩展字符可能产生较长的外部标识符，但是\cpp{}不对外部标识符有效字母
+数作翻译限制。在\cpp{}中，大小写字母在所有标识符中都不同，包括外部标识符。}
+
+\begin{table}[h!]
+  \centering
+  \caption{允许的字符范围 [tab:lex.name.allowed]}
+  \begin{tabular}{|lllll|}
+    \hline
+    \tm{00A8}        & \tm{00AA}        & \tm{00AD}        & \tm{00AF}        &
+      \tm{00B2-00B5}                                                          \\
+    \tm{00B7-00BA}   & \tm{00BC-00BE}   & \tm{00C0-00D6}   & \tm{00D8-00F6}   &
+      \tm{00F8-00FF}                                                          \\
+    \tm{0100-167F}   & \tm{1681-180D}   & \tm{180F-1FFF}   &                  &
+                                                                              \\
+    \tm{200B-200D}   & \tm{202A-202E}   & \tm{203F-2040}   & \tm{2054}        &
+      \tm{2060-206F}                                                          \\
+    \tm{2070-218F}   & \tm{2460-24FF}   & \tm{2776-2793}   & \tm{2C00-2DFF}   &
+      \tm{2E80-2FFF}                                                          \\
+    \tm{3004-3007}   & \tm{3021-302F}   & \tm{3031-D7FF}   &                  &
+                                                                              \\
+    \tm{F900-FD3D}   & \tm{FD40-FDCF}   & \tm{FDF0-FE44}   & \tm{FE47-FFFD}   &
+                                                                              \\
+    \tm{10000-1FFFD} & \tm{20000-2FFFD} & \tm{30000-3FFFD} & \tm{40000-4FFFD} &
+      \tm{50000-5FFFD}                                                        \\
+    \tm{60000-6FFFD} & \tm{70000-7FFFD} & \tm{80000-8FFFD} & \tm{90000-9FFFD} &
+      \tm{A0000-AFFFD}                                                        \\
+    \tm{B0000-BFFFD} & \tm{C0000-CFFFD} & \tm{D0000-DFFFD} & \tm{E0000-EFFFD} &
+                                                                              \\
+    \hline
+  \end{tabular}
+  \label{tab:lex.name.allowed}
+\end{table}
+
+\begin{table}[h!]
+  \centering
+  \caption{初始不允许的字符序列（组合字符）[tab:lex.name.disallowed]}
+  \begin{tabular}{|llll|}
+    \hline
+    \tm{0300-036F} & \tm{1DC0-1DFF} & \tm{20D0-20FF} & \tm{FE20-FE2F}         \\
+    \hline
+  \end{tabular}
+  \label{tab:lex.name.disallowed}
+\end{table}
 
 \paragraph{} % 2
-<++>
+表\ref{tab:lex.name.special}中的标识符在某些上下文中具有特殊意义。当在语法中引用
+时，这些标识符是显式使用的，而不是使用\nt{identifier}语法的产生式。除另有说明，
+否则对于给定\nt{identifier}是否具有特殊含义的任何歧义都是将符号解释为常规的
+\nt{identifier}。
+
+\begin{table}[h!]
+  \centering
+  \caption{具特殊意义的标识符[tab:lex.name.special]}
+  \begin{tabular}{|llll|}
+    \hline
+    \tm{final} & \tm{import} & \tm{module} & \tm{override}                    \\
+    \hline
+  \end{tabular}
+  \label{tab:lex.name.special}
+\end{table}
 
 \paragraph{} % 3
-<++>
-
+此外，某些标识符保留给\cpp{}实现使用，不应再作他用；无需诊断。
+\begin{enumerate}
+  \item 保留含双下划线\tm{\_\_}或以下划线开头后跟上大写字母的标识符给实现使用。
+  \item 以下划线开始的标识符保留给实现用作全局命名空间名字。
+\end{enumerate}

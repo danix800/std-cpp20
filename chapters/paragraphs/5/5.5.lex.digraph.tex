@@ -1,7 +1,37 @@
 % 5.5 Alternative tokens [lex.digraph]
 \paragraph{} % 1
-<++>
+备选符号表示是为某些运算符和标点而提供。\footnote{这些包括"双字符"（digraph）和
+额外保留字。术语"双字符"（两个字符组成的符号）并不是最佳描述，因为其中一个备选预
+处理符号是\tm{\%:\%:}，并且很明显有多个主符号由两个字符组成。尽管如此，这些非词
+法关键字的备选符号被俗称为"双字符"。}
 
 \paragraph{} % 2
-<++>
+在语言的所有层面，每一个备选符号与其对应的主符号除拼写不一样\footnote{因此\tm{[}
+和\nt{<:}的"字符化"值（\ref{cpp.stringize}）是不一样的，保持其原有拼写，除此外这
+两个符号可以自由互换。}外所有的行为上都一致。 备选符号集合在表
+\ref{tab:lex.digraph}中定义。
 
+\begin{table}[h!]
+  \newcommand{\al}{备选符号}
+  \newcommand{\pr}{主符号}
+  \centering
+  \caption{\al{}[tab:lex.digraph]}
+  \begin{tabular}{|cc|cc|cc|}
+    \hline
+    \tb{\al} & \tb{\pr} & \tb{\al}   & \tb{\pr}  & \tb{\al}     & \tb{\pr}    \\
+    \hline\hline
+    \tm{<\%} & \tm{\{}  & \tm{and}   & \tm{\&\&} & \tm{and\_eq} & \tm{\&=}    \\
+    \hline
+    \tm{\%>} & \tm{\}}  & \tm{bitor} & \tm{|}    & \tm{or\_eq}  & \tm{|=}     \\
+    \hline
+    \tm{<:}  & \tm{[}   & \tm{or}    & \tm{||}   & \tm{xor\_eq} & \tm{\tac=}  \\
+    \hline
+    \tm{:>}  & \tm{]}   & \tm{xor}   & \tm{\tac} & \tm{not}     & \tm{!}      \\
+    \hline
+    \tm{\%:} & \tm{\#}  & \tm{compl} & \tm{\tat} & \tm{not\_eq} & \tm{!=}     \\
+    \hline
+    \tm{\%:\%:} & \tm{\#\#} & \tm{bitand} & \tm{\&} & &                       \\
+    \hline
+  \end{tabular}
+  \label{tab:lex.digraph}
+\end{table}

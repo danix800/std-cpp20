@@ -1,7 +1,17 @@
 % 5.1 Separate translation [lex.separate]
 \paragraph{} % 1
-<++>
+本文件中程序文本保存于称为\df{源文件}的单元中。源文件连同通过预处理指令
+\tm{\#include}包含（\ref{cpp.include}）的所有头（\ref{headers}）和源文件在去除掉
+由条件包含（\ref{cpp.cond}）预处理指令所跳过的源码行后称为\df{翻译单元}。
+
+\begin{note}
+一个\cpp{}程序不需要同时翻译完所有内容。
+\end{note}
 
 \paragraph{} % 2
-<++>
-
+\begin{note}
+已翻译的翻译单元和实例化单元可以独立保存或存于库中。程序的独立翻译单元通过
+（比如）调用标识符具有外部或模块链接的函数，操作标识符具有外部或模块链接的对象或
+者操作数据文件的方式进行通信（\ref{basic.link}）。翻译单元可以独立翻译然后链接到
+一起产生一个可执行程序（\ref{basic.link}）。
+\end{note}

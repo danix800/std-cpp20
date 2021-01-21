@@ -1,4 +1,15 @@
 % 5.6 Tokens [lex.token]
-\paragraph{} % 1
-<++>
+\synsym{token}
+  \synprd{\nt{identifier}}
+  \synprd{\nt{keyword}}
+  \synprd{\nt{literal}}
+  \synprd[]{\nt{operator-or-punctuator}}
 
+\paragraph{} % 1
+存在五种符号：标识符，关键字，字面值，\footnote{字面值包括字符串，字符和数值字面
+值。}运算符和其他分隔符。如下所述，空白、水平和垂直制表符、新行、换页符和注释
+（统称"空白"）被忽略，其作用仅仅是分隔符号。
+
+\begin{note}
+  某些空白符对分隔相邻的含字母字符标识符，关键字，数值字面值和备选符号是必须的。
+\end{note}

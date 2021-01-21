@@ -1,4 +1,30 @@
 % 5.12 Operators and punctuators [lex.operators]
 \paragraph{} % 1
-<++>
+\cpp{}程序的词法表示包括多个预处理符号，用于预处理器的语法中，或者转换成运算符和
+标点的符号：
 
+\synsym{preprocessing-op-or-punc}
+  \synprd{\nt{preprocessing-operator}}
+  \synprd{\nt{operator-or-punctuator}}
+\synsym[one of]{preprocessing-operator}
+  \synprd{\tm{\# \ \ \ \ \ \ \#\# \ \ \ \ \%: \ \ \ \ \%:\%:}}
+\synsym[one of]{operator-or-punctuator}
+  \synprd{\tm{\{ \ \ \ \ \ \ \}  \ \ \ \ \ [ \ \ \ \ \ \ ] \ \ \ \ \ \ ( \ \ \ \
+    \ \ )}}
+  \synprd{\tm{<: \ \ \ \ :> \ \ \ \ <\% \ \ \ \ \ \%> \ \ \ \ \ ; \ \ \ \ \ \ :
+    \ \ \ \ ...}}
+  \synprd{\tm{?\ \ \ \ \ \ \ :: \ \ \ . \ \ \ \ \ .* \ \ \ \ \ -> \ \ \ \ \ ->*
+    \ \ \ \tat}}
+  \synprd{\tm{! \ \ \ \ \ + \ \ \ \ \ - \ \ \ \ \ \ * \ \ \ \ \ \ / \ \ \ \ \ \
+    \% \ \ \ \ \ \tac \ \ \ \ \ \ \& \ \ \ |}}
+  \synprd{\tm{= \ \ \ \ \ \ += \ \ \ \ -= \ \ \ \ \ *= \ \ \ \ \ /= \ \ \ \ \
+    \%= \ \ \ \ \tac= \ \ \ \ \&= \ \ |=}}
+  \synprd{\tm{== \ \ \ \ \ != \ \ \ \ \tl \ \ \ \ \ \ \ \tg \ \ \ \ \ \ \ \tl=
+    \ \ \ \ \ \tg= \ \ \ \ \tl=\tg \ \ \ \ \&\&}}
+  \synprd{\tm{\tl{}\tl \ \ \ \ \ \ \tg{}\tg \ \ \ \ \ \tl{}\tl{}= \ \ \ \
+    \tg{}\tg{}= \ \ \ \ ++ \ \ \ \ \ -{}- \ \ \ \ ,}}
+  \synprd{\tm{and \ \ \ \ or \ \ \ \ xor \ \ \ \ not \ \ \ \ bitand \ bitor
+    \ compl}}
+  \synprd{\tm{and\_eq \ or\_eq \ xor\_eq \ not\_eq}}
+每一个\nt{operator-or-punctuator}在翻译阶段\ref{tpit7}（\ref{lex.phases}）中转换
+成单个符号。

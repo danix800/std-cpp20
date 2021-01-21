@@ -1,10 +1,47 @@
 % 5.3 Character sets [lex.charset]
 \paragraph{} % 1
-<++>
+\df{基本源码字符集}由96个字符组成：空格，水平制表符，垂直制表符，换页符
+（form feed）和新行，加上以下91个图形字符：\footnote{基本源码字符集成员的字形用
+于标识ISO/IEC 10646子集中的字符，对应于ASCII字符集。但源文件字符到源码字符集的映
+射（翻译阶段\ref{tpit1}中所述）由实现定义，因此实现必须对源文件中基本源码字符符
+如何表示进行记录。}
+
+\mbox{\qquad \tm{a b c d e f g h i j k l m n o p q r s t u v w x y z}}      \par
+\mbox{\qquad \tm{A B C D E F G H I J K L M N O P Q R S T U V W X Y Z}}      \par
+\mbox{\qquad \tm{0 1 2 3 4 5 6 7 8 9}}                                      \par
+% _ { } [ ] # ( ) < > % : ; . ? * + - / ^ & | ~ ! = , \ " '
+\mbox{\qquad \tm{\_ \{ \} [ ] \# ( ) \tl{} \tg{} \% :\ ; .\ ?\ * + - / \tac{} \&
+  | \tac{} !\ = , \bs{} \dq{} \sq}}
 
 \paragraph{} % 2
-<++>
+结构\nt{universal-character-name}提供了一种命名其他字符的方法。
+
+\synsym{hex-quad}
+  \synprd{\nt{hexadecimal-digit hexadecimal-digit hexadecimal-digit
+    hexadecimal-digit}}
+\synsym{universal-character-name}
+  \synprd{\tm{\bs{}u} \nt{hex-quad}}
+  \synprd{\tm{\bs{}U} \nt{hex-quad hex-quad}}
+一个\nt{universal-character-name}代表ISO/IEC 10646中的字符（如有），其码点为
+\nt{universal-character-name}中的\nt{hexadecimal-digit}序列所表示的十六进制数。
+如果该数字不是一个码点或者是一个替代码点则程序为\illform{}。非字符码点和保留码点
+考虑为代表不同于任何ISO/IEC 10646字符的不同字符。如果一个\nt{character-literal}
+或\nt{string-literal}（均包括于\nt{user-defined-literal}内）的
+\nt{c-char-sequence}，\nt{s-char-sequence}或\nt{r-char-sequence}之外的
+\nt{universal-character-name}对应于一个控制字符或者基本源码字符集中的字符，则程
+序为\illform{}。\footnote{类似于\nt{r-char-sequence}（\ref{lex.string}）中的
+\nt{universal-character-name}的字符序列不构成\nt{universal-character-name}。}
+
+\begin{note}
+  ISO/IEC 10646码点为区间[0, 10FFFF]（十六进制）中的整数。替代码点为区间
+  [D800, DFFF]（十六进制）中的值。控制字符为码点位于区间[0, 1F]或[7F, 9F]（十六
+  进制）中的字符。
+\end{note}
 
 \paragraph{} % 3
-<++>
-
+\df{基本执行字符集}和\df{基本执行宽字符集}均应包含基本源码字符集的所有成员，加上
+表示预警，退格和回车的控制字符，以及\df{零字符}（对应\df{零宽字符}），其值为0。
+对每一个基本执行字符集，成员的值应该非负且彼此不同。对基本源码和基本执行字符集
+中，以上十进制数字列表中\tm{0}之后的每一个字符的值应该比前一个大一。\df{执行字符
+集}和\df{执行宽字符集}对应的分别为基本执行字符集和基本执行宽字符集的超集。执行字
+符集成员和额外集合成员的值为语言环境特定的。

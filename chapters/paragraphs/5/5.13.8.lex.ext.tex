@@ -1,28 +1,129 @@
 % 5.13.8 User-defined literals [lex.ext]
+\synsym{user-defined-literal}
+  \synprd{\nt{user-defined-integer-literal}}
+  \synprd{\nt{user-defined-floating-point-literal}}
+  \synprd{\nt{user-defined-string-literal}}
+  \synprd{\nt{user-defined-character-literal}}
+\synsym{user-defined-integer-literal}
+  \synprd{\nt{decimal-literal ud-suffix}}
+  \synprd{\nt{octal-literal ud-suffix}}
+  \synprd{\nt{hexadecimal-literal ud-suffix}}
+  \synprd{\nt{binary-literal ud-suffix}}
+\synsym{user-defined-floating-point-literal}
+  \synprd{\nt{fractional-constant exponent-part\tsub{opt} ud-suffix}}
+  \synprd{\nt{digit-sequence exponent-part ud-suffix}}
+  \synprd{\nt{hexadecimal-prefix hexadecimal-fractional-constant
+    binary-exponent-part ud-suffix}}
+  \synprd{\nt{hexadecimal-prefix hexadecimal-digit-sequence
+    binary-exponent-part ud-suffix}}
+\synsym{user-defined-string-literal}
+  \synprd{\nt{string-literal ud-suffix}}
+\synsym{user-defined-character-literal}
+  \synprd{\nt{character-literal ud-suffix}}
+\synsym{ud-suffix}
+  \synprd[]{\nt{identifier}}
+
 \paragraph{} % 1
-<++>
+如果一个符号可以匹配\nt{user-defined-literal}和其他种类的\nt{literal}，则该符号
+当作后者。
+
+\begin{example}
+  \tm{123\_km}为\nt{user-defined-literal}，而\tm{12LL}为\nt{integer-literal}。
+\end{example}
+
+\nt{user-defined-literal}中的\nt{ud-prefix}之前的语法非结束符取可匹配该结束符的
+最长字符序列。
 
 \paragraph{} % 2
-<++>
+一个\nt{user-defined-literal}当作一个字面值运算符或字面值运算符模板
+（\ref{over.literal}）的调用。为确定对给定的带有\nt{ud-suffix X}的
+\nt{user-defined-literal}的该调用的形式，字面值后缀标识符为\nt{X}的
+\nt{literal-operator-id}在\nt{L}的上下文中使用未限定名查询规则
+（\ref{basic.lookup.unqual}）进行查询。设\nt{S}为该查询找到的声明集合。\nt{S}不
+应该为空集。
 
 \paragraph{} % 3
-<++>
+如果\nt{L}是一个\nt{user-defined-integer-literal}，设\nt{n}为不带\nt{ud-suffix}
+的字面值。如果\nt{S}包含一个形参类型为\tm{unsigned long long}的字面值运算符，则
+字面值\nt{L}当作形如                                                          \\
+\mbox{\qquad \tm{operator "" \nt{X}(\nt{n}ULL)}}                              \\
+的调用。否则，\nt{S}应该包含一个原始字面值运算符或者一个数值字面值运算符模板
+（\ref{over.literal}），但不能两者都有。如果\nt{S}包含一个原始字面值运算符，则字
+面值\nt{L}当作形如                                                            \\
+\mbox{\qquad \tm{operator "" \nt{X}("\nt{n}")}}                               \\
+的调用。否则（\nt{S}包含一个数值字面值运算符模板），\nt{L}当作形如            \\
+\mbox{\qquad \tm{operator "" \nt{X}<'\nt{c\tsub{1}}', '\nt{c\tsub{2}}', ...
+  '\nt{c\tsub{k}}'>()}}                                                       \\
+的调用，其中\nt{n}为源码字符序列$c_1c_2\ldots c_k$。
+
+\begin{note} % 1
+  序列$c_1c_2\ldots c_k$只能包含基本源码字符集中的字符。
+\end{note}
 
 \paragraph{} % 4
-<++>
+如果\nt{L}是一个\nt{user-defined-floating-literal}，设\nt{f}为不带\nt{ud-suffix}
+的字面值。如果\nt{S}包含一个形参类型为\tm{long double}的字面值运算符，则字面值
+\nt{L}当作形如                                                                \\
+\mbox{\qquad \tm{operator "" \nt{X}(\nt{f}L)}}                                \\
+的调用。否则，\nt{S}应该包含一个原始字面值运算符或一个数值字面值运算符模板
+（\ref{over.literal}），但不能两者都有。如果\nt{S}包含一个原始字面值运算符，则
+\df{字面值} \nt{L}当作形如                                                    \\
+\mbox{\qquad \tm{operator "" \nt{X}("\nt{f}")}}                               \\
+的调用。否则（\nt{S}包含一个数值字面值运算符模板），\nt{L}当作形如            \\
+\mbox{\qquad \tm{operator "" \nt{X}<'\nt{c\tsub{1}}', '\nt{c\tsub{2}}', ...
+  '\nt{c\tsub{k}}'>()}}                                                       \\
+的调用，其中\nt{f}为源码字符序列$c_1c_2 \ldots c_k$。
+
+\begin{note} % 2
+  序列$c_1c_2 \ldots c_k$只能包含基本源码字符集的字符。
+\end{note}
 
 \paragraph{} % 5
-<++>
+如果\nt{L}是一个\nt{user-defined-string-literal}，设\nt{str}为不带\nt{ud-suffix}
+的字面值，\nt{len}为\nt{str}中编码单元的个数（即不含结尾零字符的长度）。如果
+\nt{S}包含一个带有非类型模板形参（\nt{str}是它的一个\wellform{}的
+\nt{template-argument}）的字面值运算符模板，则字面值\nt{L}当作形如            \\
+\mbox{\qquad\tm{operator "" \nt{X}(\nt{str})}}                                \\
+的调用。否则，字面值\nt{L}当作形如                                            \\
+\mbox{\qquad\tm{operator "" \nt{X}(\nt{str}, \nt{len})}}                      \\
+的调用
 
 \paragraph{} % 6
-<++>
+如果\nt{L}是一个\nt{user-defined-character-literal}，设\nt{ch}为不带
+\nt{ud-suffix}的字面值。\nt{S}应该包含一个字面值运算符（\ref{over.literal}），其
+唯一的形参具有\nt{ch}的类型，且\nt{L}当作形如                                 \\
+\mbox{\qquad\tm{operator "" \nt{X}(\nt{ch})}}                                 \\
+的调用。
 
 \paragraph{} % 7
-<++>
+\begin{example} % 2
+  \begin{lstlisting}
+  long double operator "" _w(long double);
+  std::string operator "" _w(const char16_t*, std::size_t);
+  unsigned operator "" _w(const char*);
+  int main() {
+    1.2_w;      // calls operator "" _w(1.2L)
+    u"one"_w;   // calls operator "" _w(u"one", 3)
+    12_w;       // calls operator "" _w("12")
+    "two"_w;    // error: no applicable literal operator
+  }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 8
-<++>
+在翻译阶段\ref{tpit6}（\ref{lex.phases}），相邻\nt{string-literal}被连接起来且
+\nt{user-defined-string-literal}为此而当作\nt{string-literal}参与连接。连接时去
+除\nt{ud-suffix}，连接过程按\ref{lex.string}所述进行。在阶段\ref{tpit6}结束时，
+如果一个\nt{string-literal}由涉及至少一个\nt{user-defined-string-literal}的连接
+产生，则所有参与的\nt{user-defined-string-literal}应该具有相同的\nt{ud-suffix}，
+且该后缀用于连接结果。
 
 \paragraph{} % 9
-<++>
-
+\begin{example} % 3
+  \begin{lstlisting}
+  int main() {
+    L"A" "B" "C"_x;  // OK: same as L"ABC"_x
+    "P"_x "Q" "R"_y; // error: two different ud-suffixes
+  }
+  \end{lstlisting}
+\end{example}

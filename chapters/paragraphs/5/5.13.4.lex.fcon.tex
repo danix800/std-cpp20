@@ -1,10 +1,79 @@
 % 5.13.4 Floating-point literals [lex.fcon]
+\synsym{floating-point-literal}
+  \synprd{\nt{decimal-floating-point-literal}}
+  \synprd{\nt{hexadecimal-floating-point-literal}}
+\synsym{decimal-floating-point-literal}
+  \synprd{\nt{fractional-constant exponent-part\tsub{opt}
+    floating-point-suffix\tsub{opt}}}
+  \synprd{\nt{digit-sequence exponent-part floating-point-suffix\tsub{opt}}}
+\synsym{hexadecimal-floating-point-literal}
+  \synprd{\nt{hexadecimal-prefix hexadecimal-fractional-constant
+    binary-exponent-part floating-point-suffix\tsub{opt}}}
+  \synprd{\nt{hexadecimal-prefix hexadecimal-digit-sequence binary-exponent-part
+    floating-point-suffix\tsub{opt}}}
+\synsym{fractional-constant}
+  \synprd{\nt{digit-sequence\tsub{opt}} \tm{.} \nt{digit-sequence}}
+  \synprd{\nt{digit-sequence} \tm{.}}
+\synsym{hexadecimal-fractional-constant}
+  \synprd{\nt{hexadecimal-digit-sequence\tsub{opt}} \tm{.}
+    \nt{hexadecimal-digit-sequence}}
+  \synprd{\nt{hexadecimal-digit-sequence} \tm{.}}
+\synsym{exponent-part}
+  \synprd{\tm{e} \nt{sign\tsub{opt} digit-sequence}}
+  \synprd{\tm{E} \nt{sign\tsub{opt} digit-sequence}}
+\synsym[one of]{sign}
+  \synprd{\tm{+ -}}
+\synsym{digit-sequence}
+  \synprd{\nt{digit}}
+  \synprd{\nt{digit-sequence} \tm{'}\nt{\tsub{opt} digit}}
+\synsym[one of]{floating-point-suffix}
+  \synprd[]{\tm{f l F L}}
+
 \paragraph{} % 1
-<++>
+按表\ref{tab:lex.fcon.type}中所指定，一个\nt{floating-point-literal}的类型由其
+\nt{floating-point-suffix}确定。
+
+\begin{table}[h!]
+  \centering
+  \caption{\nt{floating-point-literal}的类型[tab:lex.fcon.type]}
+  \begin{tabular}{|ll|}
+    \hline
+    \tb{\nt{floating-point-suffix}} & \tb{类型}                               \\
+    \hline\hline
+    无                              & \tm{double}                             \\
+    \tm{f}或\tm{F}                  & \tm{float}                              \\
+    \tm{l}或\tm{L}                  & \tm{long double}                        \\
+    \hline
+  \end{tabular}
+  \label{tab:lex.fcon.type}
+\end{table}
 
 \paragraph{} % 2
-<++>
+一个\nt{floating-point-literal}的\nt{有效位}（\df{significand}）为
+\nt{fractional-constant}或一个\nt{decimal-floating-point-literal}的
+\nt{digit-sequence}或\nt{hexadecimal-fractional-constant}或一个
+\nt{hexadecimal-floating-point-literal}的\nt{hexadecimal-digit-sequence}。在有效
+位中，\nt{digit}或\nt{hexadecimal-digit}序列以及可选的小数点解释为以\nt{N}为基的
+实数\nt{s}，其中\nt{N}对\nt{decimal-floating-point-literal}为10，对
+\nt{hexadecimal-floating-point-literal}为16。
+
+\begin{note}
+  在确定值时忽略任何可选的分隔用单引号。
+\end{note}
+
+如果一个\nt{exponent-part}或\nt{binary-exponent-part}存在，则
+\nt{floating-point-literal}的指数\nt{e}为解释可选\nt{sign}和\nt{digit}序列为以
+10为基的整数的结果。否则指数\nt{e}为0。对一个\nt{decimal-floating-point-literal}
+字面值的缩放值为$s \times 10^e$，对一个\nt{hexadecimal-floating-point-literal}缩
+放值为$s \times 2^e$。
+
+\begin{example}
+  \nt{floating-point-literal} \tm{49.625}和\tm{0xC.68p+2}具有相同值。
+  \nt{floating-point-literal} \tm{1.602'176'565e-19}和\tm{1.602176565e-19}具有相
+  同值。
+\end{example}
 
 \paragraph{} % 3
-<++>
-
+如果缩放值不在其类型可表示值范围内，则程序为\illform{}。否则，如果可表示，则
+\nt{floating-point-literal}的值为缩放值，否则为以实现方式选择的最接近缩放值的更
+大或更小可表示值。

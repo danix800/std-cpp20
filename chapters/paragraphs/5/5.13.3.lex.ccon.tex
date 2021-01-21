@@ -1,25 +1,130 @@
 % 5.13.3 Character literals [lex.ccon]
+\synsym{character-literal}
+  \synprd{\nt{encoding-prefix\tsub{opt}}
+          \tm{\sq} \nt{c-char-sequence} \tm{\sq}}
+\synsym[one of]{encoding-prefix}
+  \synprd{\tm{u8 u U L}}
+\synsym{c-char-sequence}
+  \synprd{\nt{c-char}}
+  \synprd{\nt{c-char-sequence} \nt{c-char}}
+\synsym{c-char}
+  \synprd{除单引号\tm{\sq}、反斜杠\tm{\bs}或新行字符以外的基本源码字符集成员}
+  \synprd{\nt{escape-sequence}}
+  \synprd{\nt{universal-character-name}}
+\synsym{escape-sequence}
+  \synprd{\nt{simple-escape-sequence}}
+  \synprd{\nt{octal-escape-sequence}}
+  \synprd{\nt{hexadecimal-escape-sequence}}
+\synsym[one of]{simple-escape-sequence}
+  \synprd{\tm{\bs\sq\ \ \bs\dq\ \ \bs?\ \ \bs\bs}}
+  \synprd{\tm{\bs a \ \bs b \ \bs f \ \bs n \ \bs r \ \bs t \ \bs v}}
+\synsym{octal-escape-sequence}
+  \synprd{\tm{\bs} \nt{octal-digit}}
+  \synprd{\tm{\bs} \nt{octal-digit octal-digit}}
+  \synprd{\tm{\bs} \nt{octal-digit octal-digit octal-digit}}
+\synsym{hexadecimal-escape-sequence}
+  \synprd{\tm{\bs x} \nt{hexadecimal-digit}}
+  \synprd[]{\nt{hexadecimal-escape-sequence} \nt{hexadecimal-digit}}
+
 \paragraph{} % 1
-<++>
+不以\tm{u8}，\tm{u}，\tm{U}或\tm{L}开头的\nt{character-literal}为\nt{普通字符字
+面值}。含有单个执行字符集可表示\nt{c-char}的普通字符字面值具有\tm{char}类型，其
+值等于执行字符集中该\nt{c-char}编码的数值。包含多于一个\nt{c-char}的字符字面值为
+\nt{多字符字面值}。多字符字面值以及含有执行字符集不能表示的单个\nt{c-char}的普通
+字符字面值为条件支持，具有\tm{int}类型，具有实现定义值。
 
 \paragraph{} % 2
-<++>
+以\tm{u8}开头的\nt{character-literal}，如\tm{u8'w'}，其类型为\tm{char8\_t}，即
+\nt{UTF-8字符字面值}。一个UTF-8字面字符的值等于其在ISO 10646中的码点值，如果该码
+点值可以使用单个UTF-8编码单元表示的话
+
+\begin{note} % 1
+  即如果码点值处于区间[0, 7F]（十六进制）中。
+\end{note}
+
+如果该值不能使用单个UTF-8编码单元表示，则程序为\illform{}。包含多个\nt{c-char}的
+UTF-8字符字面值是\illform{}的。
 
 \paragraph{} % 3
-<++>
+以字母\tm{u}开头的\nt{character-literal}，如\tm{u'x'}，其类型为\tm{char16\_t}，
+即\nt{UTF-16字符字面值}。UTF-16字面字符的值等于其ISO 10646中的码点值，如果该码点
+可以使用单个16位码点单元表示的话。
+
+\begin{note} % 2
+  即如果码点值处于区间[0, FFFF]（十六进制）中。
+\end{note}
+
+如果该值在单个16位编码单元内不可表示，则程序为\illform{}。包含多个\nt{c-char}的
+UTF-16字符字面值是\illform{}的。
 
 \paragraph{} % 4
-<++>
+以字母\tm{U}开头的\nt{character-literal}，如\tm{U'y'}，其类型为\tm{char32\_t}，
+即\nt{UTF-32字符字面值}。包含单个\nt{c-char}的UTF-32字面字符的值等于其在ISO
+10646中的码点值。包含多个\nt{c-char}的\tm{char32\_t}字符字面值是\illform{}的。
 
 \paragraph{} % 5
-<++>
+以字母\tm{L}开头的\nt{character-literal}为\nt{宽字符字面值}，比如\tm{L'z'}。宽字
+符字面值类型为\tm{wchar\_t}。\footnote{适用于字符不能用单个字节表示的字符集。}包
+含单个\nt{c-char}的宽字符字面值的值等于执行宽字符集中\nt{c-char}编码的数值，除非
+\nt{c-char}不能用执行宽字符集表示，在这种情况下，该值由实现定义。
+
+\begin{note} % 3
+  类型\tm{wchar\_t}可以表示执行宽字符集所有成员（见\ref{basic.fundamental}）。
+\end{note}
+
+包含多个\nt{c-char}的宽字面字符的值由实现定义。
 
 \paragraph{} % 6
-<++>
+某些非图形字符、单引号\tm{'}、双引号\tm{"}、问号\tm{?}，\footnote{对问号使用转义
+是为了兼容\isocppfor{}和\isoc{}。}和反斜杠\tm{\bs}可以根据表
+\ref{tab:lex.ccon.esc}来表示。双引号\tm{"}和问号\tm{?}可以表示为其自身，也可以分
+别表示为转义序列\tm{\bs"}和\tm{\bs ?}。但单引号\tm{'}和反斜杠\tm{\bs}应分别由转
+义序列\tm{\bs'}和\tm{\bs\bs}表示。表\ref{tab:lex.ccon.esc}中没有列出反斜杠后跟字
+符的转义序列是条件支持的，具有实现定义的语义。一个转义序列指定单个字符。
+
+\begin{table}[h!]
+  \centering
+  \caption{转义序列[tab:lex:ccon.esc]}
+  \begin{tabular}{|lll|}
+    \hline
+    新行       & \tm{NL(LF)} & \tm{\bs n}                                     \\
+    水平制表符 & \tm{HT}     & \tm{\bs t}                                     \\
+    垂直制表符 & \tm{VT}     & \tm{\bs v}                                     \\
+    退格       & \tm{BS}     & \tm{\bs b}                                     \\
+    回车       & \tm{CR}     & \tm{\bs r}                                     \\
+    换页符     & \tm{FF}     & \tm{\bs f}                                     \\
+    预警符     & \tm{BEL}    & \tm{\bs a}                                     \\
+    反斜杠     & \tm{\bs}    & \tm{\bs\bs}                                    \\
+    问号       & \tm{?}      & \tm{\bs ?}                                     \\
+    单引号     & \tm{'}      & \tm{\bs'}                                      \\
+    双引号     & \tm{"}      & \tm{\bs"}                                      \\
+    八进制数   & \nt{ooo}    & \tm{\bs}\nt{ooo}                               \\
+    十六进制数 & \nt{hhh}    & \tm{\bs x}\nt{hhh}                             \\
+    \hline
+  \end{tabular}
+  \label{tab:lex.ccon.esc}
+\end{table}
 
 \paragraph{} % 7
-<++>
+转义\tm{\bs}\nt{ooo}由反斜杠后跟一个、两个或三个八进制数字组成，用于指定所需字符
+的值。转义\tm{\bs}\nt{hhh}由反斜杠后跟\tm{x}，一个或多个十六进制数字组成，用于指
+定所需字符的值。十六进制序列中数字的个数没有限制。八进制或十六进制数字的序列分别
+以非八进制数字或非十六进制数字的第一个字符结束。如果\nt{character-literal}的值不
+在\tm{char}（对无前缀\nt{character-literal}）或\tm{wchar\_t}（对前缀为\tm{L}的
+\nt{character-literal}）的实现定义范围内，则其值由实现定义。
+
+\begin{note} % 4
+  如果前缀为\tm{u}、\tm{u8}或\tm{U}的\nt{character-literal}的值超出其类型所定义
+  的范围，则程序为\illform{}。
+\end{note}
 
 \paragraph{} % 8
-<++>
+一个\nt{universal-character-name}翻译为适当的执行字符集中的指定字符的编码。如果
+没有这样的编码，则\nt{universal-character-name}将翻译为实现定义的编码。
 
+\begin{note} % 5
+  在翻译阶段\ref{tpit1}中，当源码文本中遇到实际扩展字符时将引入
+  \nt{universal-character-name}。因此，所有扩展字符都用
+  \nt{universal-character-name}来描述。但是，只要能获得相同结果，实际的编译器实
+  现就可以使用自己的本地字符集。
+\end{note}

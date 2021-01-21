@@ -1,4 +1,12 @@
 % 5.13.7 Pointer literals [lex.nullptr]
-\paragraph{} % 1
-<++>
+\synsym{pointer-literal}
+  \synprd[]{\tm{nullptr}}
 
+\paragraph{} % 1
+指针字面值为关键字\tm{nullptr}。它是一个类型为\tm{std::nullptr\_t}的纯右值。
+
+\begin{note}
+  \tm{std::nullptr\_t}是一个不同的类型，即不是指针类型也不是成员指针类型；该类型
+  的纯右值是一个零指针常量，可以转换成零指针值或零成员指针值。见\ref{conv.ptr}和
+  \ref{conv.mem}。
+\end{note}
