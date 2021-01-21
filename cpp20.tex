@@ -75,8 +75,8 @@
 
 \newcounter{excounter}
 \renewenvironment{example}[1][]
-{\stepcounter{excounter}#1「\textit{例\theexcounter}：}
-{--- \textit{例终}」}
+{\stepcounter{excounter}#1$\llbracket$\textit{例\theexcounter}：}
+{--- \textit{例终}$\rrbracket$}
 
 \newcommand{\chptr}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}
   \setcounter{notecounter}{0}
