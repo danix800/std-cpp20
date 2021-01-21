@@ -98,15 +98,15 @@
 \paragraph{} % 7
 \begin{example} % 2
   \begin{lstlisting}
-  long double operator "" _w(long double);
-  std::string operator "" _w(const char16_t*, std::size_t);
-  unsigned operator "" _w(const char*);
-  int main() {
-    1.2_w;      // calls operator "" _w(1.2L)
-    u"one"_w;   // calls operator "" _w(u"one", 3)
-    12_w;       // calls operator "" _w("12")
-    "two"_w;    // error: no applicable literal operator
-  }
+    long double operator "" _w(long double);
+    std::string operator "" _w(const char16_t*, std::size_t);
+    unsigned operator "" _w(const char*);
+    int main() {
+      1.2_w;      // calls operator "" _w(1.2L)
+      u"one"_w;   // calls operator "" _w(u"one", 3)
+      12_w;       // calls operator "" _w("12")
+      "two"_w;    // error: no applicable literal operator
+    }
   \end{lstlisting}
 \end{example}
 
@@ -121,9 +121,9 @@
 \paragraph{} % 9
 \begin{example} % 3
   \begin{lstlisting}
-  int main() {
-    L"A" "B" "C"_x;  // OK: same as L"ABC"_x
-    "P"_x "Q" "R"_y; // error: two different ud-suffixes
-  }
+    int main() {
+      L"A" "B" "C"_x;  // OK: same as L"ABC"_x
+      "P"_x "Q" "R"_y; // error: two different ud-suffixes
+    }
   \end{lstlisting}
 \end{example}

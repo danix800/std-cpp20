@@ -45,10 +45,10 @@
   原始字符串中的源文件新行在所产生的执行字符串字面值中生成一个新行。以下例子中假定
   行起始处无空白，则断言成立：
   \begin{lstlisting}
-  const char* p = R"(a\
-  b
-  c)";
-  assert(std::strcmp(p, "a(\\\nb\nc") == 0);
+    const char* p = R"(a\
+    b
+    c)";
+    assert(std::strcmp(p, "a(\\\nb\nc") == 0);
   \end{lstlisting}
 \end{note}
 
@@ -56,14 +56,14 @@
 \begin{example}
   原始字符串
   \begin{lstlisting}
-  R"a(
-  )\
-  a"
-  )a"
+    R"a(
+    )\
+    a"
+    )a"
   \end{lstlisting}
   等价于\tm{"\bs n)\bs\bs\bs na\bs"\bs n"}。原始字符串
   \begin{lstlisting}
-  R"(x = "\"y\"")"
+    R"(x = "\"y\"")"
   \end{lstlisting}
   等价于\tm{"x = \bs"\bs\bs\bs"y\bs\bs\bs"\bs""}。
 \end{example}
@@ -111,7 +111,7 @@ UTF-32字符串字面值具有类型“\nt{n}个\tm{const char32\_t}的数组”
 \nt{encoding-prefix}。如果一个UTF-8字符串字面值符号与一个宽字符串字面值符号相邻
 则程序为\illform{}。任何其他连接为条件支持，具有实现定义行为。
 
-\begin{note}
+\begin{note} % 4
   该连接为一种解释而不是转换。因为解释发生在翻译阶段\ref{tpit6}（在
   \nt{string-literal}中的每个字符被翻译成合适字符集中的值之后），
   \nt{string-literal}的初始原始性对解释和连接的格式\wellform{}性不再起作用。
@@ -144,7 +144,7 @@ UTF-32字符串字面值具有类型“\nt{n}个\tm{const char32\_t}的数组”
 
 \begin{example}
   \begin{lstlisting}
-  "\xA" "B"
+    "\xA" "B"
   \end{lstlisting}
   在连接后包含两个字符\tm{'\bs xA'}和\tm{'B'}（而不是单个十六进制字符
   \tm{'\bs xAB'}）。
@@ -166,11 +166,11 @@ UTF-32字符串字面值具有类型“\nt{n}个\tm{const char32\_t}的数组”
 \nt{universal-character-name}和其他字符总数，对每一个需要代理对的字符加一，再加
 上结尾的\tm{u'\bs 0'}。
 
-\begin{note}
+\begin{note} % 5
   一个\tm{char16\_t}字符串字面值的大小为代码单元总数，而不是字符总数。
 \end{note}
 
-\begin{note}
+\begin{note} % 6
   任何\nt{universal-character-name}应该在区间[0, D800]或[E000, 10FFFF]（十六进
   制）中（\ref{lex.charset}）。
 \end{note}
@@ -183,6 +183,6 @@ UTF-32字符串字面值具有类型“\nt{n}个\tm{const char32\_t}的数组”
 符进行初始化。所有\nt{string-literal}是否不同（即存储于不重叠对象）或
 \nt{string-literal}后续求值是否产生相同或不同对象未指定。
 
-\begin{note}
+\begin{note} % 7
   尝试修改\nt{string-literal}的效果未定义。
 \end{note}

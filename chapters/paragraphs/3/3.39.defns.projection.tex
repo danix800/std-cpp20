@@ -4,12 +4,12 @@
 \defnsty{标准库}在检查元素值之前算法所应用的变换
 
 \begin{example}[\noindent]
-\begin{lstlisting}
-  std::pair<int, std::string_new> pairs[] = {{2, "foo"}, {1, "bar"}, {0, "baz"}};
-  std::ranges::sort(pairs, std::ranges::less{}, [](auto const& p) { return p.first; });
-\end{lstlisting}
-按其第一个成员升序地将配对排序为：
-\begin{lstlisting}
-  {{0, "baz"}, {1, "bar"}, {2, "foo"}}
-\end{lstlisting}
+  \begin{lstlisting}
+    std::pair<int, std::string_new> pairs[] = {{2, "foo"}, {1, "bar"}, {0, "baz"}};
+    std::ranges::sort(pairs, std::ranges::less{}, [](auto const& p) { return p.first; });
+  \end{lstlisting}
+  按其第一个成员升序地将配对排序为：
+  \begin{lstlisting}
+    {{0, "baz"}, {1, "bar"}, {2, "foo"}}
+  \end{lstlisting}
 \end{example}

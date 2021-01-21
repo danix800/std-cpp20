@@ -5,6 +5,7 @@
 未指定对象的值
 
 \begin{example}[\noindent]
-如果\tm{std::vector<int>}类型的对象\tm{x}处于有效但未指明状态，则\tm{x.empty()}
-可以无条件的调用，而\tm{x.front()}只能在\tm{x.empty()}返回\tm{false}时调用。
+  如果\tm{std::vector<int>}类型的对象\tm{x}处于有效但未指明状态，则
+  \tm{x.empty()}可以无条件的调用，而\tm{x.front()}只能在\tm{x.empty()}返回
+  \tm{false}时调用。
 \end{example}
