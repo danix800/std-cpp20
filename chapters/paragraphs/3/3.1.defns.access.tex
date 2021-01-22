@@ -4,9 +4,11 @@
 \defnsty{执行时行为}读或修改对象值
 
 \begin{note}
-  仅标量类型对象可以访问。标量对象读在\ref{conv.lval}中描述，标量对象修改在
-  \ref{expr.ass}，\ref{expr.post.incr}和\ref{expr.pre.incr}中描述。尝试读或修改
-  类类型对象通常会调用构造函数（\ref{class.ctor}）或赋值运算符
-  （\ref{class.copy.assign}）；这样的调用本身不构成访问，尽管可能会涉及到标量子
-  对象的访问。
+  \begin{sloppypar}
+    仅标量类型对象可以访问。标量对象读在\ref{conv.lval}中描述，标量对象修改在
+    \ref{expr.ass}，\ref{expr.post.incr}和\ref{expr.pre.incr}中描述。尝试读或修
+    改类类型对象通常会调用构造函数（\ref{class.ctor}）或赋值运算符
+    （\ref{class.copy.assign}）；这样的调用本身不构成访问，尽管可能会涉及到标量
+    子对象的访问。
+  \end{sloppypar}
 \end{note}
