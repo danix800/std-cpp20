@@ -50,7 +50,7 @@
         basicstyle=\linespread{1.0}\ttfamily\scriptsize,
         basewidth=0.5em}
 
-\renewcommand{\theparagraph}{\arabic{paragraph}}
+\renewcommand{\theparagraph}{\hspace{-2.5em}\arabic{paragraph}}
 \renewcommand{\thefigure}{\arabic{figure}}
 \renewcommand{\thetable}{\arabic{table}}
 
@@ -68,14 +68,21 @@
 \newcommand{\synprd}[2][\par]{\mbox{\qquad\qquad #2}#1}
 
 % doc structures
+\setlength{\parindent}{0em}
+
+\newcounter{transnotecounter}
+\newenvironment{transnote}
+{\stepcounter{transnotecounter}$\llbracket$译注\thetransnotecounter：}
+{--- 译注终$\rrbracket$}
+
 \newcounter{notecounter}
 \renewenvironment{note}
-{\stepcounter{notecounter}\noindent$\llbracket$\textit{注\thenotecounter}：}
+{\stepcounter{notecounter}$\llbracket$\textit{注\thenotecounter}：}
 {--- \textit{注终}$\rrbracket$}
 
 \newcounter{excounter}
 \renewenvironment{example}
-{\stepcounter{excounter}\noindent$\llbracket$\textit{例\theexcounter}：}
+{\stepcounter{excounter}$\llbracket$\textit{例\theexcounter}：}
 {--- \textit{例终}$\rrbracket$}
 
 \newcommand{\chptr}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}
@@ -152,9 +159,7 @@
 \newcommand{\defnsty}[1]{$\langle$ #1 $\rangle$}
 \newcommand{\defns}[4]{
 \sect{#1}{#2}
-\noindent \tb{#3}
-\par \noindent
-#4
+\tb{#3} \par #4
 }
 
 % toc style
