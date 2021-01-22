@@ -4,7 +4,7 @@
 \defnsty{标准库}除了满足对象的不变量以及对象上的操作按其类型所指定方式进行表现外
 未指定对象的值
 
-\begin{example}[\noindent]
+\begin{example}
   如果\tm{std::vector<int>}类型的对象\tm{x}处于有效但未指明状态，则
   \tm{x.empty()}可以无条件的调用，而\tm{x.front()}只能在\tm{x.empty()}返回
   \tm{false}时调用。

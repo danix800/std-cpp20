@@ -69,13 +69,13 @@
 
 % doc structures
 \newcounter{notecounter}
-\renewenvironment{note}[1][]
-{\stepcounter{notecounter}#1$\llbracket$\textit{注\thenotecounter}：}
+\renewenvironment{note}
+{\stepcounter{notecounter}\noindent$\llbracket$\textit{注\thenotecounter}：}
 {--- \textit{注终}$\rrbracket$}
 
 \newcounter{excounter}
-\renewenvironment{example}[1][]
-{\stepcounter{excounter}#1$\llbracket$\textit{例\theexcounter}：}
+\renewenvironment{example}
+{\stepcounter{excounter}\noindent$\llbracket$\textit{例\theexcounter}：}
 {--- \textit{例终}$\rrbracket$}
 
 \newcommand{\chptr}[2]{\chapter[#1]{#1\hfill[#2\label{#2}]}
