@@ -1,19 +1,53 @@
 % 6.4.7 Class scope [basic.scope.class]
 \paragraph{} % 1
-<++>
+声明于一个类中的名字的潜在作用域不仅由跟在名字的声明点之后的声明区组成，也包括该
+类的所有完整类上下文（\ref{class.mem}）。
 
 \paragraph{} % 2
-<++>
+用在一个类\tm{S}中的名字\tm{N}应该引用其上下文中的同一个声明，且当在\tm{S}的完整
+作用域中重新求值时亦是如此。此规则的违反无需诊断。
 
 \paragraph{} % 3
-<++>
+声明于一个成员函数中的名字隐藏其作用域扩展至或跨类的成员函数结尾处的同名声明。
 
 \paragraph{} % 4
-<++>
+一个类中声明的扩展至或跨类定义结尾处的潜在作用域也扩展到其成员定义区，即使成员词
+法上定义于类外（包括静态数据成员定义，嵌套类定义以及成员函数定义，包括成员函数体
+和跟在\nt{declarator-id}之后的此类声明子处的任何部分，包括一个
+\nt{parameter-declaration-clause}和任何缺省实参（\ref{dcl.fct.default}））。
 
 \paragraph{} % 5
-<++>
+\begin{example}
+  \begin{lstlisting}
+    typedef int c;
+    enum { i = 1 };
+    class X {
+      char v[i];                      // error: i refers to ::i but when reevaluated is X::i
+      int f() { return sizeof(c); }   // OK: X::c
+      char c;
+      enum { i = 2 };
+    };
+
+    typedef char* T;
+    struct Y {
+      T a;                            // error: T refers to ::T but when reevaluated is Y::T
+      typedef long T;
+      T b;
+    };
+
+    typedef int I;
+    class D {
+      typedef I I;                    // error, even through no reordering involved
+    };
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 6
-<++>
-
+一个类成员的名字只能按如下用于：
+\begin{enumerate}
+  \item 其类或其派生类（\ref{class.derived}）的作用域中，
+  \item 应用于其类（\ref{expr.ref}）或其派生类类型表达式的\tm{.}运算符之后，
+  \item 应用于其类（\ref{expr.ref}）或其派生类类型对象指针的\tm{->}运算符之后，
+  \item 应用于其类（\ref{expr.ref}）或其派生类名的\tm{::}作用域解析运算符
+        （\ref{expr.prim.id.qual}）之后。
+\end{enumerate}

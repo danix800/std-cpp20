@@ -1,34 +1,143 @@
 % 6.8.1 General [basic.types.general]
 \paragraph{} % 1
-<++>
+\begin{note}
+  \ref{basic.types}及其子条款对实现关于类型的表示加以限制。存在两个类型：基本类
+  型和复合类型。类型描述对象（\ref{intro.object}），引用（\ref{dcl.ref}）或者函
+  数（\ref{dcl.fct}）。
+\end{note}
 
 \paragraph{} % 2
-<++>
+对平凡可拷贝类型\tm{T}的任何对象（非潜在重叠子对象），无论对象是否存储一个类型
+\tm{T}的有效值，其组成对象的底层字节（\ref{intro.memory}）可以拷贝到一个
+\tm{char}，\tm{unsigned char}或者\tm{std::byte}的数组（\ref{cstddef.syn}）。
+\footnote{比如通过使用标准库函数（\ref{headers}）\tm{std::memcpy}或者
+\tm{std::memmove}。}如果该数组的内容拷贝回对象中，则对象随后应该存储其原有值。
+
+\begin{example}
+  \begin{lstlisting}
+    constexpr std::size_t N = sizeof(T);
+    char buf[N];
+    T obj;                          // obj initialized to its original value
+    std::memcpy(buf, &obj, N);      // between these two calls to std::memcpy, obj can be modified
+    std::memcpy(&obj, buf, N);      // at this point, each subobject of obj of scalar type holds its original value
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 3
-<++>
+对任何可拷贝类型\tm{T}，如果两个\tm{T}的指针指向不同的\tm{T}对象\tm{obj1}和
+\tm{obj2}，此处\tm{obj1}和\tm{obj2}均不是潜在重叠子对象，如果构成\tm{obj1}的底层
+字节（\ref{intro.memory}）拷贝到\tm{obj2}中，\footnote{比如通过使用标准库函数
+（\ref{headers}）\tm{std::memcpy}或者\tm{std::memmove}。}则\tm{obj2}随后应该存储
+与\tm{obj1}相同的值。
+
+\begin{example}
+  \begin{lstlisting}
+    T* t1p;
+    T* t2p;
+        // provided that t2p points to an initialized object ...
+    std::memcpy(t1p, t2p, sizeof(T));
+        // at this point, every subobject of trivially copyable type in *t1p contains
+        // the same value as the corresponding subobject in *t2p
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 4
-<++>
+一个\tm{T}类型对象的\df{对象表示}指\tm{T}类型对象所占据的\nt{N}个\tm{unsigned
+char}对象序列，其中\nt{N}等于\tm{sizeof(T)}。一个\tm{T}类型对象的\df{值表示}指参
+与表示\tm{T}类型值的位集合。不是值表示的一部分的对象表示位为\df{填充位}。对于平
+凡可拷贝类型，值表示指对象表示当中确定一个\df{值}的位集合，该值是实现定义值集合
+的一个离散元素。\footnote{其目的是使\cpp{}内存模型兼容于ISO/IEC 9899编程语言\c{}
+。}
 
 \paragraph{} % 5
-<++>
+一个已声明但未定义的类，某些上下文中的枚举类型（\ref{dcl.enum}）或者一个无上界或
+具有不完整元素类型的数组，是一个\df{不完整定义对象类型}。\footnote{一个不完整定
+义对象类的实例的大小和布局是未知的。}不完整对象类型和\nt{cv} \tm{void}为\df{不完
+整类型}（\ref{basic.fundamental}）。对象不应该定义为具有不完整类型。
 
 \paragraph{} % 6
-<++>
+一个类类型（如“\tm{class X}”）可以在一个翻译单元中的一点是不完整的而在之后补充完
+整；类型“\tm{class X}”在两个点是相同类型。数组对象所声明类型可以不完整类型的数组
+因此是不完整的；如果类类型在翻译单元中之后补充完整，则数组类型成为完整类型；数组
+类型在这两点是相同类型。数组对象所声明类型可以是未知大小数组，因此在一个翻译单元
+中某一点是不完整的并在之后补充完整；在这两点的数组类型（“\tm{T}的未知大小数组”和
+“\tm{N}个\tm{T}的数组”）是不同类型。指向未知大小数组的指针类型或者未知大小数组的
+\tm{typedef}声明所声明的类型是一个未知大小的数组，不能补充完整。
+
+\begin{example}
+  \begin{lstlisting}
+    class X;                        // X is an incomplete type
+    extern X* xp;                   // xp is a pointer to an incomplete type
+    extern int arr[];               // the type of arr is incomplete
+    typedef int UNKA[];             // UNKA is an incomplete type
+    UNKA* arrp;                     // arrp is a pointer to an incomplete type
+    UNKA** arrpp;
+
+    void foo() {
+      xp++;                         // error: X is incomplete
+      arrp++;                       // error: incomplete type
+      arrpp++;                      // OK: sizeof UNKA* is known
+    }
+
+    struct X { int i; };            // now X is a complete type
+    int arr[10];                    // now the type of arr is complete
+
+    X x;
+    void bar() {
+      xp = &x;                      // OK; type is “pointer to X”
+      arrp = &arr;                  // error: different types
+      xp++;                         // OK: X is complete
+      arrp++;                       // error: UNKA can’t be completed
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 7
-<++>
+\begin{note}
+  声明和表达式的规则描述在哪种上下文中禁止不完整声明。
+\end{note}
 
 \paragraph{} % 8
-<++>
+一个\df{对象类型}指一个（可能cv限定）非函数类型，非引用类型且非\nt{cv} \tm{void}
+的类型。
 
 \paragraph{} % 9
-<++>
+算术类型（\ref{basic.fundamental}），枚举类型，指针类型，成员指针类型
+（\ref{basic.compound}），\tm{std::nullptr\_t}以及这些类型的cv限定版本
+（\ref{basic.type.qualifier}）统称\df{标量类型}。标量类型，平凡可拷贝类类型
+（\ref{class.prop}），这些类型的数组类型以及这些类型的cv限定版本统称为\df{平凡可
+拷贝类型}。标量类型，平凡类类型（\ref{class.prop}），这些类型的数组类型和这些类
+型的cv限定版本统称\df{平凡类型}。标量类型，标准布局类类型（\ref{class.prop}），
+这些类型的数组类型和这些类型的cv限定版本统称为\df{标准布局类型}。标量类型，隐式
+生命期类类型（\ref{class.prop}），数组类型以及这些类型的cv限定版本统称为\df{隐式
+生命期类型}。
 
 \paragraph{} % 10
-<++>
+一个类型是一个\df{字面类型}，如果它是：
+\begin{enumerate}
+  \item \nt{cv} \tm{void}；或者
+  \item 一个标量类型；或者
+  \item 一个引用类型；或者
+  \item 一个字面类型的数组；或者
+  \item 一个具有以下所有属性的可能cv限定的类类型（第\ref{class}条）：
+        \begin{enumerate}
+          \item 它具有一个constexpr析构函数（\ref{dcl.constexpr}），
+          \item 它要么是一个闭包类型（\ref{expr.prim.lambda.closure}），要么是一
+                个聚合类型（\ref{dcl.init.aggr}），或者具有至少一个非拷贝或移动
+                构造函数的constexpr构造函数或构造函数模板（可能继承
+                （\ref{namespace.udecl}）自基类），
+          \item 如果它是一个联合，则它的非静态数据成员中至少一个具有非易失字面类
+                型，并且
+          \item 如果它不是一个联合，则它的所有非静态数据成员和基类都是非易失字面
+                类型。
+        \end{enumerate}
+\end{enumerate}
+\begin{note}
+  一个字面类型是一种表面上看起来可以在常量表达式中创建其对象的类型。并不保证可以
+  创建这样的对象，也不保证该类型的任何对象在一个常量表达式中可用。
+\end{note}
 
 \paragraph{} % 11
-<++>
-
+两个类型\nt{cv1} \tm{T1}和\nt{cv2} \tm{T2}是\df{布局兼容类型}，如果\tm{T1}和
+\tm{T2}是相同类型，布局兼容枚举（\ref{dcl.enum}）或布局兼容的标准布局类类型
+（\ref{class.mem}）。

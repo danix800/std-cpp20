@@ -1,10 +1,14 @@
 % 6.7.5.4 Automatic storage duration [basic.stc.auto]
 \paragraph{} % 1
-<++>
+未显式声明为\tm{static}，\tm{thread\_local}或\tm{extern}的块作用域变量具有\df{自
+动存储期}。这些实体的存储持续直到其创建所在块结束时。
 
 \paragraph{} % 2
-<++>
+\begin{note}
+  这些变量按\ref{stmt.dcl}中所述进行初始化和销毁。
+\end{note}
 
 \paragraph{} % 3
-<++>
-
+如果一个自动存储期变量具有初始化或一个具有副作用的析构函数，则实现不应该在其块结
+束前销毁它，也不应该因优化而消除它，即使看起来未用，除非一个类对象或其拷贝/移动
+按\ref{class.copy.elision}中所指定可以被消除。

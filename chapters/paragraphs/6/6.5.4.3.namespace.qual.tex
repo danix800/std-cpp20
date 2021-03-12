@@ -1,22 +1,221 @@
 % 6.5.4.3 Namespace members [namespace.qual]
 \paragraph{} % 1
-<++>
+如果一个\nt{qualified-id}的\nt{nested-name-specifier}指定一个命名空间（包括
+\nt{nested-name-specifier}是\tm{::}的情形，即指定全局命名空间），则
+\nt{nested-name-specifier}之后所指定的名字在该命名空间作用域中查询。一个
+\nt{template-id}的\nt{template-argument}中的名字在整个\nt{postfix-expression}所
+出现的上下文中查询。
 
 \paragraph{} % 2
-<++>
+对一个命名空间\tm{X}和名字\tm{m}，命名空间限定查询集\nt{S(X,m)}定义如下：设
+\nt{S\textprime{}(X,m)}为\tm{m}在\tm{X}和\tm{X}的内联命名空间集合
+（\ref{namespace.def}）中所有声明的集合，\tm{X}的潜在作用域
+（\ref{basic.scope.namespace}）将包含这样的命名空间，在其中\tm{m}在
+\nt{nested-name-specifier}的位置声明。如果\nt{S\textprime{}(X,m)}非空，则
+\nt{S(X,m)}为\nt{S\textprime{}(X,m)}；否则，\nt{S(X,m)}为\nt{S(N\tsub{i},m)}的并
+集，\nt{N\tsub{i}}为\tm{X}和其内联命名空间集合中使用\nt{using-directive}指定的所
+有命名空间。
 
 \paragraph{} % 3
-<++>
+给定\tm{X::m}（其中\tm{X}为用户声明命名空间），或给定\tm{::m}（其中\tm{X}为全局
+命名空间），如果\nt{S(X,m)}为空集，则程序为\illform{}。否则，如果\nt{S(X,m)}恰有
+一个成员，或者如果引用的上下文为一个\nt{using-declaration}
+（\ref{namespace.udecl}），则\nt{S(X,m)}为\tm{m}声明的所需集合。否则如果\tm{m}的
+使用不是允许从\nt{S(X,m)}中选择一个唯一声明的那个，则程序为\illform{}。
+
+\begin{example}
+  \begin{lstlisting}
+    int x;
+
+    namespace Y {
+      void f(float);
+      void h(int);
+    }
+
+    namespace Z {
+      void h(double);
+    }
+
+    namespace A {
+      using namespace Y;
+      void f(int);
+      void g(int);
+      int i;
+    }
+
+    namespace B {
+      using namespace Z;
+      void f(char);
+      int i;
+    }
+
+    namespace AB {
+      using namespace A;
+      using namespace B;
+      void g();
+    }
+
+    void h()
+    {
+      AB::g();      // g is declared directly in AB, therefore S is {AB::g()} and AB::g() is chosen
+
+      AB::f(1);     // f is not declared directly in AB so the rules are applied recursively to A and B;
+                    // namespace Y is not searched and Y::f(float) is not considered;
+                    // S is {A::f(int), B::f(char)} and overload resolution chooses A::f(int)
+
+      AB::f('c');   // as above but resolution chooses B::f(char)
+
+      AB::x++;      // x is not declared directly in AB, and is not declared in A or B, so the rules
+                    // are applied recursively to Y and Z, S is {} so the program is ill-formed
+
+      AB::i++;      // i is not declared directly in AB so the rules are applied recursively to A and B,
+                    // S is {A::i, B::i} so the use is ambiguous and the program is ill-formed
+
+      AB::h(16.8);  // h is not declared directly in AB and not declared directly in A or B so the rules
+                    // are applied recursively to Y and Z, S is {Y::h(int), Z::h(double)} and
+                    // overload resolution chooses Z::h(double)
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 4
-<++>
+\begin{note}
+  同一个声明被找到多次不是一种歧义（因为其仍是一个唯一声明）。
+
+  \begin{example}
+    \begin{lstlisting}
+    namespace A {
+      int a;
+    }
+
+    namespace B {
+      using namespace A;
+    }
+
+    namespace C {
+      using namespace A;
+    }
+
+    namespace BC {
+      using namespace B;
+      using namespace C;
+    }
+
+    void f()
+    {
+      BC::a++;            // OK: S is {A::a, A::a}
+    }
+
+    namespace D {
+      using A::a;
+    }
+
+    namespace BD {
+      using namespace B;
+      using namespace D;
+    }
+
+    void g()
+    {
+      BD::a++;            // OK: S is {A::a, A::a}
+    }
+    \end{lstlisting}
+  \end{example}
+
+\end{note}
 
 \paragraph{} % 5
-<++>
+\begin{example}
+  因为每一个被引用的命名空间最多被搜索一次，以下示例是\wellform{}的：
+  \begin{lstlisting}
+    namespace B {
+      int b;
+    }
+
+    namespace A {
+      using namespace B;
+      int a;
+    }
+
+    namespace B {
+      using namespace A;
+    }
+
+    void f()
+    {
+      A::a++;             // OK: a declared directly in A, S is {A::a}
+      B::a++;             // OK: both A and B searched (once), S is {A::a}
+      A::b++;             // OK: both A and B searched (once), S is {B::b}
+      B::b++;             // OK: b declared directly in B, S is {B::b}
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 6
-<++>
+在限定命名空间成员名查询过程中，如果查询找到成员的多于一个声明，且如果一个声明引
+入一个类名或枚举名而其他声明引入要么相同的变量，相同的\enumr{}，要么是一组函数，
+则非类型名隐藏类或枚举名当且仅当声明来自同一命名空间中；否则（声明来自不同命名空
+间中），程序为\illform{}。
+
+\begin{example}
+  \begin{lstlisting}
+    namespace A {
+      struct x { };
+      int x;
+      int y;
+    }
+
+    namespace B {
+      struct y { };
+    }
+
+    namespace C {
+      using namespace A;
+      using namespace B;
+      int i = C::x;     // OK, A::x (of type int)
+      int j = C::y;     // ambiguous, A::y or B::y
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 7
-<++>
+在一个命名空间成员的声明中，其中\nt{declarator-id}是一个\nt{qualified-id}，给定
+命名空间成员的\nt{qualified-id}形如\par
+\qquad\nt{nested-name-specifier unqualified-id}\par
+则\nt{unqualified-id}应该确定由\nt{nested-name-specifier}所表示的命名空间或该命
+名空间的内联命名空间集合（\ref{namespace.def}）元素的一个成员。
 
+\begin{example}
+  \begin{lstlisting}
+    namespace A {
+      namespace B {
+        void f1(int);
+      }
+      using namespace B;
+    }
+    void A::f1(int){ }  // error: f1 is not a member of A
+  \end{lstlisting}
+\end{example}
+
+然而，在这样的命名空间成员声明中，\nt{nested-name-specifier}可能依赖于
+\nt{using-directive}来隐式提供该\nt{nested-name-specifier}的初始部分。
+
+\begin{example}
+  \begin{lstlisting}
+    namespace A {
+      namespace B {
+        void f1(int);
+      }
+    }
+
+    namespace C {
+      namespace D {
+        void f1(int);
+      }
+    }
+
+    using namespace A;
+    using namespace C::D;
+    void B::f1(int){ }  // OK, defines A::B::f1(int)
+  \end{lstlisting}
+\end{example}

@@ -1,10 +1,26 @@
 % 6.4.3 Block scope [basic.scope.block]
 \paragraph{} % 1
-<++>
+声明于一个块中的名字局部于该块；具有\df{块作用域}。其潜在作用域始于其声明点
+（\ref{basic.scope.pdecl}）并终止于其块结束处。声明于块作用域的变量为\df{局部变
+量}。
 
 \paragraph{} % 2
-<++>
+声明于一个\nt{exception-declaration}的名字局部于该\nt{handler}，且不能在
+\nt{handler}的最外层块中重声明。
 
 \paragraph{} % 3
-<++>
+声明于\nt{init-statement}，\nt{for-range-declaration}和\tm{if}，\tm{while}，
+\tm{for}和\tm{switch}语句条件中的名字局部于该\tm{if}，\tm{while}，\tm{for}和
+\tm{switch}语句（包括受控语句），且不能在该语句的后续条件中重声明，也不能在受控
+语句的最外层块（或对于\tm{if}语句的任何最外层块）中重声明。
 
+\begin{example}
+  \begin{lstlisting}
+    if (int x = f()) {
+      int x;              // error: redeclaration of x
+    }
+    else {
+      int x;              // error: redeclaration of x
+    }
+  \end{lstlisting}
+\end{example}

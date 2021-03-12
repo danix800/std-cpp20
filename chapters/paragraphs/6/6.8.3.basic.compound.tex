@@ -1,16 +1,100 @@
 % 6.8.3 Compound types [basic.compound]
 \paragraph{} % 1
-<++>
+复合类型可按以下方式构建：
+\begin{enumerate}
+  \item 一个给定类型对象的\df{数组}，\ref{dcl.array}；
+  \item \df{函数}，具有一个给定类型的形参，返回\tm{void}或者一个给定类型的引用或
+        对象，\ref{dcl.fct}；
+  \item 指向\nt{cv} \tm{void}或一个给定类型的对象或函数（含类的静态成员）的
+        \df{指针}，\ref{dcl.ptr}
+  \item 一个给定类型对象或函数的\df{引用}，\ref{dcl.ref}。存在两种引用类型：
+        \begin{enumerate}
+          \item \lvalue{}引用
+          \item \rvalue{}引用
+        \end{enumerate}
+  \item \df{类}，包含一个多种类型对象的序列（第\ref{class}条），一组类型，枚举和
+        函数用于操作这些对象（\ref{class.mfct}），以及一组访问这些实体的约束
+        （\ref{class.access}）；
+  \item \df{联合}，一种能够在不同时间包含不同类型对象的类，\ref{class.union}；
+  \item \df{枚举}，由一组命名常量值组成。每一个不同枚举构成一个不同的\nt{枚举类
+        型}，\ref{dcl.enum}；
+  \item \df{非静态类成员指针}，\footnote{静态类成员为对象或函数，指向它们的指针
+        为指向对象和函数的普通指针。}标识一个给定类对象中一个给定类型的成员，
+        \ref{dcl.mptr}。数据成员指针和成员函数指针统称为\df{成员指针}类型。
+\end{enumerate}
 
 \paragraph{} % 2
-<++>
+这些构建类型的方法可以递归的应用；约束在\ref{dcl.meaning}中提及。构建一个类型使
+得其对象表示的字节数超过类型\tm{std::size\_t}（\ref{support.types}）能表示的最大
+值是\illform{}的。
 
 \paragraph{} % 3
-<++>
+指向\nt{cv} \tm{void}或指向对象类型的指针的类型称为\df{对象指针类型}。
+
+\begin{note}
+  但指向\tm{void}的指针不具有对象指针类型，因为\tm{void}不是一个对象类型。
+\end{note}
+
+一个表示函数的指针的类型称为\df{函数指针类型}。一个指向\tm{T}类型对象的指针称为
+“指向\tm{T}的指针”。
+
+\begin{example}
+  一个\tm{int}类型对象的指针称为“指向\tm{int}的指针”，一个类\tm{X}的对象的指针称
+  为“指向\tm{X}的指针”。
+\end{example}
+
+除了静态成员的指针，称为“指针”的文字对成员指针并不适用。指向不完整类型的指针是允
+许的，虽然存在其能做什么的限制（\ref{basic.align}）。指针类型的每一个值为以下之
+一：
+\begin{enumerate}
+  \item 一个指向对象或函数的\df{指针}（指针称为\df{指向}对象或函数），或者
+  \item \df{跨过}一个对象\df{结尾的指针}（\ref{expr.add}），或者
+  \item 该类型的\df{零指针值}，或者
+  \item 一个\df{无效指针值}。
+\end{enumerate}
+一个指向对象或者跨过对象结尾的指针类型的值\df{表示一个地址}，分别为对象所占内存
+（\ref{intro.memory}）首字节的地址\footnote{对一个不在其生命期内的对象，这指的是
+其将会占据或者曾经占据的内存首字节。}或者对象所占存储尾部之后的内存的第一个字节
+的地址。
+
+\begin{note}
+  一个跨过对象尾部的指针（\ref{expr.add}）不认为是指向该对象类型的不相关对象，即
+  使某个不相关对象位于该地址。当其表示的存储到达其存储期终束时，一个指针值变得无
+  效；见\ref{basic.stc}。
+\end{note}
+
+为了指针算术（\ref{expr.add}）和比较（\ref{expr.rel}，\ref{expr.eq}）的目的，一
+个跨过\nt{n}个元素数组的最后一个元素尾部的指针认为与一个指向假想的第\nt{n}个数组
+元素等价，而一个非数组元素的\tm{T}类型对象认为属于一个\tm{T}类型一个元素的数组。
+指针类型的值表示由实现定义。布局兼容类型的指针应该具有相同的值表示和对齐要求
+（\ref{basic.align}）。
+
+\begin{note}
+  过度对齐类型的指针（\ref{basic.align}）无特殊表示，但其有效值范围由扩展对齐要
+  求所限制。
+\end{note}
 
 \paragraph{} % 4
-<++>
+两个对象\nt{a}和\nt{b}是\df{指针可互转的}，如果：
+\begin{enumerate}
+  \item 它们是相同对象，或者
+  \item 其中一个是联合类型，另一个是该对象的非静态数据成员（\ref{class.union}）
+        ，或者
+  \item 其中一个是布局兼容类对象，另一个是该对象的第一个非静态数据成员，或者如果
+        对象不具有非静态数据成员，该对象的任何基类子对象（\ref{class.mem}），或
+        者
+  \item 存在对象\nt{c}使得\nt{a}和\nt{c}为指针可互转的，且\nt{c}和\nt{b}为指针可
+        互转的。
+\end{enumerate}
+如果两个对象为指针可互转的，则它们具有相同的地址，且可以通过
+\tm{reinterpret\_cast}（\ref{expr.reinterpret.cast}）从一个指针获取另一个的指
+针。
+
+\begin{note}
+  一个数组对象和其第一个元素不是指针可互转的，即使其具有相同地址。
+\end{note}
 
 \paragraph{} % 5
-<++>
-
+一个\nt{cv} \tm{void}的指针可用于指向未知类型的对象。这样的指针应该能够存储任意
+对象指针。一个\nt{cv} \tm{void*}类型的对象应该与\nt{cv} \tm{char*}具有相同的表示
+和对齐要求。

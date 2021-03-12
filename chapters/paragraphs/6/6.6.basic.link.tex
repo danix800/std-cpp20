@@ -1,58 +1,306 @@
 % 6.6 Program and linkage [basic.link]
 \paragraph{} % 1
-<++>
+一个\df{程序}由一个或多个翻译单元（\ref{lex.separate}）链接到一起组成。一个翻译
+单元由一个声明序列组成。
+
+\synsym{translation-unit}
+  \synprd{\nt{declaration-seq\tsub{opt}}}
+  \synprd[]{\nt{global-module-fragment\tsub{opt} module-declaration
+    declaration-seq\tsub{opt} private-module-fragment\tsub{opt}}}
 
 \paragraph{} % 2
-<++>
+一个名字当它能够将同一个对象，引用，函数，类型，模板，命名空间或值表示为一个由另
+一作用域中的声明所引入的名字时，称它为具有\df{链接}：
+\begin{enumerate}
+  \item 当一个名字具有\df{外部链接}时，其所代表的实体可被另一翻译单元中的作用域
+        或同一翻译单元中的作用域中的名字所引用。
+  \item 当一个名字具有\df{模块链接}时，其所代表的实体可被同一模块单元
+        （\ref{module.unit}）中的其他作用域或同一模块中其他模块单元中的作用域中
+        的名字所引用。
+  \item 当一个名字具有\df{内部链接}时，其所代表的实体可被同一翻译单元中其他作用
+        域中的名字所引用。
+  \item 当一个名字\df{无链接}时，其所代表的实体不能被其他作用域中的名字所引用。
+\end{enumerate}
 
 \paragraph{} % 3
-<++>
+一个具有命名空间作用域（\ref{basic.scope.namespace}）的名字如果是
+\begin{enumerate}
+  \item 一个显式声明为\tm{static}的变量，变量模板，函数或函数模板，或者
+  \item 一个非易失常限定类型的非模板变量，除非
+        \begin{enumerate}
+          \item 它被显式声明为\tm{extern}，或者
+          \item 它是内联的或者导出的，或者
+          \item 它是之前声明的，且之前的声明没有内部链接，或者
+        \end{enumerate}
+  \item 一个匿名联合的数据成员
+\end{enumerate}
+的名字，则它具有内部链接。
+
+\begin{note}
+  一个具有常限定类型的实例化变量模板可以具有外部或模块链接，即使未声明为
+  \tm{extern}。
+\end{note}
 
 \paragraph{} % 4
-<++>
+一个无名的命名空间或一个直接或间接声明于一个无名的命名空间中的命名空间具有内部链
+接。所有其他命名空间具有外部链接。一个具有命名空间作用域未给予上述内部链接且是
+\begin{enumerate}
+  \item 一个变量；或者
+  \item 一个函数；或者
+  \item 一个命名类（\ref{class.pre}），或一个定义于类型定义声明中的无名类，其中
+        的类具有链接目的（\ref{dcl.typedef}）的类型定义名；或者
+  \item 一个命名枚举（\ref{dcl.enum}），或一个定义于类型定义声明中的无名枚举，其
+        中枚举具有链接目的（\ref{dcl.typedef}）的类型定义名；或者
+  \item 一个无名枚举，具有一个\enumr{}作为链接目的（\ref{dcl.enum}）的名字；或者
+  \item 一个模板
+\end{enumerate}
+名的名字其链接按如下确定：
+\begin{enumerate}
+  \setcounter{enumi}{6}
+  \item 如果包含命名空间具有内部链接，则该名字具有内部链接；
+  \item 否则，如果名字的声明附属于一个命名模块（\ref{module.unit}）且未被导出
+        （\ref{module.interface}），则名字具有模块链接；
+  \item 否则，该名字具有外部链接。
+\end{enumerate}
 
 \paragraph{} % 5
-<++>
+此外，类作用域的成员函数，静态数据成员，命名类或枚举，或者一个定义于类作用域类型
+定义声明中使得类或枚举具有链接目的（\ref{dcl.typedef}）的类型定义名的无名类或枚
+举，具有与作为其成员的类的名字相同的链接（如果有的话）。
 
 \paragraph{} % 6
-<++>
+一个声明于块作用域中的函数名和由块作用域\tm{extern}声明所声明的变量名具有链接。
+如果这样的声明附属于一个命名模块，则程序为\illform{}。如果存在一个具有链接的实体
+的可见声明，忽略声明于最内层包含命名空间作用域之外的实体，使得如果两个声明出现在
+同一个声明区中则块作用域声明是一个（可能\illform{}的）重声明，那么块作用域声明所
+声明的是该相同的实体并接受之前的声明的链接。如果存在超过一个这样的匹配实体，则程
+序为\illform{}。否则，如果未找到匹配实体，则块作用域声明接受外部链接。如果在一个
+翻译单元中，相同的实体既声明为内部链接也声明为外部链接，则程序为\illform{}。
+
+\begin{example}
+  \begin{lstlisting}
+    static void f();
+    extern "C" void h();
+    static int i = 0;             // #1
+    void g() {
+      extern void f();            // internal linkage
+      extern void h();            // C language linkage
+      int i;                      // #2: i has no linkage
+      {
+        extern void f();          // internal linkage
+        extern int i;             // #3: external linkage, ill-formed
+      }
+    }
+  \end{lstlisting}
+  如果没有行\#2中的声明，行\#3中的声明将链接到行\#1中的声明。但是因为内部链接声
+  明被隐藏，行\#3中声明给予外部链接，使得程序为\illform{}。
+\end{example}
 
 \paragraph{} % 7
-<++>
+当一个具有链接实体的块作用域声明未找到引用其他声明时，则该实体为最内层包含命名空
+间的成员。然而这样的声明不引入其命名空间作用域中的成员名。
+
+\begin{example}
+  \begin{lstlisting}
+    namespace X {
+      void p() {
+        q();                          // error: q not yet declared
+        extern void q();              // q is a member of namespace X
+      }
+
+      void middle() {
+        q();                          // error: q not yet declared
+      }
+
+      void q() { /* ... */ }          // definition of X::q
+    }
+
+    void q() { /* ... */ }            // some other, unrelated q
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 8
-<++>
+未被这些规则覆盖的名字无链接。此外，除另有说明，一个声明于块作用域
+（\ref{basic.scope.block}）的名字无链接。
 
 \paragraph{} % 9
-<++>
+两个相同的并声明于不同作用域的名字（\ref{basic.pre}）应该表示相同变量，函数，类
+型，模板或命名空间，如果
+\begin{enumerate}
+  \item 两个名字都具有外部链接或模块链接，且声明于附属到同模块的声明中，或者两个
+        都具有内部链接并声明于同一翻译单元中；并且
+  \item 两个名字都引用同一命名空间的成员，或者同一个类不是通过继承的成员；并且
+  \item 当两个名字都表示函数或函数模板时，其签名（\ref{defns.signature}，
+        \ref{defns.signature.templ}）相同。
+\end{enumerate}
+如果具有外部链接且同名的多个声明会声明相同实体（除非附属于不同模块），则程序
+为\illform{}；无需诊断。
+
+\begin{note}
+  \nt{using-declaration}，类型定义声明和\nt{alias-declaration}不声明实体，而仅仅
+  引入同名。类似的，\nt{using-directive}也不声明实体。\enumr{}无链接，但可以用作
+  有链接枚举名（\ref{dcl.enum}）。
+\end{note}
 
 \paragraph{} % 10
-<++>
+如果一个声明会重声明附属于不同模块的可达声明，则程序为\illform{}。
+
+\begin{example}
+  \begin{lstlisting}
+    "decls.h":
+      int f();                // #1, attached to the global module
+      int g();                // #2, attached to the global module
+  \end{lstlisting}
+  \tm{M}的模块接口：
+  \begin{lstlisting}
+    module;
+    #include "decls.h"
+    export module M;
+    export using ::f;         // OK: does not declare an entity, exports #1
+    int g();                  // error: matches #2, but attached to M
+    export int h();           // #3
+    export int k();           // #4
+  \end{lstlisting}
+  其他翻译单元：
+  \begin{lstlisting}
+    import M;
+    static int h();           // error: matches #3
+    int k();                  // error: matches #4
+  \end{lstlisting}
+  这些规则的结果是，一个实体的所有声明附属于同一模块；实体被称为\df{附属于}该模
+  块。
+\end{example}
 
 \paragraph{} % 11
-<++>
+在所有类型调整（其中类型定义（\ref{dcl.typedef}）替换成其定义）之后，所有声明所
+指定的引用一个给定变量或函数的类型应该是等价的，除了一个数组对象的声明可以指定在
+主数组上界（\ref{dcl.array}）的存在与否上有所不同的数组类型。违反此类型等价的规则
+不需要诊断。
 
 \paragraph{} % 12
-<++>
+\begin{note}
+  链接到非\cpp{}声明可以通过一个\nt{linkage-specification}（\ref{dcl.link}）来实
+  现。
+\end{note}
 
 \paragraph{} % 13
-<++>
+一个声明\nt{D}\df{确定}一个实体\nt{E}，如果
+\begin{enumerate}
+  \item \nt{D}包含一个\nt{lambda-expression}，其闭包类型为\nt{E}，
+  \item \nt{E}不是函数或函数模板且\nt{D}包含一个表示\nt{E}的\nt{id-expression}，
+        \nt{type-specifier}，\nt{nested-name-specifier}，\nt{template-name}或
+        \nt{concept-name}，或者
+  \item \nt{E}是一个函数或函数模板且\nt{D}包含一个确定\nt{E}的表达式
+        （\ref{basic.def.odr}）或者引用一个含有\nt{E}的重载集合的
+        \nt{id-expression}。
+
+        \begin{note}
+          一个实例化声明中的非依赖名不引用一个重载集合（\ref{temp.nondep}）。
+        \end{note}
+\end{enumerate}
 
 \paragraph{} % 14
-<++>
+一个声明是一个\df{暴露}，如果它确定一个翻译单元局部实体（下文定义），忽略
+\begin{enumerate}
+  \item 一个非内联函数或函数模板的\nt{function-body}（但不是一个具有使用占位类型
+        （\ref{dcl.spec.auto}）声明返回类型的（可能实例化的）函数定义的推导返回
+        类型），
+  \item 一个变量或变量模板的\nt{initializer}（但不是变量的类型），
+  \item 一个类定义中的友元声明，以及
+  \item 一个非易失常对象的任何引用或者具有内部链接或无链接使用非\odruse{}的常量
+        表达式初始化的引用。
+\end{enumerate}
+或者定义了一个初始化为翻译单元局部值（下文定义）的常表达式变量。
+
+\begin{note}
+  一个内联函数模板可以是一个暴露，即使其显式特例化可能在其他翻译单元中可用。
+\end{note}
 
 \paragraph{} % 15
-<++>
+一个实体是\df{翻译单元局部的}，如果它是
+\begin{enumerate}
+  \item 一个类型，函数，变量或模板，使得其
+        \begin{enumerate}
+          \item 具有内部链接的名字，或者
+          \item 不具有有链接的名字，且由一个翻译单元局部实体的定义中的
+                \nt{lambda-expression}所声明或引入，
+        \end{enumerate}
+  \item 一个无名类型，定义于一个\nt{class-specifier}，函数体，或\nt{initializer}
+        之外或由一个仅用于声明翻译单元局部实体的\nt{definiting-type-specifier}所
+        引入，
+  \item 一个翻译单元局部模板的特例化，
+  \item 一个使用任何翻译单元局部模板实参实例化的模板，或者
+  \item 一个其（可能实例化的）声明为一个暴露的模板的特例化。
+
+        \begin{note}
+          一个特例化可由隐式或显式实例化产生。
+        \end{note}
+\end{enumerate}
 
 \paragraph{} % 16
-<++>
+一个值或对象是\df{翻译单元局部的}，如果
+\begin{enumerate}
+  \item 它是翻译单元局部函数或关联于翻译单元局部变量的对象或其指针，或者
+  \item 它是一个类或数组类型对象，且任何其子对象或其引用类型的非静态数据成员所引
+        用的任何对象或函数是翻译单元局部的且可用于常量表达式中。
+\end{enumerate}
 
 \paragraph{} % 17
-<++>
+如果一个模块接口单元（在\nt{private-module-fragment}之外，如有的话）或模块分区
+（\ref{module.unit}）中的非翻译单元局部实体的（可能实例化的）声明或推导指南是一
+个暴露，则程序为\illform{}。任何其他上下文中这样的声明已被废弃
+（\ref{depr.local}）。
 
 \paragraph{} % 18
-<++>
+如果出现在一个翻译单元中的声明确定一个在其他非头单元的翻译单元中的翻译单元局部实
+体，则程序为\illform{}。一个为模板特例化（\ref{temp.spec}）而实例化的声明出现在
+该特例化的实例化点（\ref{temp.point}）。
 
 \paragraph{} % 19
-<++>
+\begin{example}
 
+  翻译单元\#1：
+  \begin{lstlisting}
+    export module A;
+    static void f() {}
+    inline void it() { f(); }         // error: is an exposure of f
+    static inline void its() { f(); } // OK
+    template<int> void g() { its(); } // OK
+    template void g<0>();
+
+    decltype(f) *fp;                  // error: f (though not its type) is TU-local
+    auto &fr = f;                     // OK
+    constexpr auto &fr2 = fr;         // error: is an exposure of f
+    constexpr static auto fp2 = fr;   // OK
+
+    struct S { void (&ref)(); } s{f};             // OK, value is TU-local
+    constexpr extern struct W { S &s; } wrap{s};  // OK, value is not TU-local
+
+    static auto x = []{f();};           // OK
+    auto x2 = x;                        // error: the closure type is TU-local
+    int y = ([]{f();}(),0);             // error: the closure type is not TU-local
+    int y2 = (x,0);                     // OK
+
+    namespace N {
+      struct A {};
+      void adl(A);
+      static void adl(int);
+    }
+    void adl(double);
+
+    inline void h(auto x) { adl(x); }   // OK, but a specialization can be an exposure
+  \end{lstlisting}
+  翻译单元\#2：
+  \begin{lstlisting}
+    module A;
+    void other() {
+      g<0>();                   // OK, specialization is explicitly instantiated
+      g<1>();                   // error: instantiation uses TU-local its
+      h(N::A{});                // error: overload set contains TU-local N::adl(int)
+      h(0);                     // OK, calls adl(double)
+      adl(N::A{});              // OK; N::adl(int) not found, calls N::adl(N::A)
+      fr();                     // OK, calls f
+      constexpr auto ptr = fr;  // error: fr is not usable in constant expressions here
+    }
+  \end{lstlisting}
+\end{example}

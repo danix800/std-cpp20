@@ -1,19 +1,66 @@
 % 6.4.1 Declarative regions and scopes [basic.scope.declarative]
 \paragraph{} % 1
-<++>
+每一个名字在程序文本的某一部分中引入，称为\df{声明区}，为程序中名字有效的最大部
+分，即在其中该名字可以用作未限定名来引用相同实体。一般而言，每一个特定名字仅在程
+序文本的某些可能不连续的部分中有效，称为其\df{作用域}。为确定一个声明的作用域，
+有时引用一个声明的\df{潜在作用域}是便利的。除非潜在作用域包含另一个同名声明，否
+则一个声明的作用域与其潜在作用域相同。在这种情况下，内层（被包含）声明区中的声明
+的潜在作用域从外层（包含）声明区中的声明作用域中排除。
 
 \paragraph{} % 2
-<++>
+\begin{example}
+  在以下代码中
+  \begin{lstlisting}
+    int j = 24;
+    int main() {
+      int i = j, j;
+      j = 42;
+    }
+  \end{lstlisting}
+  标识符\tm{j}作为名字声明了两次（且用了两次）。第一个\tm{j}的声明区包含整个示
+  例。第一个\tm{j}的潜在作用域在该\tm{j}之后立即开始直到程序结束处，但其（实际）
+  作用域不包含\tm{,}和\tm{\}}之间的文本。\tm{j}的第二个声明的声明区（紧挨着分号
+  前的\tm{j}）包含\tm{\{}和\tm{\}}间的所有文本，但其潜在作用域不包含\tm{i}的声
+  明。\tm{j}的第二个声明的作用域与其潜在作用域相同。
+\end{example}
 
 \paragraph{} % 3
-<++>
+\begin{sloppypar}
+  一个声明所声明的名字引入到声明所在的作用域中，除了存在\tm{friend}说明符
+  （\ref{class.friend}），\nt{elaborated-type-specifier}的某些使用
+  （\ref{dcl.type.elab}）和\nt{using-directive}（\ref{namespace.udir}）改变了该
+  常规的行为。
+\end{sloppypar}
 
 \paragraph{} % 4
-<++>
+给定一个声明区中的一组声明，每一个都指定了相同的未限定名，
+\begin{enumerate}
+  \item 它们应该引用相同实例，或者都引用相同函数和函数模板；或者
+  \item 仅有一个声明应该声明一个不是类型定义的类名或枚举名且其他声明都应该引用相
+        同变量，非静态数据成员，或\enumr{}，或都引用函数或函数模板；在这种情况下
+        类名或枚举名被隐藏（\ref{basic.scope.hiding}）。
+
+        \begin{note} % 1
+          一个结构化绑定（\ref{dcl.struct.bind}），命名空间名
+          （\ref{basic.namespace}）或类模板名（\ref{temp.pre}）在其声明区中必须
+          是唯一的。
+        \end{note}
+\end{enumerate}
+
+\begin{note} % 2
+  这些限制适用于一个名字被引入的声明区，不一定与声明所出现的区域相同。特别的，
+  \nt{elaborated-type-specifier}（\ref{dcl.type.elab}）和友元声明
+  （\ref{class.friend}）可以向一个包含命名空间中引用一个（可能不可见）的名字；这
+  些限制对该区域适用。局部外部声明（\ref{basic.link}）可以向声明所在区域引入一个
+  名字，也可以向一个包含命名空间中引入一个（可能不可见）的名字；这些限制对这些区
+  域都适用。
+\end{note}
 
 \paragraph{} % 5
-<++>
+对一个给定声明区\nt{R}和\nt{R}外的一点\nt{P}，\nt{P}和\nt{R}\df{中间}的声明区集
+合包括是或包含\nt{R}但不包含\nt{P}的所有声明区。
 
 \paragraph{} % 6
-<++>
-
+\begin{note} % 3
+  名字查询规则在\ref{basic.lookup}中汇总。
+\end{note}

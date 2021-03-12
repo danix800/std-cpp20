@@ -1,13 +1,55 @@
 % 6.5.5 Elaborated type specifiers [basic.lookup.elab]
 \paragraph{} % 1
-<++>
+一个\nt{elaborated-type-specifier}（\ref{dcl.type.elab}）可用于引用之前声明的
+\nt{class-name}或\nt{enum-name}，即使名字被一个非类型声明
+（\ref{basic.scope.hiding}）所隐藏。
 
 \paragraph{} % 2
-<++>
+如果\nt{elaborated-type-specifier}没有\nt{nested-name-specifier}，且除非
+\nt{elaborated-type-specifier}出现在一个具有以下形式的声明中：\par
+\qquad\nt{class-key attribute-specifier-seq\tsub{opt} identifier} \tm{;} \par
+则\nt{identifier}根据\ref{basic.lookup.unqual}进行查询，但会忽略任何已声明的非类
+型名。如果\nt{elaborated-type-specifier}由\tm{enum}关键字引入且该查询未找到之前
+声明的\nt{type-name}，则\nt{elaborated-type-specifier}为\illform{}。如果
+\nt{elaborated-type-specifier}由\nt{class-key}引入且查询未找到之前声明的
+\nt{type-name}，或者如果\nt{elaborated-type-specifier}出现在形如：\par
+\qquad\nt{class-key attribute-specifier-seq\tsub{opt} identifier} \tm{;} \par
+的声明中，则\nt{elaborated-type-specifier}按\ref{basic.scope.pdecl}是一个引入该
+\nt{class-name}的声明。
 
 \paragraph{} % 3
-<++>
+如果\nt{elaborated-type-specifier}具有一个\nt{nested-name-specifier}，则按
+\ref{basic.lookup.qual}所述进行限定名查询，但忽略任何已声明的非类型名。如果名字
+查询未找到之前声明的\nt{type-name}则\nt{elaborated-type-specifier}为\illform{}。
 
 \paragraph{} % 4
-<++>
+\begin{example}
+  \begin{lstlisting}
+    struct Node {
+      struct Node* Next;            // OK: Refers to injected-class-name Node
+      struct Data* Data;            // OK: Declares type Data at global scope and member Data
+    };
 
+    struct Data {
+      struct Node* Node;            // OK: Refers to Node at global scope
+      friend struct ::Glob;         // error: Glob is not declared, cannot introduce a qualified type (9.2.9.4)
+      friend struct Glob;           // OK: Refers to (as yet) undeclared Glob at global scope.
+      /* ... */
+    };
+
+    struct Base {
+      struct Data;                  // OK: Declares nested Data
+      struct ::Data*     thatData;  // OK: Refers to ::Data
+      struct Base::Data* thisData;  // OK: Refers to nested Data
+      friend class ::Data;          // OK: global Data is a friend
+      friend class Data;            // OK: nested Data is a friend
+      struct Data { /* ... */ };    // Defines nested Data
+    };
+
+    struct Data;                    // OK: Redeclares Data at global scope
+    struct ::Data;                  // error: cannot introduce a qualified type (9.2.9.4)
+    struct Base::Data;              // error: cannot introduce a qualified type (9.2.9.4)
+    struct Base::Datum;             // error: Datum undefined
+    struct Base::Data* pBase;       // OK: refers to nested Data
+  \end{lstlisting}
+\end{example}

@@ -1,37 +1,193 @@
 % 6.9.1 Sequential execution [intro.execution]
 \paragraph{} % 1
-<++>
+每一个自动存储期（\ref{basic.stc.auto}）对象的一个实例与每一次进入其块相关联。这
+样的对象在块执行期间和块挂起期间（通过调用函数，协程（\ref{expr.await}）挂起或者接
+收到一个信号）存在并维持其最后存储值。
 
 \paragraph{} % 2
-<++>
+一个\df{构成表达式}定义如下：
+\begin{enumerate}
+  \item 一个表达式的构成表达式为该表达式。
+  \item 一个\nt{braced-init-list}或者（可能加括号的）\nt{expression-list}的构成
+        表达式为对应列表的元素的构成表达式。
+  \item 一个形如\tm{=} \nt{initializer-clause}的\nt{brace-or-equal-initializer}
+        的构成表达式为\nt{initializer-clause}的构成表达式。
+\end{enumerate}
+
+\begin{example}
+  \begin{lstlisting}
+    struct A { int x; };
+    struct B { int y; struct A a; };
+    B b = { 5, { 1+1 } };
+  \end{lstlisting}
+  用于\tm{b}的初始化中的\nt{initializer}的构成表达式为\tm{5}和\tm{1+1}。
+\end{example}
 
 \paragraph{} % 3
-<++>
+一个表达式\nt{E}的直接子表达式为
+\begin{enumerate}
+  \item \nt{E}的操作数（\ref{expr.prop}）的构成表达式，
+  \item \nt{E}隐式调用的任何函数调用，
+  \item 如果\nt{E}是一个\nt{lambda-expression}（\ref{expr.prim.lambda}），由拷贝
+        所捕获的实体的初始化和\nt{init-clause}的\nt{initializer}的构成表达式，
+  \item 如果\nt{E}是一个函数调用（\ref{expr.call}）或者隐式调用一个函数，用于调
+        用中的每一个缺省实参（\ref{dcl.fct.default}）的构成表达式，或者
+  \item 如果\nt{E}创建一个聚合对象（\ref{dcl.init.aggr}），用于初始化中的每一个
+        缺省成员初始化（\ref{class.mem}）的构成表达式。
+\end{enumerate}
 
 \paragraph{} % 4
-<++>
+一个表达式\nt{E}的\df{子表达式}为\nt{E}的直接子表达式或者\tm{E}的直接子表达式的
+子表达式。
+
+\begin{note}
+  出现在一个\nt{lambda-expression}的\nt{compound-statement}中的表达式不是
+  \nt{lambda-expression}的子表达式。
+\end{note}
 
 \paragraph{} % 5
-<++>
+一个\df{全表达式}指
+\begin{enumerate}
+  \item 一个未求值操作（\ref{expr.prop}），
+  \item 一个\nt{constant-expression}（\ref{expr.const}），
+  \item 一个直接调用（\ref{expr.const}），
+  \item 一个\nt{init-declarator}（\ref{dcl.decl}）或者一个\nt{mem-initializer}
+        （\ref{class.base.init}），包括初始化的构成表达式，
+  \item 一个非临时对象（\ref{class.temporary}），生命期未扩展的对象的生命期结束
+        时生成的析构函数调用，或者
+  \item 一个不是另一个表达式的子表达式，并且不是一个全表达式的一部分的表达式。
+\end{enumerate}
+如果一个语言结构定义为产生一个函数的隐式调用，该语言结构的使用为此定义而考虑为一
+个表达式。为满足表达式所出现在的语言结构的要求，应用于表达式结果的转换也被认为是
+全表达式的一部分。对于一个初始化，进行实体的初始化（含一个聚合缺省成员初始化的求
+值）也被当作是全表达式的一部分。
+
+\begin{example}
+  \begin{lstlisting}
+    struct S {
+      S(int i): I(i) { }        // full-expression is initialization of I
+      int& v() { return I; }
+      ~S() noexcept(false) { }
+    private:
+      int I;
+    };
+
+    S s1(1);                    // full-expression comprises call of S::S(int)
+    void f() {
+      S s2 = 2;                 // full-expression comprises call of S::S(int)
+      if (S(3).v())             // full-expression includes lvalue-to-rvalue and int to bool conversions,
+                                // performed before temporary is deleted at end of full-expression
+      { }
+      bool b = noexcept(S());   // exception specification of destructor of S considered for noexcept
+
+      // full-expression is destruction of s2 at end of block
+    }
+    struct B {
+      B(S = S(0));
+    };
+    B b[2] = { B(), B() };      // full-expression is the entire initialization
+                                // including the destruction of temporaries
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 6
-<++>
+\begin{note}
+  一个全表达式的求值可以包括词法上不是全表达式一部分的子表达式的求值。比如，涉及
+  求值缺省实参（\ref{dcl.fct.default}）的子表达式认为在调用函数的表达式中创建，
+  而不是在定义缺省实参的表达式中。
+\end{note}
 
 \paragraph{} % 7
-<++>
+读一个\tm{volatile}\glvalue{}（\ref{basic.lval}）所表示的对象，修改一个对象，调
+用标准库I/O函数，或者调用进行任一个这种操作的函数均为\df{副作用}，即执行环境中状
+态的改变。一个表达式（或一个子表达式）的\df{求值}一般包括值计算（包括为
+\glvalue{}求值确定一个对象的实体和为\prvalue{}求值获取之前赋给一个对象的值）和副
+作用的开始。当一个标准库I/O函数调用返回时或者一个易失\glvalue{}的访问求值后认为
+副作用完成，即使调用（如I/O本身）或者易失访问所隐含的某些外部操作尚未完成。
 
 \paragraph{} % 8
-<++>
+\df{前序}是单个线程（\ref{intro.multithread}）所执行的求值之间的一种反对称，传递
+和配对关系，归纳为这些求值的一个偏序。给定两个求值\nt{A}和\nt{B}，如果\nt{A}前序
+于\nt{B}（或者等价的，\nt{B}\df{后序}于\nt{A}），则\nt{A}的执行应该在\nt{B}的执
+行之前。如果\nt{A}不前序于\nt{B}且\nt{B}不前序于\nt{A}，则\nt{A}和\nt{B}是\df{无
+序}的。
+
+\begin{note}
+  无序求值的执行可以重叠。
+\end{note}
+
+当要么\nt{A}前序于\nt{B}，要么\nt{B}前序于\nt{A}，但未指哪一个在前时，求值\nt{A}
+和\nt{B}为\df{不确定性有序}的。
+
+\begin{note}
+  不确定性有序求值的执行不能重叠，但任一个可以先执行。
+\end{note}
+
+一个表达式\nt{X}称为前序于一个表达式\nt{Y}，如果关联于表达式\nt{X}的每一个值计算
+和每一个副作用前序于关联于表达式\nt{Y}的每一个值计算和每一个副作用。
 
 \paragraph{} % 9
-<++>
+关联于一个全表达式的每一个值计算和副作用前序于关联于下一个待求值全表达式的每一个
+值计算和副作用。\footnote{按\ref{class.temporary}中所指定，在一个全表达式的求值
+之后，临时对象的一个零个或多个析构函数的调用序列可能会出现，通常按每一个临时对象
+构建顺序相反的顺序进行。}
 
 \paragraph{} % 10
-<++>
+除另有说明，独立运算符操作数和独立表达式的子表达式求值是无序的。
+
+\begin{note}
+  在程序执行过程中，一个求值多次的表达式，在不同求值中无序和不确定性有序子表达式
+  的求值不要求一致进行。
+\end{note}
+
+一个运算符操作数的值计算前序于运算符结果的值计算。如果一个内存位置
+（\ref{intro.memory}）上的副作用相对于同一内存位置上的另一个副作用或者使用同一内
+存位置上的任何对象值的值计算是无序的，而它们不是潜在并发的
+（\ref{intro.multithread}），则该行为未定义。
+
+\begin{note}
+  下一个条款对潜在并发计算施加类似但更复杂的限制。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+    void g(int i) {
+      i = 7, i++, i++;            // i becomes 9
+      i = i++ + 1;                // the value of i is incremented
+      i = i++ + i;                // undefined behavior
+      i = i + 1;                  // the value of i is incremented
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 11
-<++>
+在调用一个函数时（无论函数是否为内联），关联于任何实参表达式或者表示所调用函数的
+后缀表达式的每一个值计算和副作用前序于所调用函数体的每一个表达式和语句的执行。对
+每一个函数调用\nt{F}，出现在\nt{F}中的每一个求值\nt{A}以及未出现在\nt{F}中但在同
+一个线程中和同一信号处理程序的一部分（如有）求值的每一个求值\nt{B}，要么\nt{A}前
+序于\nt{B}，要么\nt{B}前序于\nt{A}。\footnote{换句话说即函数求值不会相互交织。}
+
+\begin{note}
+  如果\nt{A}和\nt{B}不是有序的则它们是不确定性有序的。
+\end{note}
+
+\cpp{}中多个上下文会导致函数调用求值，即使没有对应的函数调用语法出现在翻译单元当
+中。
+
+\begin{example}
+  一个\nt{new-expression}的求值调用一个或多个分配和构造函数；见\ref{expr.new}。
+  另一个例子是转换函数（\ref{class.conv.fct}）的调用可能在没有函数调用语法的上下
+  文中出现。
+\end{example}
+
+函数调用执行上的序列约束（如上述）是所求值函数调用的特性，无论调用函数的表达式语
+法形式是什么。
 
 \paragraph{} % 12
-<++>
+如果一个信号处理程序因调用\tm{std::raise}函数而执行，则处理程序的执行后序于
+\tm{std::raise}函数的调用，前序于其返回。
 
+\begin{note}
+  当因为别的原因接收到一个信号时，信号处理程序的执行通常相对程序其他部分是无序
+  的。
+\end{note}

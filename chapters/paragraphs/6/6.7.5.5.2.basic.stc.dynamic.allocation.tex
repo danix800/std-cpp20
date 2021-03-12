@@ -1,16 +1,56 @@
 % 6.7.5.5.2 Allocation functions [basic.stc.dynamic.allocation]
 \paragraph{} % 1
-<++>
+一个分配函数应该是一个类成员函数或一个全局函数；如果一个分配函数声明于非全局作用
+域的命名空间作用域中或者在全局作用域中声明为静态的，则程序为\illform{}。返回类型
+应该是\tm{void*}。第一个形参具有\tm{std::size\_t}类型（\ref{support.types}）。第
+一个形参不应该具有关联缺省实参（\ref{dcl.fct.default}）。第一个形参解释为分配所
+请求的大小。分配函数可以是一个函数模板。这样的模板应该按上文所指定声明其返回类型
+和第一个形参（即模板形参类型不应该用于返回类型和第一个形参类型中）。模板分配函数
+应该具有两个或更多的形参。
 
 \paragraph{} % 2
-<++>
+一个分配函数尝试分配所请求大小的存储。如果成功，则返回存储块首地址，存储块长度应
+该至少和所请求大小一样大。未指明后续调用分配函数所分配存储的顺序，连续性和初始化
+值。即使所请求空间大小为零，请求也可能会失败。如果请求成功，则一个可替换分配函数
+的返回值为非零指针值（\ref{basic.compound}）\tm{p0}，不同于任何之前的返回值
+\tm{p1}，除非值\tm{p1}曾传递给一个可替换释放函数。更进一步，对
+\ref{new.delete.single}和\ref{new.delete.array}中的标准库分配函数，\tm{p0}表示与
+调用者可访问的任何其他对象存储不相交的存储块的地址。通过零大小请求返回的指针进行
+解引用的效果未定义。\footnote{其目的是使得\tm{operator new()}可以通过调用
+\tm{std::malloc()}或者\tm{std::calloc()}来实现，因此规则本质上是一样的。\cpp{}在
+要求零请求返回非零指针上与\c{}不同。}
 
 \paragraph{} % 3
-<++>
+对于一个除了保留的定点分配函数（\ref{new.delete.placement}）之外的分配函数，一个
+成功调用所返回的指针应该表示按以下对齐的存储地址：
+\begin{enumerate}
+  \item 如果分配函数取一个\tm{std::align\_val\_t}类型的实参，则存储将具有该实参
+        值所指定的对齐。
+  \item 否则，如果分配函数为\tm{operator new[]}，则存储为任何不具有new扩展对齐
+        （\ref{basic.align}）的对象而对齐且不会比请求大小更大。
+  \item 否则，存储对任何不具有new扩展对齐的对象而对齐并具有所请求大小。
+\end{enumerate}
 
 \paragraph{} % 4
-<++>
+一个未成功分配存储的分配函数可以调用当前安装的new处理函数（\ref{new.handler}），
+如有的话。
+
+\begin{note}
+  一个程序提供的分配函数可以使用\tm{std::get\_new\_handler}函数
+  （\ref{get.new.handler}）来获取当前安装的\tm{new\_handler}的地址。
+\end{note}
+
+一个具有不抛出异常规范（\ref{except.spec}）的分配函数通过返回一个零指针值来表示
+失败。任何其他分配函数永远不会返回零指针值，并只通过抛出匹配\tm{std::bad\_alloc}
+（\ref{bad.alloc}）类型处理程序的异常（\ref{except.throw}）来表示失败。
 
 \paragraph{} % 5
-<++>
+一个全局分配函数只因一个new表达式（\ref{expr.new}）来调用，或使用函数调用语法
+（\ref{expr.call}）来直接调用，或为一个协程状态（\ref{dcl.fct.def.coroutine}）分
+配存储而间接调用，或通过调用\cpp{}标准库中函数而间接调用。
 
+\begin{note}
+  特别的，不会调用一个全局分配函数来为静态存储期（\ref{basic.stc.static}）对象，
+  线程存储期（\ref{basic.stc.thread}）对象或引用，\tm{std::type\_info}类型的对象
+  或者一个异常对象分配存储。
+\end{note}

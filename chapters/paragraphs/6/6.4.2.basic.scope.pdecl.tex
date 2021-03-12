@@ -1,43 +1,128 @@
 % 6.4.2 Point of declaration [basic.scope.pdecl]
 \paragraph{} % 1
-<++>
+一个名字的\df{声明点}紧跟其完整的声明子（\ref{dcl.decl}）之后，\nt{initializer}
+（如有）之前，以下所说明的除外。
+
+\begin{example} % 1
+  \begin{lstlisting}
+    unsigned char x = 12;
+    { unsigned char x = x; }
+  \end{lstlisting}
+  这里第二个\tm{x}的初始化具有未定义行为，因为初始化访问了处于其生命期
+  （\ref{basic.life}）之外的第二个\tm{x}。
+\end{example}
 
 \paragraph{} % 2
-<++>
+\begin{note} % 1
+  一个外层作用域中的名字保持其可见性直到隐藏它的名字的声明点为止。
+
+  \begin{example} % 2
+    \begin{lstlisting}
+    const int i = 2;
+    { int i[i]; }
+    \end{lstlisting}
+    定义了一个含两个整数的块作用域数组。
+  \end{example}
+
+\end{note}
 
 \paragraph{} % 3
-<++>
+首次由一个\nt{class-specifier}声明的类或类模板的声明点紧接其\nt{class-head}的
+\nt{identifier}或\nt{simple-template-id}（如有）之后（\ref{class.pre}）。枚举的
+声明点紧接其\nt{enum-specifier}（\ref{dcl.enum}）或其首个
+\nt{opaque-enum-declaration}（\ref{dcl.enum}）中的\nt{identifier}（如有）之后，
+无论哪个先出现。别名或别名模板的声明点紧接其所引用的\nt{defining-type-id}之后。
 
 \paragraph{} % 4
-<++>
+不是确定一个构造函数的\nt{using-declarator}的声明点紧接在\nt{using-declarator}
+（\ref{namespace.udecl}）之后。
 
 \paragraph{} % 5
-<++>
+一个\enumr{}的声明点紧接其\nt{enumerator-definition}之后。
+
+\begin{example} % 3
+  \begin{lstlisting}
+    const int x = 12;
+    { enum { x = x }; }
+  \end{lstlisting}
+  此处\enumr{}\tm{x}使用常量值\tm{x}初始化，即12。
+\end{example}
 
 \paragraph{} % 6
-<++>
+在一个类成员的声明点之后，成员名可在其类作用域中查询到。
+
+\begin{note} % 2
+  即使类是不完整类也是如此。比如，
+  \begin{lstlisting}
+    struct X {
+      enum E { z = 16 };
+      int b[X::z];        // OK
+    }
+  \end{lstlisting}
+\end{note}
 
 \paragraph{} % 7
-<++>
+首次在一个\nt{elaborated-type-specifier}中声明的类的声明点如下：
+\begin{enumerate}
+  \item 对一个形如\par\qquad
+          \nt{class-key attribute-specifier-seq\tsub{opt} identifier} \tm{;}\par
+        的声明，\nt{identifier}声明为包含该声明的作用域中的一个\nt{class-name}，
+        否则
+  \item 对于一个形如\par\qquad
+          \nt{class-key identifier} \par
+        的\nt{elaborated-type-specifier}，如果它用于定义于命名空间作用域中的一个
+        函数的\nt{decl-specifier-seq}或\nt{parameter-declaration-clause}中，则
+        \nt{identifier}声明为包含声明的命名空间中的一个\nt{class-name}；否则，除
+        非作为一个友元声明，该\nt{identifier}声明于包含声明的最小命名空间作用域
+        或块声明中。
+
+        \begin{note} % 3
+          这些规则在模板中也适用。
+        \end{note}
+
+        \begin{note} % 4
+          其他形式的\nt{elaborated-type-specifier}不声明新名字，因此必须引用一个
+          已存在的\nt{type-name}。见\ref{basic.lookup.elab}和
+          \ref{dcl.type.elab}。
+        \end{note}
+\end{enumerate}
 
 \paragraph{} % 8
-<++>
+一个注入类名（\ref{class.pre}）的声明点紧接类定义的开始括号之后。
 
 \paragraph{} % 9
-<++>
+一个函数局部预定义变量（\ref{dcl.fct.def.general}）的声明点紧接函数定义的
+\nt{function-body}之前。
 
 \paragraph{} % 10
-<++>
+一个结构化绑定（\ref{dcl.struct.bind}）的声明点紧接在结构化绑定声明的
+\nt{identifier-list}之后。
 
 \paragraph{} % 11
-<++>
+一条基于范围的\tm{for}语句（\ref{stmt.ranged}）的\nt{for-range-declaration}中声
+明的变量或结构化绑定的声明点紧接在\nt{for-range-initializer}之后。
 
 \paragraph{} % 12
-<++>
+模板形参的声明点紧接在其完整的\nt{template-parameter}之后。
+
+\begin{example} % 4
+  \begin{lstlisting}
+    typedef unsigned char T;
+    template<class T
+      = T               // lookup finds the typedef name of unsigned char
+      , T               // lookup finds the template parameter
+        N = 0> struct A { };
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 13
-<++>
+\begin{note} % 5
+  友元声明引用最近包含命名空间的成员函数或类，但不向该命名空间中引入新的名字
+  （\ref{namespace.memdef}）。块作用域函数声明和块作用域中使用\tm{extern}说明符
+  的变量声明引用的是包含作用域的成员声明，但不向该作用域引入新的名字。
+\end{note}
 
 \paragraph{} % 14
-<++>
-
+\begin{note} % 6
+  对一个模板的声明点，见\ref{temp.point}。
+\end{note}

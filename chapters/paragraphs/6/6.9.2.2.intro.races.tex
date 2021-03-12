@@ -1,48 +1,193 @@
 % 6.9.2.2 Data races [intro.races]
 \paragraph{} % 1
-<++>
+根据以下规则，一个在特定点对线程\nt{T}可见的对象的值为该对象的初始化值，由\nt{T}
+所赋给该对象的值，或者由另一个线程赋给该对象的值。
+
+\begin{note}
+  在某些情况下可能存在未定义行为。本子条款的大部分动机是希望通过明确和详细的可见
+  性约束来支持原子操作。 但也隐式支持更受限程序上的一个更简单的视图。
+\end{note}
 
 \paragraph{} % 2
-<++>
+如果其中一个修改了一个内存位置（\ref{intro.memory}）而另一个读或修改相同内存位置
+则两个表达式求值相\df{冲突}。
 
 \paragraph{} % 3
-<++>
+标准库定义了一系列原子操作（第\ref{atomics}条）和\mtx{}操作（第\ref{thread}条）
+，特别标识为同步操作。这些操作对在一个线程中对另一个线程中可见的赋值起到一个特殊
+的作用。一个或多个内存位置上的同步操作是一个消耗操作，获取操作或释放操作，或者既
+是获取也是释放操作。一个没有关联内存位置的同步操作是一个\fnc{}，可以是一个获取
+\fnc{}，释放\fnc{}或者一个获取和释放\fnc{}。此外，存在放松的原子操作，它们不是同
+步操作，以及原子\rmw{}操作，具有特殊的特性。
+
+\begin{note}
+  比如，一个获取\mtx{}的调用将在构成\mtx{}的位置进行获取操作。对应的，一个释放同
+  一个\mtx{}的调用将在同一位置进行释放操作。非形式的说，在\nt{A}上进行一个释放操
+  作强制其他位置上之前的副作用对在\nt{A}上执行消耗或获取操作的其他线程可见。“放
+  松的”原子操作不是同步操作，即使与同步操作一样，它们也不会造成数据竞争。
+\end{note}
 
 \paragraph{} % 4
-<++>
+对一个特定原子对象\nt{M}的修改按某个特定的全序出现，称为\nt{M}的修改序。
+
+\begin{note}
+  对每一个原子对象，存在一个单独的顺序。不要求这些对所有对象可以组合成一个单个全
+  序。一般地这是不可能的，因为不同线程可以观察到不一致顺序的不同对象修改。
+\end{note}
 
 \paragraph{} % 5
-<++>
+一个原子对象\nt{M}上的以释放操作\nt{A}为首的\df{释放序列}指\nt{M}的修改序中副作
+用的一个最大连续子序列，其中第一个操作为\nt{A}，每一个后续操作是一个原子\rmw{}操
+作。
 
 \paragraph{} % 6
-<++>
+某些标准库调用与其他线程所进行的标准库操作\df{相同步}。比如，一个原子存-释放与
+一个从存储中取值的原子取-获取相同步。
+
+\begin{note}
+  除所指定情形外，读一个后来的值不一定保证上述的可见性。这样的要求有时会干扰有效
+  实现。
+\end{note}
+
+\begin{note}
+  同步操作的规范定义了何时一个读另一个所写。对于原子对象，定义是清晰的。一个给定
+  \mtx{}上的所有操作出现在单个全序中。每一个\mtx{}获取读取上一个\mtx{}释放所写的
+  值。
+\end{note}
 
 \paragraph{} % 7
-<++>
+一个求值\nt{A}\df{依赖于}求值\nt{B}，如果
+\begin{enumerate}
+  \item \nt{A}的值用作\nt{B}的操作数，除非：
+        \begin{enumerate}
+          \item \nt{B}是\tm{std::kill\_dependency}（\ref{atomics.order}）的任何
+                特例化的调用，或者
+          \item \nt{A}是一个内置逻辑AND（\tm{\&\&}，见\ref{expr.log.and}）或逻辑
+                OR（\tm{||}，见\ref{expr.cond}）运算符的左操作数，或者
+          \item \nt{A}是条件（\tm{?:}，见\ref{expr.cond}）运算符的左操作数，或者
+          \item \nt{A}是内置逗号（\tm{,}）运算符（\ref{expr.comma}）的左操作数；
+        \end{enumerate}
+        或者
+  \item \nt{A}写入一个标量对象或位置\nt{M}，\nt{B}从\nt{M}中读取\nt{A}所写操作，
+        并且\nt{A}前序于\nt{B}，或者
+  \item 对某些求值\nt{X}，\nt{A}依赖于\nt{X}，\nt{X}依赖于\nt{B}。
+\end{enumerate}
+
+\begin{note}
+  “依赖于”是“前序”的子集，并且类似地是严格线程内的。
+\end{note}
 
 \paragraph{} % 8
-<++>
+一个求值\nt{A}为\df{依赖前序于}求值\nt{B}，如果
+\begin{enumerate}
+  \item \nt{A}在一个原子对象\nt{M}是进行一个释放操作，在另一个线程中，\nt{B}在
+        \nt{M}上进行一个消耗操作，并读取由\nt{A}所写的值，或者
+  \item 对某些求值\nt{X}，\nt{A}依赖前序于\nt{X}，\nt{X}依赖前序于\nt{B}。
+\end{enumerate}
+
+\begin{note}
+  关系“依赖前序于”类似于“同步于”，但使用释放/消耗代替释放/获取。
+\end{note}
 
 \paragraph{} % 9
-<++>
+一个求值\nt{A}\df{线程间先发生于}求值\nt{B}，如果
+\begin{enumerate}
+  \item \nt{A}同步于\nt{B}，或者
+  \item \nt{A}依赖前序于\nt{B}，或者
+  \item 对某些求值\nt{X}
+        \begin{enumerate}
+          \item \nt{A}同步于\nt{X}，且\nt{X}前序于\nt{B}，或者
+          \item \nt{A}前序于\nt{X}，且\nt{X}线程间先发生于\nt{B}，或者
+          \item \nt{A}线程间先发生于\nt{X}，且\nt{X}线程间先发生于\nt{B}。
+        \end{enumerate}
+\end{enumerate}
+
+\begin{note}
+  “线程间先发生于”关系描述的是“前序于”，“同步于”和“依赖前序于”关系的任意连接，存
+  在两个例外。第一个例外是连接不允许以“依赖前序于”后跟“前序于”结束。该限制只适用
+  于这种连接结尾的原因是任何后续的释放操作将为之前的消耗操作提供所需要的排序。第
+  二个例外是连接不允许整个只包含“前序于”。该限制的原因是(1)允许“线程间先发生于”
+  能够传递关闭（2）以下所定义的“先发生于”提供了整个只包含“前序于”关系。
+\end{note}
 
 \paragraph{} % 10
-<++>
+ 求值\nt{A}\df{先发生于}求值\nt{B}（或者，等价的，\nt{B}\df{后发生于}\nt{A}，
+ 如果：
+ \begin{enumerate}
+  \item \nt{A}先发生于\nt{B}，或者
+  \item \nt{A}线程间先发生于\nt{B}。
+ \end{enumerate}
+ 实现应该确保没有程序执行在“先发生于”关系中演示出一个环。
+
+\begin{note}
+  该环只有通过消耗操作的使用才有可能。
+\end{note}
 
 \paragraph{} % 11
-<++>
+一个求值\nt{A}\df{简单先发生于}求值\nt{B}，如果要么
+\begin{enumerate}
+  \item \nt{A}前序于\nt{B}，或者
+  \item \nt{A}同步于\nt{B}，或者
+  \item \nt{A}简单先发生于\nt{X}，\nt{X}简单先发生于\nt{B}。
+\end{enumerate}
+
+\begin{note}
+  在无消耗操作的情况下，先发生于和简单先发生于关系是等价的。
+\end{note}
 
 \paragraph{} % 12
-<++>
+求值\nt{A}\df{强先发生于}求值\nt{D}，如是要么
+\begin{enumerate}
+  \item \nt{A}前序于\nt{D}，或者
+  \item \nt{A}同步于\nt{D}，且\nt{A}和\nt{D}都是序列一致的原子操作
+        （\ref{atomics.order}），或者
+  \item 存在求值\nt{B}和\nt{C}使得\nt{A}前序于\nt{B}，\nt{B}简单先发生于\nt{C}，
+        \nt{C}简单先发生于\nt{D}或者
+  \item 存在求值\nt{B}使得\nt{A}简单先发生于\nt{B}，\nt{B}简单先发生于\nt{D}。
+\end{enumerate}
+
+\begin{note}
+  非正式的说，如果\nt{A}强先发生于\nt{B}，那么\nt{A}在所有上下文中都在\nt{B}之前
+  先求值。强先发生于不排除消耗操作。
+\end{note}
 
 \paragraph{} % 13
-<++>
+一个标量对象或位域\nt{M}上的相对于\nt{M}上的一个值计算\nt{B}的\nt{可见副作用}满
+足条件：
+\begin{enumerate}
+  \item \nt{A}先发生于\nt{B}，且
+  \item 不存在\nt{M}的其他副作用\nt{X}使得\nt{A}先发生于\nt{X}，\nt{X}先发生于
+        \nt{B}。
+\end{enumerate}
+一个非原子标量对象或位域\nt{M}的值，如求值\nt{B}所确定，应该是由\nt{A}的可见副作
+用所存的值。
+
+\begin{note}
+  如果关于一个非原子对象或位域的哪个副作用可见存在歧义，则行为要么未指明要么未定
+  义。
+\end{note}
+
+\begin{note}
+  这说明了普通对象上的操作不是可见重排序的。没有数据竞争这实际上是无法检测到的，
+  但必须确保以下定义的数据竞争以及对原子使用的适当限制，在简单的交错（顺序一致）
+  执行中与数据竞争相对应。
+\end{note}
 
 \paragraph{} % 14
-<++>
+原子对象\nt{M}的值，如求值\nt{B}所确定，应该是修改\nt{M}的某些副作用\nt{A}所存的
+值，其中\nt{B}不先发生于\nt{A}。
+
+\begin{note}
+  这种副作用的集合也受限于此处描述的剩余规则，且特别的受限于以下的一致性要求。
+\end{note}
 
 \paragraph{} % 15
-<++>
+如果修改原子对象\nt{M}的操作\nt{A}先发生于修改\nt{M}的操作\nt{B}，则\nt{A}在
+\nt{M}的修改序中应该比\nt{B}早。
+
+\begin{note}
+  该要求称为写-写一致性。
+\end{note}
 
 \paragraph{} % 16
 <++>
@@ -70,4 +215,3 @@
 
 \paragraph{} % 24
 <++>
-

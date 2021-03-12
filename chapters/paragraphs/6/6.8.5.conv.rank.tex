@@ -1,4 +1,26 @@
 % 6.8.5 Integer conversion rank [conv.rank]
 \paragraph{} % 1
-<++>
+每一个整型具有一个\df{整型转换阶}，定义如下：
+\begin{enumerate}
+  \item 除\tm{char}和\tm{signed char}（如果\tm{char}是有符号的）外没有两个有符号
+        整型具有相同阶，即使其具有相同表示。
+  \item 一个有符号整型的阶应该比任何宽度更小的有符号整型的阶更大。
+  \item \tm{long long int}的阶应该比\tm{long int}的阶更大，\tm{long int}的阶应该
+        比\tm{int}的阶更大，\tm{int}的阶应该比\tm{short int}的阶更大，\tm{short
+        int}的阶应该比\tm{signed char}的阶更大。
+  \item 任何无符号整型的阶应该与对应有符号整型的阶相等。
+  \item 任何标准整型的阶应该比同宽度的任何扩展整型的阶更大。
+  \item \tm{char}的阶应该等于\tm{signed char}和\tm{unsigned char}的阶。
+  \item \tm{bool}的阶应该小于所有其他标准整型的阶。
+  \item \tm{char8\_t}，\tm{char16\_t}，\tm{char32\_t}，\tm{wchar\_t}的阶应该等于
+        其底层类型（\ref{basic.fundamental}）的阶。
+  \item 任何扩展有符号整型的阶相对于另一个同宽度扩展整型的阶由实现定义，但仍受限
+        于其他确定整型转换阶的规则。
+  \item 对所有整型\tm{T1}，\tm{T2}和\tm{T3}，如果\tm{T1}具有比\tm{T2}更大的阶，
+        \tm{T2}具有比\tm{T3}更大的阶，那么\tm{T1}应该具有比\tm{T3}更大的阶。
+\end{enumerate}
 
+\begin{note}
+  整型转换阶用于整型提升（\ref{conv.prom}）和常规算术转换
+  （\ref{expr.arith.conv}）的定义中。
+\end{note}

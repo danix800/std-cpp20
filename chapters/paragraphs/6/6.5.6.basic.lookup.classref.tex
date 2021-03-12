@@ -1,22 +1,80 @@
 % 6.5.6 Class member access [basic.lookup.classref]
 \paragraph{} % 1
-<++>
+在一个类成员访问表达式（\ref{expr.ref}）中，如果\tm{.}或\tm{->}符号之后直接跟上
+一个\nt{identifier}再跟上一个\tm{<}，则查询该标识符以确定\tm{<}是一个模板实参列
+表的开始还是一个小于运算符。标识符首先在对象表达式（\ref{class.member.lookup}）
+的类中查询。如果未找到该标识符，则再在整个\nt{postfix-expression}的上下文中查询
+并且应该确定一个其特例化为类型的模板。
 
 \paragraph{} % 2
-<++>
+如果一个类成员访问（\ref{expr.ref}）中的\nt{id-expression}是一个
+\nt{unqualified-id}，且对象表达式的类型为类类型\tm{C}，则\nt{unqualified-id}在类
+\tm{C}的作用域（\ref{class.member.lookup}）中查询。
 
 \paragraph{} % 3
-<++>
+如果\nt{unqualified-id}是\tm{\tat} \nt{type-name}，则\nt{type-name}在整个
+\nt{postfix-expression}的上下文中进行查询。如果对象表达式的类型\tm{T}为类类型
+\tm{C}，则\nt{type-name}也在类\tm{C}的作用域中查询。至少一个查询应该找到引用
+\nt{cv} \tm{T}的名字。
+
+\begin{example}
+  \begin{lstlisting}
+    struct A { };
+
+    struct B {
+      struct A { };
+      void f(::A* a);
+    };
+
+    void B::f(::A* a) {
+      a->~A();                // OK: lookup in *a finds the injected-class-name
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 4
-<++>
+如果一个类成员访问中的\nt{id-expression}是一个形如\par
+\qquad\tm{\nt{class-name-or-namespace-name}::...} \par
+的\nt{qualified-id}，则跟在\tm{.}或\tm{->}之后的
+\tm{\nt{class-name-or-namespace-name}}首先在对象表达式
+（\ref{class.member.lookup}）的类中进行查询，且该名字如果找到了即使用它。否则在
+整个\nt{postfix-expression}的上下文中进行查询。
+
+\begin{note}
+  见\ref{basic.lookup.qual}，描述了\tm{::}之前的名字查询，只能找到类型或命名空间
+  名。
+\end{note}
 
 \paragraph{} % 5
-<++>
+如果\nt{qualified-id}具有形如\par
+\qquad\tm{::\nt{class-name-or-namespace-name}::...} \par
+则\tm{\nt{class-name-or-namespace-name}}作为一个\nt{class-name}或
+\nt{namespace-name}在全局作用域中查询。
 
 \paragraph{} % 6
-<++>
+如果\nt{nested-name-specifier}包含一个\nt{simple-template-id}
+（\ref{temp.names}），则其\nt{template-argument}中的名字在整个
+\nt{postfix-expression}所出现在的上下文中查询。
 
 \paragraph{} % 7
-<++>
+如果\nt{id-expression}是一个\nt{conversion-function-id}，其
+\nt{conversion-type-id}首先在对象表达式的类中查询，且名字如果找到即使用它。否则
+在整个\nt{postfix-expression}的上下文中查询。在每一个这种查询中，只考虑表示类型
+或特例化为类型的模板。
 
+\begin{example}
+  \begin{lstlisting}
+    struct A { };
+    namespace N {
+      struct A {
+        void g() { }
+        template <class T> operator T();
+      };
+    }
+
+    int main() {
+      N::A a;
+      a.operator A(); // calls N::A::operator N::A
+    }
+  \end{lstlisting}
+\end{example}

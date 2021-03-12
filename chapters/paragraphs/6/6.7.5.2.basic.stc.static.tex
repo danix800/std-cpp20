@@ -1,13 +1,20 @@
 % 6.7.5.2 Static storage duration [basic.stc.static]
 \paragraph{} % 1
-<++>
+所有非动态存储期，非线程存储期以及非局部的变量具有\df{静态存储期}。这些实体的存
+储持续整个程序的期限（\ref{basic.start.static}，\ref{basic.start.term}）。
 
 \paragraph{} % 2
-<++>
+如果一个静态存储期变量具有初始化或一个具有副作用的析构函数，则它不应该被消除，即
+使看起来未用，除非一个类对象或其拷贝/移动按照\ref{class.copy.elision}所指定可被
+消除。
 
 \paragraph{} % 3
-<++>
+关键字\tm{static}可用于声明一个静态存储期局部变量。
+
+\begin{note}
+  \ref{stmt.dcl}描述了局部静态变量的初始化；\ref{basic.start.term}描述了局部静态
+  变量的销毁。
+\end{note}
 
 \paragraph{} % 4
-<++>
-
+类定义中应用于一个类数据成员的关键字\tm{static}给予数据成员静态存储期。

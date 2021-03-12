@@ -1,0 +1,82 @@
+% 6.4.6 Namespace scope [basic.scope.namespace]
+\paragraph{} % 1
+一个\nt{namespace-definition}的声明区为其\nt{namespace-body}。声明于一个
+\nt{namespace-body}中的实体称为命名空间的\df{成员}，且由这些声明引入到命名空间的
+声明区中的名字称为命名空间的\df{成员名}。一个命名空间成员名具有命名空间作用域。
+其潜在作用域从名字的声明点（\ref{basic.scope.pdecl}）开始包括其命名空间；且对每
+一个指定成员命名空间的\nt{using-directive}（\ref{namespace.udir}），该成员的潜在
+作用域包括跟在成员声明点之后的\nt{using-directive}的潜在作用域。
+
+\begin{example}
+  \begin{lstlisting}
+    namespace N {
+      int i;
+      int g(int a) { return a; }
+      int j();
+      void q();
+    }
+    namespace { int l=1; }
+    // the potential scope of l is from its point of declaration to the end of the translation unit
+
+    namespace N {
+      int g(char a) { // overloads N::g(int)
+        return l+a; // l is from unnamed namespace
+      }
+
+      int i; // error: duplicate definition
+      int j(); // OK: duplicate function declaration
+      int j() { // OK: definition of N::j()
+        return g(i);
+      }
+      int q(); // error: different return type
+    }
+  \end{lstlisting}
+\end{example}
+
+\paragraph{} % 2
+如果一个翻译单元\nt{Q}导入到一个翻译单元\nt{R}（\ref{module.import}）中，一个声
+明于\nt{Q}中具有命名空间作用域的名字\nt{X}的潜在作用域扩展为包含\nt{R}中跟在
+（直接或间接）导入\nt{R}的第一个\nt{module-import-declaration}或
+\nt{module-declaration}之后对应命名空间作用域的部分，如果
+\begin{enumerate}
+  \item \nt{X}不具有内部链接，且
+  \item \nt{X}声明于\nt{Q}中\nt{module-declaration}（如有）之后，且
+  \item 要么\nt{X}被导出，要么\nt{Q}和\nt{R}处于同一模板中。
+\end{enumerate}
+
+\begin{note}
+  一个\nt{module-import-declaration}递归地导入所命名翻译单元和其中的
+  \nt{module-import-declaration}所导出的任何模块。
+
+  \begin{example}
+
+    翻译单元\#1：
+  \begin{lstlisting}
+    export module Q;
+    export int sq(int i) { return i*i; }
+  \end{lstlisting}
+    翻译单元\#2：
+  \begin{lstlisting}
+    export module R;
+    export module Q;
+  \end{lstlisting}
+    翻译单元\#3：
+  \begin{lstlisting}
+    import R;
+    int main() { return sq(9); }      // OK: sq from module Q
+  \end{lstlisting}
+
+  \end{example}
+
+\end{note}
+
+\paragraph{} % 3
+命名空间成员也可以在\tm{::}作用域解析运算符（\ref{expr.prim.id.qual}）应用到其命
+名空间的名字或在一个\nt{using-directive}中指定一个命名空间成员的命名空间的名字之
+后来引用；见\ref{namespace.qual}。
+
+\paragraph{} % 4
+一个翻译单元的最外层声明区也是一个命名空间，称为\df{全局命名空间}。一个声明于全
+局命名空间中的名字具有\df{全局命名空间作用域}（也称\df{全局作用域}）。这种名字的
+潜在作用域始于其声明点（\ref{basic.scope.pdecl}）并终止于其声明区的翻译单元结束
+处。具有全局命名空间作用域的名字称为\df{全局名}。

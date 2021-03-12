@@ -1,13 +1,24 @@
 % 6.7.5.1 General [basic.stc.general]
 \paragraph{} % 1
-<++>
+\df{存储期}指一个对象的定义包含对象存储的最小潜在生命期的属性。存储期由用于创建
+对象的结构所确定，为以下之一：
+\begin{enumerate}
+  \item 静态存储期
+  \item 线程存储期
+  \item 自动存储期
+  \item 动态存储期
+\end{enumerate}
 
 \paragraph{} % 2
-<++>
+静态，线程和自动存储期关联于声明（\ref{basic.def}）所引入对象和实现隐式创建
+（\ref{class.temporary}）的对象。动态存储期关联于一个\nt{new-expression}
+（\ref{expr.new}）所创建对象。
 
 \paragraph{} % 3
-<++>
+存储期类别对引用也适用。
 
 \paragraph{} % 4
-<++>
-
+当存储区期限终止时，表示存储区任何部分地址的所有指针值成为无效指针值
+（\ref{basic.compound}）。通过无效指针值进行解引用或者传递无效指针值到释放函数具
+有未定义行为。无效指针值的任何其他使用具有实现定义行为。\footnote{实现可以定义拷
+贝无效指针值引起一个系统生成的运行时错。}

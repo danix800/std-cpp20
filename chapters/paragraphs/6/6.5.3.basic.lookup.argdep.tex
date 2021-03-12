@@ -1,16 +1,152 @@
 % 6.5.3 Argument-dependent name lookup [basic.lookup.argdep]
 \paragraph{} % 1
-<++>
+当一个函数调用（\ref{expr.call}）中的\nt{postfix-expression}是一个
+\nt{Unqualified-id}时，常规未限定名查询（\ref{basic.lookup.unqual}）过程中其他未
+被考虑的命名空间可能会被搜索，且在这些命名空间中否则不可见的命名空间作用域友元函
+数或函数模板声明（\ref{class.friend}）可能会被找到。这些搜索的修正依赖于实参的类
+型（对模板的模板实参，依赖于模板实参的命名空间）。
+
+\begin{example}
+  \begin{lstlisting}
+    namespace N {
+      struct S { };
+      void f(S);
+    }
+    void g() {
+      N::S s;
+      f(s);             // OK: calls N::f
+      (f)(s);           // error: N::f not considered; parentheses prevent argument-dependent lookup
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 2
-<++>
+对函数调用中的每一个实参类型\tm{T}，存在一组零或多个\df{关联命名空间}和一组零或
+多个\df{关联实体}（非命名空间）待考虑。命名空间和实体集合完全由函数实参类型确定
+（以及模板的模板实参的命名空间）。用于指定类型的类型定义名和
+\nt{using-declaration}对该集合无贡献。命名空间和实体集合按以下方式确定：
+\begin{enumerate}
+  \item 如果\tm{T}是一个基本类型，其命名空间和实体关联集合均为空。
+  \item 如果\tm{T}是一个类类型（含联合），其关联实体为：类本身；其作为成员的类
+        （如有）；以及其直接和间接基类。其关联命名空间为其关联实体的最内层命名空
+        间。更进一步，如果\tm{T}是一个类模板特例化，其关联命名空间和实体也包括：
+        关联于为模板类型形参（不含模板的模板形参）所提供的模板实参的类型的命名空
+        间和实体；用作模板的模板实参的模板；任何模板的模板实参作为其成员的命名空
+        间；以及任何用作模板的模板襂的成员模板作为其成员的类。
+
+        \begin{note}
+          非类型模板实参对关联命名空间集合无贡献。
+        \end{note}
+  \item 如果\tm{T}是一个枚举类型，其关联命名空间为其声明的最内层包含命名空间，且
+        其关联实体为\tm{T}和如果它是一个类成员，则包括成员的类。
+  \item 如果\tm{T}是指向\tm{U}的指针，或\tm{U}的数组，则其关联命名空间和实体为关
+        联于\tm{U}的命名空间和实体。
+  \item 如果\tm{U}是一个函数类型，其关联命名空间和实体为关联于函数形参类型和关联
+        于返回类型的命名空间和实体。
+  \item 如果\tm{T}是指向类\tm{X}成员函数的指针，则其关联命名空间和实体为关联于函
+        数形参类型和返回类型以及关联于\tm{X}的命名空间和实体。
+  \item 如果\tm{T}是指向类\tm{X}数据成员的指针，则其关联命名空间和实体为关联于成
+        员类型以及关联于\tm{X}的命名空间和实体。
+\end{enumerate}
+如果一个关联的命名空间是一个内联命名空间（\ref{namespace.def}），则其包含命名空
+间也包含到该集合中。如果一个关联命名空间直接包含内联命名空间，则那些内联命名空间
+也包含于该集合中。此外，如果实参是一个重载集合的名字或地址，则其关联实体和命名空
+间为关联于该集合每一个成员的实体和命名空间的并集，即关联于其形参类型和返回类型的
+实体和命名空间。更进一步，如果上述的重载集合由一个\nt{template-id}指定，其关联实
+体和命名空间也包括其类型\nt{template-argument}和其模板的\nt{template-argument}的
+实体和命名空间。
 
 \paragraph{} % 3
-<++>
+设\nt{X}为未限定名查询（\ref{basic.lookup.unqual}）产生的查询集合，\nt{Y}为实参
+依赖名查询（下文定义）产生的查询集合。如果\nt{X}包含
+\begin{enumerate}
+  \item 一个类成员的声明，或者
+  \item 一个非\nt{using-declaration}的块作用域函数声明，或者
+  \item 一个既不是函数也不是函数模板的声明
+\end{enumerate}
+那么\nt{Y}为空集。否则\nt{Y}为在关联于以下所述的实参类型的命名空间中所找到的声明
+集合。名字查询所找到的声明集合为\nt{X}和\nt{Y}的并集。
+
+\begin{note}
+  关联于实参类型的命名空间和实体可以包含已由普通未限定名查询考虑过的命名空间和实
+  体。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+    namespace NS {
+    class T { };
+      void f(T);
+      void g(T, int);
+    }
+    NS::T parm;
+    void g(NS::T, float);
+    int main() {
+      f(parm);                      // OK: calls NS::f
+      extern void g(NS::T, float);
+      g(parm, 1);                   // OK: calls g(NS::T, float)
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 4
-<++>
+在考虑一个关联命名空间\tm{N}时，查询与当\tm{N}用作一个限定符
+（\ref{namespace.qual}）时的查询一样，除了：
+\begin{enumerate}
+  \item 忽略\tm{N}中的任何\nt{using-directive}。
+  \item 忽略除（可能重载的）函数和函数模板的名字之外的所有名字。
+  \item 声明于在关联实体集合中具有可达定义的类中的任何命名空间作用域友元函数或友
+        元函数模板（\ref{class.friend}）在其对应命名空间中可见，即使其在普通查询
+        过程（\ref{namespace.memdef}）中不可见。
+  \item \tm{N}中任何声明于一个命名模块\tm{M}（\ref{module.interface}）范围内的导
+        出声明\tm{D}，如果存在一个附属于\tm{M}具有与\tm{D}相同的最内层包含非内联
+        命名空间的关联实体，则\tm{D}是可见的。
+  \item 如果是查询一个依赖名（\ref{temp.dep}，\ref{temp.dep.candidate}），\tm{N}
+        中的任何声明\tm{D}，如果\tm{D}在查询的实例化上下文
+        （\ref{module.context}）中任何点对限定名查询（\ref{namespace.qual}）可见
+        则\tm{D}是可见的，除非\tm{D}是在另一个翻译单元中声明，附属于一个全局模块
+        且要么被丢弃（\ref{module.global.frag}），要么具有内部链接。
+\end{enumerate}
 
 \paragraph{} % 5
-<++>
-
+\begin{example}
+  翻译单元\#1：
+  \begin{lstlisting}
+    export module M;
+    namespace R {
+      export struct X {};
+      export void f(X);
+    }
+    namespace S {
+      export void f(R::X, R::X);
+    }
+  \end{lstlisting}
+  翻译单元\#2：
+  \begin{lstlisting}
+    export module N;
+    import M;
+    export R::X make();
+    namespace R { static int g(X); }
+    export template<typename T, typename U> void apply(T t, U u) {
+      f(t, u);
+      g(t);
+    }
+  \end{lstlisting}
+  翻译单元\#3：
+  \begin{lstlisting}
+    module Q;
+    import N;
+    namespace S {
+        struct Z { template<typename T> operator T(); };
+    }
+    void test() {
+      auto x = make();                // OK, decltype(x) is R::X in module M
+      R::f(x);                        // error: R and R::f are not visible here
+      f(x);                           // OK, calls R::f from interface of M
+      f(x, S::Z());                   // error: S::f in module M not considered
+                                      // even though S is an associated namespace
+      apply(x, S::Z());               // error: S::f is visible in instantiation context, but
+                                      // R::g has internal linkage and cannot be used outside TU #2
+    }
+  \end{lstlisting}
+\end{example}

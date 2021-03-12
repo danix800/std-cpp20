@@ -1,49 +1,273 @@
 % 6.5.2 Unqualified name lookup [basic.lookup.unqual]
 \paragraph{} % 1
-<++>
+在\ref{basic.lookup.unqual}所列的所有情形中，按每一个对应类型所表顺序在作用域中
+搜索一个声明；名字查询在找到名字的声明后立即结束。如果未找到声明则程序为
+\illform{}。
 
 \paragraph{} % 2
-<++>
+由一个\nt{using-directive}所指定命名空间中的声明在包含\nt{using-directive}的命名
+空间中成为可见；见\ref{namespace.udir}。为了在\ref{basic.lookup.unqual}中所述的
+未限定名查询的目的，命名空间中由\nt{using-directive}所指定的声明当作是包含命名空
+间的成员。
 
 \paragraph{} % 3
-<++>
+一个用作函数调用的\nt{postfix-expression}的未限定名查询在
+\ref{basic.lookup.argdep}中描述。
+
+\begin{note} % 1
+  为确定（分析过程中）一个表达式是否是一个函数调用的\nt{postfix-expression}，常
+  规名字查询规则适用。某些情况下一个名字后跟\tm{<}被当作一个\nt{template-name}，
+  即使名字查询未找到\nt{template-name}（见\ref{temp.names}）。比如 ，
+  \begin{lstlisting}
+    int h;
+    void g();
+    namespace N {
+      struct A {};
+      template <class T> int f(T);
+      template <class T> int g(T);
+      template <class T> int h(T);
+    }
+
+    int x = f<N::A>(N::A());        // OK: lookup of f finds nothing, f treated as template name
+    int y = g<N::A>(N::A());        // OK: lookup of g finds a function, g treated as template name
+    int z = h<N::A>(N::A());        // error: h< does not begin a template-id
+  \end{lstlisting}
+  \ref{basic.lookup.argdep}中的规则对一个表达式的语法解释无效果。比如，
+  \begin{lstlisting}
+    typedef int f;
+    namespace N {
+      struct A {
+        friend void f(A &);
+        operator int();
+        void g(A a) {
+          int i = f(a);             // f is the typedef, not the friend function: equivalent to int(a)
+        }
+      };
+    }
+  \end{lstlisting}
+  因为该表达式不是一个函数调用，实参依赖名查询（\ref{basic.lookup.argdep}）不适
+  用且友元函数\tm{f}未找到。
+\end{note}
 
 \paragraph{} % 4
-<++>
+一个用于全局作用域，任何函数，类或自定义命名空间之外的名字应该在其使用于全局作用
+域中之前先声明。
 
 \paragraph{} % 5
-<++>
+一个用于自定义命名空间，任何函数或类之外的名字应该在其使用于该命名空间之前或者在
+其使用于包含其命名空间的命名空间之前先声明。
 
 \paragraph{} % 6
-<++>
+在一个命名空间\tm{N}的成员函数定义中，用于该函数的\nt{declarator-id}\footnote{指
+的是比如出现在\nt{parameter-declaration-clause}中的一个类型或缺省实参或者用于函
+数体中的未限定名。}之后的名字应该在其用于块或其包含块（\ref{stmt.block}）之前声
+明，或者在其用于命名空间\tm{N}之前声明，或者如果\tm{N}是一个嵌套命名空间，应该在
+其用于\tm{N}的包含命名空间之一之前声明。
+
+\begin{example}
+  \begin{lstlisting}
+    namespace A {
+      namespace N {
+        void f();
+      }
+    }
+    void A::N::f() {
+      i = 5;
+      // The following scopes are searched for a declaration of i:
+      // 1) outermost block scope of A::N::f, before the use of i
+      // 2) scope of namespace N
+      // 3) scope of namespace A
+      // 4) global scope, before the definition of A::N::f
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 7
-<++>
+一个用于类\tm{X}\footnote{指的是跟在类名之后的未限定名；这种名字可用于一个类定义
+的\nt{base-specifier}或\nt{member-specification}中。}的定义之中，\tm{X}的一个完
+整类上下文（\ref{class.mem}）之外的名字应该按以下方式之一声明：
+\begin{enumerate}
+  \item 在其用于类\tm{X}之前，或者是\tm{X}的一个基类成员
+        （\ref{class.member.lookup}），或者
+  \item 如果\tm{X}是类\tm{Y}的一个嵌套类（\ref{class.nest}），在\tm{X}于\tm{Y}中
+        的定义之前，或者应该是\tm{Y}的一个基类成员（该查询因此也适用于\tm{Y}的包
+        含类，从最内层包含类开始），\footnote{无论\tm{X}的定义是否嵌套于\tm{Y}的
+        定义之中或者\tm{X}的定义是否出现包含\tm{Y}的命名空间作用域中，该查询都适
+        用。}或者
+  \item 如果\tm{X}是一个局部类（\ref{class.local}）或是一个局部类的嵌套类，在一
+        个包含类\tm{X}定义的块中其定义之前，或者
+  \item 如果\tm{X}是命名空间\tm{N}的一个成员，或者\tm{N}的成员类的嵌套类，或者是
+        一个\tm{N}的成员函数的局部类或局部类的嵌套类，在命名空间\tm{N}或\tm{N}的
+        包含命名空间之一中类\tm{X}的定义之前。
+\end{enumerate}
+
+\begin{example}
+  \begin{lstlisting}
+    namespace M {
+      class B { };
+    }
+    namespace N {
+      class Y : public M::B {
+        class X {
+          int a[i];
+        };
+      };
+    }
+
+    // The following scopes are searched for a declaration of i:
+    // 1) scope of class N::Y::X, before the use of i
+    // 2) scope of class N::Y, before the definition of N::Y::X
+    // 3) scope of N::Y's base class M::B
+    // 4) scope of namespace N, before the definition of N::Y
+    // 5) global scope, before the definition of N
+  \end{lstlisting}
+\end{example}
+
+\begin{note}
+  在查找由一个友元声明引入的类或函数的先前的声明时，不考虑最内层包含命名空间作用
+  域之外的作用域；见\ref{namespace.memdef}。
+\end{note}
+
+\begin{note}
+  \ref{basic.scope.class}进一步描述了一个类定义中名字的使用限制。
+  \ref{class.nest}进一步描述了嵌套类定义中名字的使用限制。\ref{class.local}进一
+  步描述了局部类定义中名字的使用限制。
+\end{note}
 
 \paragraph{} % 8
-<++>
+对于一个类\tm{X}的成员，一个用于\tm{X}的完整类上下文（\ref{class.mem}）中或者
+\tm{X}的定义之外的类成员的定义当中，跟在成员的\nt{declarator-id}\footnote{即一个
+未限定名，比如出现在\nt{parameter-declaration-clause}或\nt{noexcept-specifier}中
+的一个类型中。}之后的名字，应该按以下方式之一声明：
+\begin{enumerate}
+  \item 在其用于块或包含块（\ref{stmt.block}）中之前，或者
+  \item 应该是类\tm{X}或其基类（\ref{class.member.lookup}）的一个成员，或者
+  \item 如果\tm{X}是类\tm{Y}的一个嵌套类（\ref{class.nest}），则应该是\tm{Y}的一
+        个成员，或者是\tm{Y}的基类的成员（该查询因此也适用于\tm{Y}的包含类，从最
+        内层包含类开始），\footnote{无论成员函数是否定义于类\tm{X}的定义中，或者
+        成员函数是否定义于包含\tm{X}的定义的命名空间作用域中，该查询都适用。}或
+        者，
+  \item 如果\tm{X}是一个局部类（\ref{class.local}）或者是一个局部类的嵌套类，在
+        一个包含类\tm{X}定义的块中\tm{X}的定义之前，或者
+  \item 如果\tm{X}是命名空间\tm{N}的一个成员，或是\tm{N}的成员类的一个嵌套类，或
+        是\tm{N}的成员函数的局部类中的嵌套类，在该名字于命名空间\tm{N}中或\tm{N}
+        的包含命名空间之一当中的使用之前。
+\end{enumerate}
+
+\begin{example}
+  \begin{lstlisting}
+    class B { };
+    namespace M {
+      namespace N {
+        class X : public B {
+          void f();
+        };
+      }
+    }
+    void M::N::X::f() {
+      i = 16;
+    }
+
+    // The following scopes are searched for a declaration of i:
+    // 1) outermost block scope of M::N::X::f, before the use of i
+    // 2) scope of class M::N::X
+    // 3) scope of M::N::X's base class B
+    // 4) scope of namespace M::N
+    // 5) scope of namespace M
+    // 6) global scope, before the definition of M::N::X::f
+  \end{lstlisting}
+\end{example}
+
+\begin{note}
+  \ref{class.mfct}和\ref{class.static}进一步描述了成员函数定义中名字的使用限制。
+  \ref{class.nest}进一步描述了嵌套类作用域中名字的使用限制。\ref{class.local}进
+  一步描述了局部类定义中名字的使用限制。
+\end{note}
 
 \paragraph{} % 9
-<++>
+对于一个在授予友元关系的类中定义为内联的友元函数（\ref{class.friend}）定义中使用
+的名字的查询应该按照成员函数定义所述的查询进行。如果友元函数在授予友元关系的类中
+未定义，则友元函数定义中的名字查询应该按照命名空间成员函数定义所述的查询进行。
 
 \paragraph{} % 10
-<++>
+\setlength{\parindent}{0pt}
+在一个确定成员函数的友元声明中，一个用于函数声明子而不是\nt{declarator-id}中
+\nt{template-\linebreak{}argument}的一部分的名字首先在成员函数的类作用域中查询
+（\ref{class.member.lookup}）。如果未找到，或者如果名字是\nt{declarator-id}中的
+\nt{template-argument}的一部分，则查询如授予友元关系的类定义中对未限定名所述的一
+样。
+
+\begin{example}
+  \begin{lstlisting}
+    struct A {
+      typedef int AT;
+      void f1(AT);
+      void f2(float);
+      template <class T> void f3();
+    };
+    struct B {
+      typedef char AT;
+      typedef float BT;
+      friend void A::f1(AT); // parameter type is A::AT
+      friend void A::f2(BT); // parameter type is B::BT
+      friend void A::f3<AT>(); // template argument is B::AT
+    };
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 11
-<++>
+在对用作函数\nt{parameter-declaration-clause}的缺省实参（\ref{dcl.fct.default}）
+或用于构造函数\nt{mem-initializer}的\nt{expression}（\ref{class.base.init}）中的
+名字的查询过程中，函数形参名是可见的且隐藏包含函数声明的块，类或命名空间作用域中
+声明的实体名。
+
+\begin{note}
+  \ref{dcl.fct.default}进一步描述了缺省实参中名字的使用限制。
+  \ref{class.base.init}中进一步描述了\nt{ctor-initializer}中名字的使用限制。
+\end{note}
 
 \paragraph{} % 12
-<++>
+在对用于\nt{enumerator-definition}的\nt{constant-expression}中的名字的查询过程中
+枚举的先前声明的\nt{enumerator}是可见的，且隐藏声明于包含\nt{enum-specifier}的块
+，类或命名空间作用域中声明的实体名。
 
 \paragraph{} % 13
-<++>
+一个用在类\tm{X}的静态数据成员（\ref{class.static.data}）定义中的名字（在静态成
+员的\nt{qualified-id}之后）如同该名字用于\tm{X}的成员函数中一样进行查询。
+
+\begin{note}
+  \ref{class.static.data}进一步描述了静态数据成员定义中名字的使用限制。
+\end{note}
 
 \paragraph{} % 14
-<++>
+如果一个命名空间的变量成员定义于其命名空间作用域之外，则任何出现在成员定义中的名
+字（在\nt{declarator-id}之后）如同成员的定义出现在其命名空间中一样进行查询。
+
+\begin{example}
+  \begin{lstlisting}
+    namespace N {
+      int i = 4;
+      extern int j;
+    }
+
+    int i = 2;
+
+    int N::j = i;         // N::j == 4
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 15
-<++>
+一个用于\nt{function-try-block}的处理程序（\ref{except.pre}）中的名字如同该名字
+用于函数定义的最外层块中一样进行查询。特别的，函数形参名不应该在
+\nt{exception-declaration}重声明，也不应该在\nt{function-try-block}的处理程序最
+外层块中重声明。当声明于函数定义最外层块中的名字在\nt{function-try-block}的处理
+程序作用域中查询时不会被找到。
+
+\begin{note}
+  但函数形参名可以找到。
+\end{note}
 
 \paragraph{} % 16
-<++>
-
+\begin{note}
+  模板定义中名字查询的规则在\ref{temp.res}中描述。
+\end{note}

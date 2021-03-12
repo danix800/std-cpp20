@@ -1,46 +1,155 @@
 % 6.8.2 Fundamental types [basic.fundamental]
 \paragraph{} % 1
-<++>
+存在五种\df{标准有符号整型}：“\tm{signed char}”，“\tm{short int}”，“\tm{int}”，
+“\tm{long int}”和“\tm{long long int}”。该列表中的每种类型提供与列表中前一个至少
+一样多的存储空间。可能存在实现定义的\nt{扩展有符号整型}。标准和扩展有符号整型统
+称\df{有符号整型}。有符号整型的可表示值范围为$-2^{N-1}$到$2^{N-1}-1$（含），其中
+\nt{N}称为类型的\df{宽度}。
+
+\begin{note}
+  普通的\nt{int}具有执行环境架构推荐的自然大小；其他有符号整型用于特殊需求。
+\end{note}
 
 \paragraph{} % 2
-<++>
+对每一个标准有符号整型，存在一个对应（但不同）的\df{标准无符号整型}：
+“\tm{unsigned char}”，“\tm{unsigned short int}”，“\tm{unsigned int}”，
+“\tm{unsigned long int}”，“\tm{unsigned long long int}”。同样，对每一个扩展有符
+号整型，存在一个对应的\df{扩展无符号整型}。标准和扩展无符号整型统称为\df{无符号
+整型}。一个无符号整型与对应的有符号整型具有相同的宽度\nt{N}。无符号类型的可表示
+值范围为$0$到$2^N-1$（含）；无符号类型的算术作模$2^N$处理。
+
+\begin{note}
+  无符号算术不会溢出。有符号算术的溢出产生未定义行为（\ref{expr.pre}）。
+\end{note}
 
 \paragraph{} % 3
-<++>
+一个无符号整型与对应的有符号整型具有相同的对象表示，值表示和对齐要求
+（\ref{basic.align}）。对一个有符号整型的每一个值$x$，对应无符号整型模$2^N$同余
+的值与其值表示的对应位具有相同的值。\footnote{也就是二补码表示。}
+
+\begin{example}
+  无符号整型值$-1$与对应无符号类型最大值具有相同表示。
+\end{example}
 
 \paragraph{} % 4
-<++>
+每一个有符号整型的宽度不应该小于表\ref{tab:basic.fundamental.width}中所指定值。
+一个有符号或无符号整型的值表示由\nt{N}位组成，其中\nt{N}为对应宽度。对象表示中任
+何填充位（\ref{basic.types}）的每一个值集为值表示的一种备选表示。
+
+\begin{note}
+  填充位具有未指明值，但不能引起陷阱。相反，见\isoc{} 6.2.6.2。
+\end{note}
+
+\begin{note}
+  有符号和无符号整型满足\isoc{} 5.2.4.2.1中给定的约束。
+\end{note}
+
+除以上所指定，有符号和无符号整型的宽度由实现定义。
+
+\begin{table}[!ht]
+  \centering
+  \caption{最小宽度}
+  \begin{tabular}{|ll|}
+    \hline
+    \tb{类型}         & \tb{最小宽度\nt{N}}                                   \\
+    \hline\hline
+    \tm{signed char}  & 8                                                     \\
+    \tm{short}        & 16                                                    \\
+    \tm{int}          & 16                                                    \\
+    \tm{long}         & 32                                                    \\
+    \tm{long long}    & 64                                                    \\
+    \hline
+  \end{tabular}
+  \label{tab:basic.fundamental.width}
+\end{table}
 
 \paragraph{} % 5
-<++>
+一个位宽为\nt{N}的无符号整型的每一个值$x$具有一个唯一的表示
+$x = x_0 2^0 + x_1 2^1 + \ldots + x_{N-1} 2^{N-1}$，其中每一个系数$x_i$为$0$或
+$1$；这称作$x$的\df{以2为基的表示}。一个有符号整型值的以2为基的表示为对应无符号
+的同余值的以2为基的表示。标准有符号整型和标准无符号整型统称为\df{标准整型}，且扩
+展有符号整型和扩展无符号整型统称为\df{扩展整型}。
 
 \paragraph{} % 6
-<++>
+指定为具有有符号或无符号整型作为其\df{底层类型}的基本类型与其底层类型具有相同的
+对象表示，值表示，对齐要求（\ref{basic.align}）和可表示值范围。更进一步，每个值
+在两种类型中都具有相同表示。
 
 \paragraph{} % 7
-<++>
+类型\tm{char}为一个不同类型，具有实现定义的选择“\tm{signed char}”或“\tm{unsigned
+char}”作为其底层类型。类型\tm{char}的值可以表示实现的基本字符集中所有成员的不同
+编码。\tm{char}，\tm{signed char}和\tm{unsigned char}这三种类型统称为\df{普通字
+符类型}。普通字符类型和\tm{char8\_t}统称为\df{窄字符类型}。对于窄字符类型，对象
+表示的每一个可能的位模式都表示一个不同值。
+
+\begin{note}
+  这对其他类型不成立。
+\end{note}
+
+\begin{note}
+  一个窄字符类型的位域，窄字符类型的宽度比位域宽度更大的话，则位域具有填充位。见
+  \ref{basic.types}。
+\end{note}
 
 \paragraph{} % 8
-<++>
+类型\tm{wchar\_t}是一个不同类型，按实现定义以有符号或无符号类型作为其底层类型。
+\tm{wchar\_t}类型的值可以表示支持本地环境（\ref{locale}）所指定的最大扩展字符集
+所有成员的不同编码。
 
 \paragraph{} % 9
-<++>
+类型\tm{char8\_t}表示不同类型，其底层类型为\tm{unsigned char}。类型
+\tm{char16\_t}和\tm{char32\_t}表示不同类型，其底层类型分别为\tm{<cstdint>}
+（\ref{cstdint.syn}）中的\tm{uint\_least16\_t}和\tm{uint\_least32\_t}。
 
 \paragraph{} % 10
-<++>
+类型\tm{bool}为一个不同类型，与实现定义的无符号整型具有相同对象表示，值表示和对
+齐要求。类型\tm{bool}的值为\tm{true}和\tm{false}。
+
+\begin{note}
+  不存在\tm{signed}，\tm{unsigned}，\tm{short}或\tm{long bool}类型或值。
+\end{note}
 
 \paragraph{} % 11
-<++>
+类型\tm{bool}，\tm{char}，\tm{wchar\_t}，\tm{char8\_t}，\tm{char16\_t}，
+\tm{char32\_t}以及有符号和无符号整型统称为\df{整型}（\df{integral type}）。整型
+的一个同义词是\df{整数类型}（\df{integer type}）。
+
+\begin{note}
+  枚举（\ref{dcl.enum}）不是整型；但无作用域枚举可以按\ref{conv.prom}提升为整
+  型。
+\end{note}
 
 \paragraph{} % 12
-<++>
+存在三种\df{符点类型}：\tm{float}，\tm{double}和\tm{long double}。\tm{double}类
+型提供至少\tm{float}的精度，\tm{long double}提供至少\tm{double}的精度。类型
+\tm{float}的值集是类型\tm{double}值集的子集；类型\tm{double}的值集是类型\tm{long
+double}值集的子集。符点类型的值表示由实现定义。
+
+\begin{note}
+  本文件不对符点操作的精度作要求；见\ref{support.limits}。
+\end{note}
+
+整型和符点类型统称为\df{算术类型}。标准库模板\tm{std::numeric\_limits}
+（\ref{support.limits}）的特例化应该为一个实现指定每一种算术类型的最大和最小值。
 
 \paragraph{} % 13
-<++>
+类型\nt{cv} \tm{void}是一个不完整类型，也不能补充完整；这样的类型具有一个空的值
+集。其用作不返回值的函数的返回类型。任何表达式可以显式转换为\nt{cv} \tm{void}类
+型（\ref{expr.type.conv}，\ref{expr.static.cast}，\ref{expr.cast}）。一个类型为
+\nt{cv} \tm{void}类型的表达式可以用作一个表达式语句（\ref{stmt.expr}），一个逗号
+表达式的操作数（\ref{expr.comma}），一个\tm{?:}（\ref{expr.cond}）的第二或第三操
+作数，\tm{typeid}、\tm{noexcept}或\tm{decltype}的操作数，一个具有返回类型为
+\nt{cv} \tm{void}的函数的一条\tm{return}语句（\ref{stmt.return}）中的表达式，或
+者作为一个到\nt{cv} \tm{void}类型显式转换的操作数。
 
 \paragraph{} % 14
-<++>
+一个\tm{std::nullptr\_t}类型的值是一个零指针常量（\ref{conv.ptr}）。这样的值参与
+指针和成员指针转换（\ref{conv.ptr}，\ref{conv.mem}）。
+\tm{sizeof(std::nullptr\_t)}应该等于\tm{sizeof(void*)}。
 
 \paragraph{} % 15
-<++>
+本子条款中所述类型称为\df{基本类型}。
 
+\begin{note}
+  即使实现定义两个或多个基本类型具有相同值表示，它们仍是不同类型。
+\end{note}

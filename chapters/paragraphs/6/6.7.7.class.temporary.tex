@@ -1,25 +1,229 @@
 % 6.7.7 Temporary objects [class.temporary]
 \paragraph{} % 1
-<++>
+临时对象在以下情况下创建。
+\begin{enumerate}
+  \item 当一个\prvalue{}转换成一个\xvalue{}（\ref{conv.rval}）时，
+  \item 当实现需要传递或返回一个平凡可拷贝类型的对象（见下文）时，以及
+  \item 当抛出一个异常（\ref{except.throw}）时
+
+        \begin{note}
+          异常对象的生命期在\ref{except.throw}中描述。
+        \end{note}
+\end{enumerate}
+即使临时对象的创建不求值（\ref{expr.prop}），所有语义限制也应该遵守，如同临时对
+象被创建并在之后销毁。
+
+\begin{note}
+  这包括可访问性（\ref{class.access}），是否删除，构造函数和析构函数的选择。然而
+  在一个\nt{decltype-specifier}（\ref{dcl.type.decltype}）操作数的特殊情形中不会
+  引入临时对象，因此前述不适用于这样的一个\prvalue{}。
+\end{note}
 
 \paragraph{} % 2
-<++>
+一个临时对象的\mat{}一般尽可能地延后以避免创建不必要的临时对象。
+
+\begin{note}
+  临时对象被\mat{}：
+  \begin{enumerate}
+    \item 当绑定一个引用到一个\prvalue{}时（\ref{dcl.init.ref}，
+          \ref{expr.type.conv}，\ref{expr.dynamic.cast}，
+          \ref{expr.static.cast}，\ref{expr.const.cast}，\ref{expr.cast}），
+    \item 当进行一个类\prvalue{}的成员访问时（\ref{expr.ref}，
+          \ref{expr.mptr.oper}），
+    \item 当进行一个数组到指针转换或对一个数组\prvalue{}进行下标访问时
+          （\ref{conv.array}，\ref{expr.sub}），
+    \item 当使用一个\nt{braced-init-list}对一个\tm{std::initializer\_list}类型的
+          对象进行初始化时（\ref{dcl.init.list}），
+    \item 对某些未求值操作数（\ref{expr.typeid}，\ref{expr.sizeof}），以及
+    \item 当一个具有除\nt{cv} \tm{void}类型的\prvalue{}出现为一个弃值表达式
+          （\ref{expr.prop}）时。
+  \end{enumerate}
+\end{note}
+
+\begin{example}
+  考虑以下代码：
+  \begin{lstlisting}
+    class X {
+    public:
+      X(int);
+      X(const X&);
+      X& operator=(const X&);
+      ~X();
+    };
+
+    class Y {
+    public:
+      Y(int);
+      Y(Y&&);
+      ~Y();
+    };
+
+    X f(X);
+    Y g(Y);
+
+    void h() {
+      X a(1);
+      X b = f(X(2));
+      Y c = g(Y(3));
+      a = f(a);
+    }
+  \end{lstlisting}
+  \tm{X(2)}在用于存储\tm{f()}实参的空间中构建，\tm{Y(3)}在用于存储\tm{g()}实参的
+  空间中构建。同样，\tm{f()}的结果在\tm{b}中直接构建，\tm{g()}的结果在\tm{c}中直
+  接构建。另一方面，表达式\tm{a = f(a)}为\tm{f(a)}获取一个临时对象，并\mat{}使得
+  \tm{X::operator=(const X\&)}的引用形参可以绑定到它。
+\end{example}
 
 \paragraph{} % 3
-<++>
+当一个类类型\tm{X}的对象传递给一个函数或者从一个函数返回时，如果\tm{X}具有至少一
+个合格拷贝或移动构造函数（\ref{special}），每一个这样的构造函数都是平凡的，并且
+\tm{X}的析构函数是平凡或删除的，则允许实现创建临时对象用来存储函数形参或者返回对
+象。该临时对象分别从函数实参或返回值创建，并且函数的形参或返回对象如同通过合格平
+凡构造函数来拷贝对象一样进行初始化（即使该构造函数不可访问或者不会被重载解析选中
+来进行一个拷贝或移动该对象）。
+
+\begin{note}
+  授予此自由度允许类类型对象通过寄存器传递给函数或从函数中返回。
+\end{note}
 
 \paragraph{} % 4
-<++>
+当一个实现引入一个具有非平凡构造函数（\ref{class.default.ctor}，
+\ref{class.copy.ctor}）的类临时对象时应该确保为该临时对象调用了一个构造函数。类
+似的应该为具有非平凡析构函数（\ref{class.dtor}）的临时对象调用析构函数。临时对象
+在求值（词法上）含临时对象创建点的全表达式（\ref{intro.execution}）最后一步中销
+毁。即使求值因抛出异常而终止也成立。销毁一个临时对象的值计算和副作用只关联于全表
+达式而不是某个特定子表达式。
 
 \paragraph{} % 5
-<++>
+存在三种上下文，在其中临时对象在一个不同点而不是全表达式结束处销毁。第一个上下文
+为当无对应初始化（\ref{dcl.init}）时调用一个缺省构造函数以初始化一个数组的一个元
+素时。第二个上下文是当拷贝整个数组时（\ref{expr.prim.lambda.capture}，
+\ref{class.copy.ctor}）调用一个拷贝构造函数来拷贝一个数组的一个元素时。无论哪种
+情形，如果构造函数具有一个或多个缺省实参，则缺省实参中创建的每一个临时对象的销毁
+（如有）前序于下一个数组元素的构建。
 
 \paragraph{} % 6
-<++>
+第三种上下文是当一个引用绑定到一个临时对象时。\footnote{同样的规则对使用其底层临
+时数组来初始化一个\tm{initializer\_list}对象（\ref{dcl.init.list}）也适用。}引用
+所绑定的该临时对象或者是引用所绑定完整对象子对象的临时对象持续引用的生命期，如果
+引用所绑定的\prvalue{}通过以下之一取得：
+\begin{enumerate}
+  \item 一个临时\mat{}转换（\ref{conv.rval}），
+  \item \tm{(} \nt{expression} \tm{)}，其中\nt{expression}是这些表达式之一，
+  \item 数组操作数下标操作（\ref{expr.sub}），其中操作数为这些表达式之一，
+  \item 一个使用\tm{.}运算符的类成员访问（\ref{expr.ref}），其中左操作数为这些表
+        达式之一，右操作数表示一个非引用类型的非静态数据成员，
+  \item 一个使用\tm{.*}运算符的成员指针操作（\ref{expr.mptr.oper}），其中左操作
+        数为这些表达式之一，右操作数是一个非引用类型数据成员指针，
+  \item 一个
+        \begin{enumerate}
+          \item \tm{const\_cast}（\ref{expr.const.cast}），
+          \item \tm{static\_cast}（\ref{expr.static.cast}），
+          \item \tm{dynamic\_cast}（\ref{expr.dynamic.cast}），
+          \item \tm{reinterpret\_cast}（\ref{expr.reinterpret.cast}），
+        \end{enumerate}
+        无自定义转换，转换一个是这些表达式之一的\glvalue{}操作数到一个引用该操作
+        数所表示对象的\glvalue{}，或者到其完整对象或其子对象，
+  \item 一个\glvalue{}条件表达式（\ref{expr.cond}），其中第二和第三操作数是这此
+        表达式之一，或者
+  \item 一个\glvalue{}逗号表达式（\ref{expr.comma}），其中右操作数是这些表达式之
+        一。
+\end{enumerate}
+
+\begin{example}
+  \begin{lstlisting}
+    template<typename T> using id = T;
+    int i = 1;
+    int&& a = id<int[3]>{1, 2, 3}[i];           // temporary array has same lifetime as a
+    const int& b = static_cast<const int&>(0);  // temporary int has same lifetime as b
+    int&& c = cond ? id<int[3]>{1, 2, 3}[i] : static_cast<int&&>(0);
+                                                // exactly one of the two temporaries is lifetime-extended
+  \end{lstlisting}
+\end{example}
+
+\begin{note}
+  一个显式类型转换（\ref{expr.type.conv}，\ref{expr.cast}）解释为一个上文所涵盖
+  的基本转换序列。
+
+  \begin{example}
+    \begin{lstlisting}
+    const int& x = (const int&)1;     // temporary for value 1 has same lifetime as x
+    \end{lstlisting}
+  \end{example}
+
+\end{note}
+
+\begin{note}
+  如果一个临时对象具有由另一个临时对象初始化的引用成员，生命期扩展对这种成员初始
+  化递归的适用。
+
+  \begin{example}
+    \begin{lstlisting}
+    struct S {
+      const int& m;
+    };
+    const S& s = S{1};                // both S and int temporaries have lifetime of s
+    \end{lstlisting}
+  \end{example}
+
+\end{note}
+
+该生命期规则的例外为：
+\begin{enumerate}
+  \setcounter{enumi}{8}
+  \item 一个绑定到函数调用（\ref{expr.call}）引用形参的临时对象持续直到包含调用
+        的全表达式完成。
+  \item 一个绑定到由一个括号\nt{expression-list}（\ref{dcl.init}）初始化的类类型
+        聚合的引用元素的临时对象持续直到包含\nt{expression-list}的全表达式结束。
+  \item 绑定到一个函数的\tm{return}语句（\ref{stmt.return}）中的返回值的临时对象
+        的生命期不会扩展；临时对象在\tm{return}语句中的全表达式结束时销毁。
+  \item 一个绑定到\nt{new-initializer}（\ref{expr.new}）中引用的临时对象持续直到
+        包含\nt{new-initializer}的全表达式完成。
+
+        \begin{note}
+          这可能引入悬停引用。
+        \end{note}
+
+        \begin{example}
+            \begin{lstlisting}
+    struct S { int mi; const std::pair<int,int>& mp; };
+    S a { 1, {2,3} };
+    S* p = new S{ 1, {2,3} };       // creates dangling reference
+          \end{lstlisting}
+        \end{example}
+\end{enumerate}
 
 \paragraph{} % 7
-<++>
+未因绑定到一个引用而扩展其生命期的临时对象的销毁前序于同一全表达式中之前构建的每
+一个临时对象。如果引用所绑定的两个或更多的临时对象生命期在同一点终止，则这些临时
+对象在这一点按其构建完成相反的顺序进行销毁。此外，绑定到引用的临时对象的销毁应该
+考虑静态，线程或自动存储期（\ref{basic.stc.static}，\ref{basic.stc.thread}，
+\ref{basic.stc.auto}，）对象的销毁顺序；即如果对象\tm{obj1}与临时对象具有相同存
+储期且创建于临时对象之前，则临时对象的销毁应该在\tm{obj1}之前销毁；如果对象
+\tm{obj2}与临时对象具有相同存储期且创建于临时对象之后，则临时对象应该在\tm{obj2}
+销毁之后销毁。
 
 \paragraph{} % 8
-<++>
-
+\begin{example}
+  \begin{lstlisting}
+    struct S {
+      S();
+      S(int);
+      friend S operator+(const S&, const S&);
+      ~S();
+    };
+    S obj1;
+    const S& cr = S(16)+S(23);
+    S obj2;
+  \end{lstlisting}
+  表达式\tm{S(16) + S(23)}创建了三个临时对象：第一个临时对象\tm{T1}存储表达式
+  \tm{S(16)}的结果，第二个临时对象\tm{T2}存储表达式\tm{S(23)}的结果，第三个临时
+  对象\tm{T3}存储这两个表达式加法的结果。临时对象\tm{T3}随后绑定到引用\tm{cr}。
+  未指明\tm{T1}还是\tm{T2}先创建。在一个\tm{T1}先于\tm{T2}创建的实现中，\tm{T2}
+  应该先于\tm{T1}销毁。临时对象\tm{T1}和\tm{T2}绑定到\tm{operator+}的形参引用；
+  这些临时对象在包含\tm{operator+}调用的全表达式结束时销毁。绑定到\tm{cr}的临时
+  对象\tm{T3}在\tm{cr}生命期结束时销毁，即在程序结束时。此外，\tm{T3}销毁的顺序
+  应该考虑其他静态存储期对象的销毁顺序。即因\tm{obj1}构建于\tm{T3}之前，且
+  \tm{T3}构建于\tm{obj2}之前，\tm{obj2}应该在\tm{T3}之前销毁，且\tm{T3}应该在
+  \tm{obj1}之前销毁。
+\end{example}

@@ -1,10 +1,65 @@
 % 6.5.4.2 Class members [class.qual]
 \paragraph{} % 1
-<++>
+如果一个\nt{qualified-id}的\nt{nested-name-specifier}指定一个类，则
+\nt{nested-name-specifier}之后指定的名字在类作用域中查询
+（\ref{class.member.lookup}），以下所列的情况除外。名字应该表示该类或其基类之一
+（\ref{class.derived}）的一个或多个成员。
+
+\begin{note}
+  一个类成员可在其潜在作用域（\ref{basic.scope.class}）中任意点使用
+  \nt{qualified-id}来引用。
+\end{note}
+
+以上名字查询规则的例外情形如下：
+\begin{enumerate}
+  \item 一个析构函数的查询在\ref{basic.lookup.qual}中指定；
+  \item 一个\nt{conversion-function-id}的\nt{conversion-type-id}与一个类成员访问
+        中的\nt{conversion-type-id}一样进行查询
+        （见\ref{basic.lookup.classref}）；
+  \item 一个\nt{template-id}的\nt{template-argument}中的名字在整个
+        \nt{postfix-expression}所出现的上下文中查询；
+  \item 一个\nt{using-declaration}（\ref{namespace.udecl}）中所指定名字的查询也
+        会找到同一作用域中隐藏的类和枚举名（\ref{basic.scope.hiding}）。
+\end{enumerate}
 
 \paragraph{} % 2
-<++>
+在一个未忽略函数名\footnote{未忽略函数名的查询包括出现在一个
+\nt{nested-name-specifier}，\nt{elaborated-type-specifier}或一个
+\nt{base-specifier}中的名字。}且\nt{nested-name-specifier}指定一个类\tm{C}的查询
+中：
+\begin{enumerate}
+  \item 如果名字在\nt{nested-name-specifier}之后指定，当在\tm{C}中查询时，是
+        \tm{C}的注入类名（\ref{class.pre}），或者
+  \item 在一个是\nt{member-declaration}的\nt{using-declaration}的
+        \nt{using-declarator}（\ref{namespace.udecl}）中，如果在
+        \nt{nested-name-specifier}之后指定的名字与\nt{identifier}或者
+        \nt{nested-name-specifier}的最后一个组件中\nt{simple-template-id}的
+        \nt{template-name}一样，
+\end{enumerate}
+则名字被认为是指定类\tm{C}的构造函数。
+
+\begin{note}
+  比如，构造函数不是一个\nt{elaborated-type-specifier}中的可接受查询结果，因此构
+  造函数不会用于代替注入类名。
+\end{note}
+
+这样的构造函数名应该只用于确定构造函数声明的\nt{declarator-id}或一个
+\nt{using-declaration}中。
+
+\begin{example}
+  \begin{lstlisting}
+    struct A { A(); };
+    struct B: public A { B(); };
+
+    A::A() { }
+    B::B() { }
+
+    B::A ba;          // object of type A
+    A::A a;           // error: A::A is not a type name
+    struct A::A a2;   // object of type A
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 3
-<++>
-
+一个被嵌套声明区中的名字或派生类成员的名字所隐藏的类成员名如果使用其类名跟上
+\tm{::}运算符来限定则仍可以被找到。

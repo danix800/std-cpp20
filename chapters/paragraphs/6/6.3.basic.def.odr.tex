@@ -1,52 +1,409 @@
 % 6.3 One-definition rule [basic.def.odr]
 \paragraph{} % 1
-<++>
+翻译单元不应该包含任何变量、函数、类类型、枚举类型，模板，形参的缺省实参（给定作
+用域中的函数）或缺省模板实参的多个定义。
 
 \paragraph{} % 2
-<++>
+一个表达式或转换为\df{潜在地求值}，除非它是一个未求值操作数（\ref{expr.prop}）或
+其子表达式，或者是一个初始化中的转换或此类上下文中的一个转换序列。表达式\nt{E}的
+\df{潜在结果}集合定义如下：
+\begin{enumerate}
+  \item 如果\nt{E}是一个\nt{id-expression}（\ref{expr.prim.id}），则集合仅包含
+        \tm{E}。
+  \item 如果\nt{E}是一个数组操作数的下标操作（\ref{expr.sub}），则集合包含该操作
+        数的潜在结果。
+  \item 如果\nt{E}是一个非静态数据成员的形如\nt{E\tsub{1}} \tm{.}
+        \tm{template}\nt{\tsub{opt} E\tsub{2}}的类成员访问表达式
+        （\ref{expr.ref}），则集合包含\nt{E\tsub{1}}的潜在结果。
+  \item 如果\nt{E}是一个静态数据成员的类成员访问表达式，则集合包含代表数据成员的
+        \nt{id-expression}。
+  \item 如果\nt{E}是一个形如\nt{E\tsub{1}} \tm{.*} \nt{E\tsub{2}}的成员指针表达
+        式，则集合包含\nt{E\tsub{1}}的潜在结果。
+  \item 如果\nt{E}形如\tm{(}\nt{E\tsub{1}}\tm{)}，则集合包含\nt{E\tsub{1}}的潜在
+        结果。
+  \item 如果\nt{E}是一个\lvalue{}条件表达式（\ref{expr.cond}），则集合为第二、三
+        操作数的潜在结果集合的并。
+  \item 如果\nt{E}是一个逗号表达式（\ref{expr.comma}），则集合包含右操作数的潜在
+        结果。
+  \item 否则集合为空。
+\end{enumerate}
+\begin{note} % 1
+  该集合是一个\nt{id-expression}的集合（可能为空），每一个元素为\nt{E}或\nt{E}的
+  子表达式。
+
+  \begin{example} % 1
+    以下例子中，\tm{n}的初始化的潜在结果集合包含第一个子表达式\tm{S::x}，但不包
+    括第二个子表达式\tm{S::x}。
+    \begin{lstlisting}
+    struct S { static const int x = 0; };
+    const int &f(const int &r);
+    int n = b ? (1, S::x)  // S::x is not odr-used here
+              : f(S::x);   // S::x is odr-used here, so a definition is required
+    \end{lstlisting}
+  \end{example}
+
+\end{note}
 
 \paragraph{} % 3
-<++>
+一个函数被一个表达式或转换按如下所\df{确定}：
+\begin{enumerate}
+  \item 如果函数是作为形成表达式或转换的一部分执行的重载解析中重载集合的选定成员
+        （\ref{basic.lookup}、\ref{over.match}、\ref{over.over}），则函数由表达
+        式或转换所确定，除非该函数是纯虚函数，并且要么该表达式不是使用显式限定名
+        确定函数的\nt{id-expression}，要么该表达式形成成员指针
+        （\ref{expr.unary.op}）。
+
+        \begin{note} % 2
+          这包含取函数地址（\ref{conv.func}，\ref{expr.unary.op}），调用所确定的
+          函数（\ref{expr.call}），运算符重载（第\ref{over}条），自定义转换
+          （\ref{class.conv.fct}），\nt{new-expression}的分配函数
+          （\ref{expr.new}），以及非缺省初始化（\ref{dcl.init}）。选择用于拷贝或
+          移动类类型对象的构造函数由一个表达式或转换所确定，即使调用实际上被实现
+          消除了。
+        \end{note}
+  \item 按\ref{expr.new}所指定，如果是由重载解析所确定的分配函数的单个匹配释放函
+        数，则一个类的释放函数由一个\nt{new-expression}所确定。
+  \item 按\ref{expr.delete}和\ref{class.free}所指定，如果是所选常规释放函数，则
+        一个类的释放函数由一个\nt{delete-expression}所确定。
+\end{enumerate}
 
 \paragraph{} % 4
-<++>
+名字以潜在求值表达式\nt{E}出现的变量\tm{x}被\nt{E}\df{\odruse}，除非
+\begin{enumerate}
+  \item \tm{x}是一个可用于常量表达式（\ref{expr.const}）的引用，或者
+  \item \tm{x}是一个非引用类型的变量，可用于常量表达式且没有可变子对象，并且
+        \nt{E}是应\lvalue{}到\rvalue{}转换的非易失限定非类类型表达式的潜在结果集
+        合的一个元素，或者
+  \item \tm{x}是一个非引用类型变量，且\nt{E}是\lvalue{}到\rvalue{}转换未应用的弃
+        值表达式（\ref{expr.prop}）的潜在求值结果的一个元素。
+\end{enumerate}
+\begin{transnote}
+
+对非内联函数在所有文件中保证中存在一处定义；对类和内联函数，在每一个TU中最多定义
+一次，且保证不同TU间的定义一致性。
+
+A.1 编译单元
+
+实际编写代码时是在文件中写入代码，但对于ODR原则，文件间的边界并不重要；真正重要
+的是编译单元。本质上一个TU是提交给编译器的文件执行预处理后的结果。预处理器按条件
+编译指令（\tm{\#if}，\tm{\#ifdef}）去除掉未被选中的代码，去除注释，递归插入
+\tm{\#include}指令所指定文件，并将宏展开。
+
+要建立跨TU联系，需要在两个TU中将相应的声明设置为外部链接，或者借助导出模板实例化
+过程的中ADL。
+
+A.2 声明与定义
+
+\begin{itemize}
+  \item 1) 命名空间和命名空间别名：声明即定义。
+  \item 2) 类，类模板，函数，函数模板，成员函数，成员函数模板：当有函数体时声明
+        即定义。
+  \item 3) 枚举：当含有\enumr{}列表时声明即定义。
+  \item 4) 局部变量和非静态数据成员：声明总是可以视为定义。
+  \item 5) 全局变量：如果没有加\tm{extern}或者带有初始化，则声明即定义。
+  \item 6) 静态数据成员：当声明出现在其所属类或类模板外部时，声明即定义。
+  \item 7) 类型定义，\nt{using-declaration}，\nt{using-directive}：不是定义。
+  \item 8) 显式实例化指令：视为定义。
+\end{itemize}
+
+A.3 ODR详解
+
+根据作用域来组织ODR规则的各种约束。
+
+A.3.1 全程序约束：One-per-program constraints
+
+以下实体在整个程序中最多存在一个定义：
+\begin{itemize}
+  \item 1) 非内联函数和非内联成员函数。
+  \item 2) 具有外部链接的变量（命名空间和全局作用域中声明的变量及\tm{static}变量
+        ）。
+  \item 3) 类的静态数据成员。
+  \item 4) 非内联函数模板，非内联成员函数模板和通过\tm{export}声明的类模板的非内
+        联成员。
+  \item 5) 类模板的静态数据成员，当通过\tm{export}声明时。
+\end{itemize}
+该规则不作用于内部链接实体（匿名空间，全局\tm{static}实体）。
+
+如果程序中使用了上述实体，则在程序中必须存在且只存在实体的一份定义。“使用”指：程
+序在某处“引用”了实体。“引用”指对访问变量值（除非是常量等不求值的情况），取其地
+址；可以是显式的也可是隐式的。
+
+标准不要求实现给出诊断信息，通常通过链接器来报告缺少或多重定义。
+
+A.3.2 TU约束：One-per-TU constraints
+
+在一个TU中，实体最多定义一次。常用Head Guard来避免多重定义。
+
+ODR还规定某些实体在某些环境中必须有定义。对于类，内联函数和非导出模板成员。以下
+使用要求类类型\tm{X}有定义：
+\begin{itemize}
+  \item 创建\tm{X}的对象。
+  \item 声明X中的数据成员。
+  \item 对\tm{X}的对象使用\tm{sizeof}或\tm{typeid}运算符。
+  \item 显式或隐式访问\tm{X}的成员。
+  \item 将一个表达式转换到\tm{X}或反之，或到类型\tm{X*}，\tm{X\&}的相互转换。
+  \item 对\tm{X}的对象赋值。
+  \item 定义或调用函数，函数具有类型为\tm{X}的参数；只对函数进行声明不需要\tm{X}
+        的定义。
+\end{itemize}
+上述规则对类模板生成的类型也适用。
+
+内联函数在使用到的每一个TU中都必须有定义。其定义可能出现在使用点之后。某些编译器
+不会对尚不可见的函数体进行内联。
+
+标准要求实现对违反给出诊断信息。
+
+A.3.3 跨TU等价约束
+
+对于某些实体，允许在多个TU中存在定义：出现了一种新的错误可能性，即多个TU的定义之
+间不匹配。标准不要求实现给出诊断。标准将违反约束限定为未定义行为。
+
+约束规定：当一个实体在两个TU中定义时，两个地点必须具有（意思）完全相同的符号。
+通过是将多个TU中定义的实体放到头文件中将包含进来。
+
+\end{transnote}
 
 \paragraph{} % 5
-<++>
+一个结构化绑定如果以潜在求值表达式出现则是\odrused{}。
 
 \paragraph{} % 6
-<++>
+如果\tm{this}以潜在求值表达式出现（包括作为非静态成员函数体内隐式变换的结果）则
+\tm{*this}是\odrused{}。
 
 \paragraph{} % 7
-<++>
+一个虚成员函数如果不是纯虚函数则是\odrused{}。一个函数如果被潜在求值表达式或转换
+所提及则是\odrused{}。一个类的非\placement{}分配或释放函数被该类的构造函数定义
+所\odruse{}。一个类的非\placement{}释放函数被该类的析构函数定义，或者被虚析构函
+数（\ref{class.dtor}）声明点查询所选中函数所\odruse{}。\footnote{不要求实现在构
+造函数或析构函数中调用分配和释放；但这是可允许的实现技术。}
 
 \paragraph{} % 8
-<++>
+按\ref{class.copy.assign}中所指定，一个类中的赋值运算符函数被另一个类的隐式声明
+拷贝赋值或移动赋值函数所\odruse{}。一个类的构造函数按\ref{dcl.init}所指定
+是\odrused{}。如果被潜在调用则一个类的析构函数是\odrused{}（\ref{class.dtor}）。
 
 \paragraph{} % 9
-<++>
+一个局部实体（\ref{basic.pre}）在一个声明区域（\ref{basic.scope.declarative}）中
+是\odrusable{}的，如果：
+\begin{enumerate}
+  \item 要么该局部实体不是\tm{*this}，要么存在一个包含的类或非$\lambda$函数形参
+        作用域，并且如果这种最内层作用域是一个函数形参作用域则其对应于一个非静态
+        成员函数，并且
+  \item 对位于实体引入点和该区域（此处\tm{*this}被认为是在最内层包含作用域或非
+        $\lambda$函数定义作用域中引入）每一个中间的声明区域
+        （\ref{basic.scope.declarative}），要么
+        \begin{enumerate}
+          \item 中间声明区域为块作用域，要么
+          \item 中间声明区域是一个\nt{lambda-expression}的函数形参作用域，其具有
+                一个确定该实体的\nt{simple-capture}或一个\nt{capture-default}，
+                并且该\nt{lambda-expression}的块作用域也是一个中间声明区域。
+        \end{enumerate}
+\end{enumerate}
+如果一个局部实体在一个其不是\odrusable{}的声明区域中被\odruse{}，则程序为
+\illform{}。
+
+\begin{example} % 2
+  \begin{lstlisting}
+    void f(int n) {
+      [] { n = 1; };              // error: n is not odr-usable due to intervening lambda-expression
+      struct A {
+        void f() { n = 2; }       // error: n is not odr-usable due to intervening function definition scope
+      };
+      void g(int = n);            // error: n is not odr-usable due to intervening function parameter scope
+      [=](int k = n) {};          // error: n is not odr-usable due to being
+                                  // outside the block scope of the lambda-expression
+      [&] { [n]{ return n; }; };  // OK
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 10
-<++>
+对于每一个程序，在程序中一条丢弃语句（\ref{stmt.if}）之外被\odrused{}的每一个非
+内联函数或变量应该包含恰好一个定义；无需诊断。定义可以显式出现在程序中，可以位于
+标准库或自定义库中，或者（适当时）可以是隐式定义的（见\ref{class.default.ctor}，
+\ref{class.copy.ctor}，\ref{class.dtor}和\ref{class.copy.assign}）。
+
+\begin{example} % 3
+  \begin{lstlisting}
+    auto f() {
+      struct A {};
+      return A{};
+    }
+    decltype(f()) g();
+    auto x = g();
+  \end{lstlisting}
+  包含该翻译单元的程序是\illform{}的，因为\tm{g}被\odruse{}但没有定义，并且不能
+  在任何其他翻译单元中定义，因此局部类\tm{A}不能在此翻译单元之外提及。
+\end{example}
 
 \paragraph{} % 11
-<++>
+一个\df{定义域}（\df{definiton domain}）指一个\nt{private-module-fragment}或者一
+个翻译单元的除\nt{privte-module-fragment}（如有）之外的部分。一个内联函数或变量
+的定义，在其于一条丢弃语句之外被\odruse{}的每一个定义域结束处应该可达。
 
 \paragraph{} % 12
-<++>
+一个类的定义应该在类被按需要完整类类型的方式使用的每一个上下文可达。
+
+\begin{example} % 4
+  以下的完整翻译单元为\wellform{}的，即使未定义\tm{X}：
+  \begin{lstlisting}
+    struct X;               // declares X as a struct type
+    struct X* x1;           // use X in pointer formation
+    X* x2;                  // use X in pointer formation
+  \end{lstlisting}
+\end{example}
+
+\begin{note} % 3
+  这些声明和表达式的规则描述在哪种上下文中需要完整类类型。一个类类型\tm{T}必须是
+  完整的，如果：
+  \begin{enumerate}
+    \item 定义了\tm{T}类型对象（\ref{basic.def}），或者
+    \item 声明了\tm{T}类型非静态类数据成员（\ref{class.mem}），或者
+    \item \tm{T}被用作一个\nt{new-expression}的分配类型或数组元素类型
+          （\ref{expr.new}），或者
+    \item 一个\lvalue{}到\rvalue{}转换应用于引用\tm{T}类型对象的\glvalue{}
+          （\ref{conv.lval}），或者
+    \item 一个表达式被转换（无论隐式或显式）到\tm{T}类型（\ref{conv}，
+          \ref{expr.type.conv}，\ref{expr.dynamic.cast}，
+          \ref{expr.static.cast}，\ref{expr.cast}），或者
+    \item 一个非零指针常量且具有除\nt{cv} \tm{void*}之外的类型的表达式使用一个标
+          准转换（\ref{conv}），一个\tm{dynamic\_cast}（\ref{expr.dynamic.cast}）
+          或者一个\tm{static\_cast}（\ref{expr.static.cast}）转换到\tm{T}类型指
+          针或\tm{T}的引用，或者
+    \item 一个类成员访问运算符应用于一个\tm{T}类型表达式（\ref{expr.ref}），或者
+    \item \tm{typeid}运算符（\ref{expr.typeid}）或\tm{sizeof}运算符
+          （\ref{expr.sizeof}）应用于\tm{T}类型操作数，或者
+    \item 定义（\ref{basic.def}）或调用（\ref{expr.call}）了具有\tm{T}类型为返回
+          类型或实参类型的函数，或者
+    \item 定义了一个以类型\tm{T}为基类的类（\ref{class.derived}），或者
+    \item 给一个\tm{T}类型的\lvalue{}赋值（\ref{expr.ass}），或者
+    \item 类型\tm{T}是一个\tm{alignof}表达式的主体（\ref{expr.alignof}），或者
+    \item 一个\nt{exception-declaration}具有类型\tm{T}，\tm{T}的引用或\tm{T}的指
+          针（\ref{except.handle}）。
+  \end{enumerate}
+\end{note}
 
 \paragraph{} % 13
-<++>
+在一个程序中，一个
+\begin{enumerate}
+  \item 类类型（第\ref{class}条），
+  \item 枚举类型（\ref{dcl.enum}），
+  \item 内联函数或变量（\ref{dcl.inline}），
+  \item 模板化的实体（\ref{temp.pre}），
+  \item 一个（给定作用域中的函数）形参的缺省实参（\ref{dcl.fct.default}），或者
+  \item 缺省模板实参（\ref{temp.param}）
+\end{enumerate}
+可以具有多于一个定义，假定每一个定义出现于不同的翻译单元中，并且这些定义满足以下
+要求。给定一个定义于多于一个翻译单元中的实体\tm{D}，对于\tm{D}的所有定义，或者如
+果是一个无名枚举，对于任何给定程序点可达的\tm{D}的所有定义，应该满足以下要求。
+\begin{enumerate}
+  \setcounter{enumi}{6}
+  \item 每一个这样的定义都不应该附属于一个命名模块（\ref{module.unit}）。
+  \item \begin{sloppypar}
+          每一个这样的定义都应该由相同的符号序列组成，其中一个闭包类型的定义由对
+          应\nt{lambda-expression}的符号序列组成。
+        \end{sloppypar}
+  \item 在每一个这样的定义中，根据\ref{basic.lookup}查询的对应名字，在重载解析
+        （\ref{over.match}）之后和部分模板特例化的匹配（\ref{temp.over}）之后，
+        应该引用相同的实体，除非该名字可以引用
+        \begin{enumerate}
+          \item 一个非易失常量对象，其具有内部链接，或者如果
+                \begin{enumerate}
+                  \item 在\tm{D}的所有定义中具有相同字面类型，
+                  \item 使用常量表达式初始化（\ref{expr.const}），
+                  \item 在\tm{D}的任何定义中都未\odrused{}，并且
+                  \item 在\tm{D}的所有定义中都具有相同值，
+                \end{enumerate}
+                则该对象无链接，或者
+          \item 一个使用常量表达式初始化使得其在\tm{D}的所有定义中引用相同实体的
+                内部链接或无链接引用。
+        \end{enumerate}
+  \item 在每一个这样的定义中，除位于\tm{D}的缺省实参或缺省模板实参之中，对应的
+          \nt{lambda-\linebreak{}expression}应该具有相同的闭包类型（见以下）。
+  \item 在每一个这样的定义中，对应实体应该具有相同的语言链接。
+  \item 在每一个这样的定义中，重载运算符所引用的和隐式调用的转换函数，构造函数，
+        运算符\tm{new}函数和运算符\tm{delete}函数，应该引用相同的函数。
+  \item 在每一个这样的定义中，一个函数调用所（隐式或显式）使用的缺省实参或一个
+        \nt{template-id}或\nt{simple-template-id}所（隐式或显式）使用的缺省模板
+        实参被当作其符号序列存在于\tm{D}的定义中；即缺省实参或者缺省模板实参
+        （递归地）受本段所述要求约束。
+  \item 如果\tm{D}是具有一个隐式声明构造函数（\ref{class.default.ctor}，
+        \ref{class.copy.ctor}）的类，则在其\odrused{}每一个翻译单元中如同该构造
+        函数被隐式定义，且对\tm{D}的子对象，每一个翻译单元中的隐式声明应该调用相
+        同的隐式声明。
+
+        \begin{example} % 5
+          \begin{lstlisting}
+    // translation unit 1:
+    struct X {
+      X(int, int);
+      X(int, int, int);
+    };
+    X::X(int, int = 0) { }
+    class D {
+      X x = 0;
+    };
+    D d1;                         // X(int, int) called by D()
+
+    // translation unit 2:
+    struct X {
+      X(int, int);
+      X(int, int, int);
+    };
+    X::X(int, int = 0, int = 0) { }
+    class D {
+      X x = 0;
+    }
+    D d2;                         // X(int, int, int) called by D();
+                                  // D()'s implicit definition violates the ODR
+          \end{lstlisting}
+        \end{example}
+  \item 如果\tm{D}是一个具有缺省化三路比较运算符函数（\ref{class.spaceship}）的
+        类，则如同其是在其\odrused{}每一个翻译单元中隐式定义的运算符，且对\tm{D}
+        的每一个子对象，该翻译单元中的隐式定义应该调用相同的比较运算符。
+\end{enumerate}
 
 \paragraph{} % 14
-<++>
+如果\tm{D}是一个模板，且定义于多于一个翻译单元中，则之前的要求应该对模板的包含作
+用域中用于模板定义（\ref{temp.nondep}）的名字和实例化点（\ref{temp.dep}）的依赖
+名均适用。这些要求对定义于\tm{D}的每一个定义中的对应实体也适用（包括
+\nt{lambda-expression}的闭包类型，但不包括定义于\tm{D}中，或未定义于\tm{D}中的实
+体中的缺省实参或缺省模板实参的实体）。对每一个这样的实体和\tm{D}本身，其行为如同
+存在具有单个定义的单个实体，包括在这些要求对其他实体的应用中。
+
+\begin{note}
+  实体仍声明于多个翻译单元中，且\ref{basic.link}仍适用于这些声明。特别的，出现在
+  \tm{D}的类型中的\nt{lambda-expression}（\ref{expr.prim.lambda}）可能产生具有不
+  同类型的声明，且出现于\tm{D}的一个缺省实参中的\nt{lambda-expression}在不同翻译
+  单元中仍可以表示不同类型。
+\end{note}
 
 \paragraph{} % 15
-<++>
+如果这些定义不满足这些要求，向程序为\illform{}；仅当实体附属于一个命名模块且在之
+后的定义出现点之前的定义仍可达时需要诊断。
 
 \paragraph{} % 16
-<++>
+\begin{example} % 6
+  \begin{lstlisting}
+    inline void f(bool cond, void (*p)()) {
+      if (cond) f(false, []{});
+    }
+    inline void g(bool cond, void (*p)() = []{}) {
+      if (cond) g(false);
+    }
+    struct X {
+      void h(bool cond, void (*p)() = []{}) {
+        if (cond) h(false);
+      }
+    };
+  \end{lstlisting}
+  如果\tm{f}的定义出现在多个翻译单元中，则程序的行为如同仅有一个\tm{f}的定义。如
+  果\tm{g}的定义出现在多个翻译单元中，则程序为\illform{}（无需诊断），因为每一个
+  这样的定义使用一个引用不同\nt{lambda-expression}闭包类型的缺省实参。\tm{X}的定
+  义可以出现在一个有效程序的多个翻译单元中。
+\end{example}
 
 \paragraph{} % 17
-<++>
-
+如果在程序的任意点，在同一作用域中存在多于一个可达的枚举定义，具有相同的首个枚举
+子名字而没有用作链接目的的类型定义名（\ref{dcl.enum}），则这些无名枚举类型应该相
+同；无需诊断。

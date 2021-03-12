@@ -1,16 +1,71 @@
 % 6.4.9 Template parameter scope [basic.scope.temp]
 \paragraph{} % 1
-<++>
+一个模板\nt{template-parameter}的模板形参名的声明区为引入名字的最小
+\nt{template-parameter-list}。
 
 \paragraph{} % 2
-<++>
+一个模板的模板形参名的声明区为引入名字的最小\nt{template-declaration}。只有模板
+形参名属于该声明区；由一个\nt{template-declaration}的\nt{declaration}所引入的任
+何其他种类的名字实际引入到同名的非模板声明会引入的同一声明区中。
+
+\begin{example} % 1
+  \begin{lstlisting}
+    namespace N {
+      template<class T> struct A { };               // #1
+      template<class U> void f(U) { }               // #2
+      struct B {
+        template<class V> friend int g(struct C*);  // #3
+      };
+    }
+  \end{lstlisting}
+  \tm{T}，\tm{U}和\tm{V}的声明区分别为行\#1，\#2和\#3中的
+  \nt{template-declaration}。全名字\tm{A}，\tm{f}，\tm{g}和\tm{C}都属于同一声明
+  区 --- 即\tm{N}的\nt{namespace-body}。（\tm{g}仍属于该声明区，尽管其在限定和非
+  限定名查询过程中被隐藏了。）
+\end{example}
 
 \paragraph{} % 3
-<++>
+一个模板形参名的潜在作用域始于其声明点（\ref{basic.scope.pdecl}），并终止于其声
+明区的结束处。
+
+\begin{note} % 1
+  这意味着一个\nt{template-parameter}可用于后续\nt{template-parameter}的声明和它
+  们的缺省实参中，但不能用于之前的\nt{template-parameter}或它们的缺省实参中。比
+  如，
+  \begin{lstlisting}
+    template<class T, T* p, class U = T> class X { /* ... */ };
+    template<class T> void f(T* p = new T);
+  \end{lstlisting}
+  这也意味着一个\nt{template-parameter}可用于基类规范中。比如，
+  \begin{lstlisting}
+    template<class T> class X : public Array<T> { /* ... */ };
+    template<class T> class Y : public T { /* ... */ };
+  \end{lstlisting}
+  模板形参用作基类意味着一个用于模板实参的类在类模板被实例化时必须被定义而不仅是
+  被声明了。
+\end{note}
 
 \paragraph{} % 4
-<++>
+一个模板形参名的声明区嵌套于直接包含声明区内。
+
+\begin{note} % 2
+  其结果是，一个\nt{template-parameter}隐藏包含作用域中的任何同名实体
+  （\ref{basic.scope.hiding}）。
+
+  \begin{example} % 2
+    \begin{lstlisting}
+    typedef int N;
+    template<N X, typename N, template<N Y> class T> struct A;
+    \end{lstlisting}
+    此处\tm{X}是一个类型为\tm{int}的非类型模板形参，\tm{Y}是一个与\tm{A}的第二个
+    模板形参同类型的非类型模板形参。
+  \end{example}
+
+\end{note}
 
 \paragraph{} % 5
-<++>
-
+\begin{note} % 3
+  因为一个模板形参名不能在其潜在作用域（\ref{temp.local}）中重声明，一个模板形参
+  的作用域经常是其潜在作用域。但是，一个模板形参名仍可能被隐藏；见
+  \ref{temp.local}。
+\end{note}

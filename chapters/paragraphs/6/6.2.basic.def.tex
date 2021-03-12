@@ -1,16 +1,124 @@
 % 6.2 Declarations and definitions [basic.def]
 \paragraph{} % 1
-<++>
+一个声明（第\ref{dcl.dcl}条）可以向翻译单元内引入一个或多个名字，或重新声明之前
+的声明所引入的名字。如果是则声明指定这些名字的解释和语义属性。一个声明也可以具有
+以下效果：
+\begin{enumerate}
+  \item 一条静态断言（\ref{dcl.pre}），
+  \item 控制模板实例化（\ref{temp.explicit}），
+  \item 指导构造函数模板实参推导（\ref{temp.deduct.guide}），
+  \item 属性使用（\ref{dcl.attr}），以及
+  \item 无效果（在\nt{empty-declaration}的情况下）。
+\end{enumerate}
 
 \paragraph{} % 2
-<++>
+一个\nt{declaration}所声明的每一个实体也会由该声明进行\df{定义}，除了：
+\begin{enumerate}
+  \item 声明了函数但未指定函数体（\ref{dcl.fct.def}），
+  \item 声明含有\tm{extern}说明符（\ref{dcl.stc}）或者一个
+        \nt{linkage-specification}（\ref{dcl.link}）\footnote{出现在
+        \nt{linkage-specification}由花括号包含的\nt{declaration-seq}中不会影响声
+        明是否为定义。}并且既没有\nt{initializer}也没有\nt{function-body}，
+  \item 在类定义（\ref{class.mem}，\ref{class.static}）中声明了非内联静态数据成
+        员，
+  \item 在类定义外声明了静态数据成员，该变量在类内使用\tm{constexpr}说明符进行了
+        定义（该用法已弃用；见\ref{depr.static.constexpr}），
+  \item 由一个\nt{elaborated-type-specifier}（\ref{class.name}）引入，
+  \item 是一个\nt{opaque-enum-declaration}（\ref{dcl.enum}），
+  \item 是一个\nt{template-parameter}（\ref{temp.param}），
+  \item 不是\nt{function-definition}的\nt{declarator}的函数声明子中的
+        \nt{parameter-declaration}（\ref{dcl.fct}），
+  \item 是一个\tm{typedef}声明（\ref{dcl.typedef}），
+  \item 是一个\nt{alias-declaration}（\ref{dcl.typedef}），
+  \item 是一个\nt{using-declaration}（\ref{namespace.udecl}），
+  \item 是一个\nt{deduction-guide}（\ref{temp.deduct.guide}），
+  \item 是一个\nt{static\_assert-declaration}（\ref{dcl.pre}），
+  \item 是一个\nt{attribute-declaration}（\ref{dcl.pre}），
+  \item 是一个\nt{empty-declaration}（\ref{dcl.pre}），
+  \item 是一个\nt{using-directive}（\ref{namespace.udir}），
+  \item 是一个\nt{using-enum-declaration}（\ref{enum.udecl}），
+  \item 是一个\nt{template-declaration}（\ref{temp.pre}），其\tm{template-head}
+        后没有跟上一个\nt{concept-definition}或一个定义函数，类，变量或静态数据
+        成员的\nt{declaration}，
+  \item 是一个显式实例化声明（\ref{temp.explicit}），或者
+  \item 是一个显式特例化（\ref{temp.expl.spec}），其\nt{declaration}不是定义。
+\end{enumerate}
+一个声明是其所定义实体的\df{定义}。
+
+\begin{example}
+  以下仅有一个不是定义：
+  \begin{lstlisting}
+    int a;                         // defines a
+    extern const int c = 1;        // defines c
+    int f(int x) { return x + a; } // defines f and defines x
+    struct S { int a; int b; }     // defines S, S::a, and S::b
+    struct X {                     // defines X
+      int x;                       // defines non-static data member x
+      static int y;                // declares static data member y
+      X() : x(0) { }               // defines a constructor of X
+    };
+    int X::y = 1;                  // defines X::y
+    enum { up, down };             // defines up and down
+    namespace N { int d; }         // defines N and N::d
+    namespace N1 = N;              // defines N1
+    X anX;                         // defines anX
+  \end{lstlisting}
+  而以下仅为声明：
+  \begin{lstlisting}
+    extern int a;                  // declares a
+    extern const int c;            // declares c
+    int f(int);                    // declares f
+    struct S;                      // declares S
+    typedef int Int;               // declares Int
+    extern X anotherX;             // declares anotherX
+    using N::d;                    // declares d
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 3
-<++>
+\begin{note}
+  某些情况下，\cpp{}实现隐式定义缺省构造函数（\ref{class.default.ctor}），拷贝构
+  造函数，移动构造函数（\ref{class.copy.ctor}），拷贝赋值运算符，移动赋值运算符
+  （\ref{class.copy.assign}）或析构函数（\ref{class.dtor}）。
+\end{note}
+
+\begin{example}
+  给定
+  \begin{lstlisting}
+    #include <string>
+
+    struct C {
+      std::string s;      // std::string is the standard library class (21.3)
+    };
+
+    int main() {
+      C a;
+      C b = a;
+      b = a;
+    }
+  \end{lstlisting}
+  实现将隐式定义函数使得\tm{C}的定义等价于
+  \begin{lstlisting}
+    struct C {
+      std::string s;
+      C() : s() { }
+      C(const C& x) : s(x.s) { }
+      C(C&& x) : s(static_cast<std::string&&>(x.s) { }
+         //    : s(std::move(x.s)) { }
+      C& operator=(const C& x) { s = x.s; return *this; }
+      C& operator=(C&& x) { s = static_cast<std::string&&>(x.s); return *this; }
+          //              { s = std::move(x.s); return *this; }
+      ~C() { }
+    };
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 4
-<++>
+\begin{note}
+  类名也可能由一个\nt{elaborated-type-specifier}（\ref{dcl.type.elab}）隐式声
+  明。
+\end{note}
 
 \paragraph{} % 5
-<++>
-
+在一个对象的声明中，该对象的类型不应该是一个不完整类型（\ref{basic.types}），一
+个抽象类类型（\ref{class.abstract}）或者是它们的一个（可能是多维的）数组。

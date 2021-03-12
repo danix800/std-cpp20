@@ -1,19 +1,91 @@
 % 6.5.4.1 General [basic.lookup.qual.general]
 \paragraph{} % 1
-<++>
+一个类或命名空间成员或\enumr{}的名字可以在\tm{::}作用域解析运算符
+（\ref{expr.prim.id.qual}）应用于一个表示其类，命名空间或枚举的
+\nt{nested-name-specifier}之后来引用。如果一个\nt{nested-name-specifier}中的
+\tm{::}作用域解析运算符之前无\nt{decltype-specifier}，则该\tm{::}之前的名字查询
+只考虑命名空间，类型和其特例化是类型的模板。如果所找到的名字不表示命名空间或类，
+枚举或依赖类型，则程序为\illform{}。
+
+\begin{example}
+  \begin{lstlisting}
+    class A {
+    public:
+      static int n;
+    };
+
+    int main() {
+      int A;
+      A::n = 42;        // OK
+      A b;              // error: A does not name a type
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 2
-<++>
+\begin{note}
+  多重限定名，比如\tm{N1::N2::N3::n}，可用于引用嵌套类（\ref{class.nest})成员或
+  嵌套命名空间的成员。
+\end{note}
 
 \paragraph{} % 3
-<++>
+在一个\nt{declarator-id}是一个\nt{qualified-id}的声明中，用在所声明
+\nt{qualified-id}之前的名字在定义命名空间作用域中查询；跟在\nt{qualified-id}之后
+的名字在成员的类或命名空间作用域中查询。
+
+\begin{example}
+  \begin{lstlisting}
+    class X { };
+    class C {
+      class X { };
+      static const int number = 50;
+      static X arr[number];
+    };
+    X C::arr[number];   // error:
+                        // equivalent to ::X C::arr[C::number];
+                        // and not to C::X C::arr[C::number];
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 4
-<++>
+一个名字前加一元作用域运算符\tm{::}（\ref{expr.prim.id.qual}）在所用的翻译单元
+中在全局作用域中查询。该名字应该声明于全局命名空间作用域中，或者应该是其声明因
+\nt{using-directive}（\ref{namespace.qual}）而在全局作用域中可见的名字。\tm{::}
+的使用允许一个全局名字即使其标识符被隐藏（\ref{basic.scope.hiding}）了仍可以引
+用。
 
 \paragraph{} % 5
-<++>
+一个名字前加指定一个枚举类型的\nt{nested-name-specifier}应该表示该枚举的一
+个\enumr{}。
 
 \paragraph{} % 6
-<++>
+在一个形如\par
+\mbox\qquad\nt{nested-name-specifier\tsub{opt} type-name} \tm{::\tat}
+  \nt{type-name}\par
+的\nt{qualified-id}中，第二个\nt{type-name}在与第一个相同的作用域中查询。
 
+\begin{example}
+  \begin{lstlisting}
+    struct C {
+      typedef int I;
+    };
+    typedef int I1, I2;
+    extern int* p;
+    extern int* q;
+    p->C::I::~I();      // I is looked up in the scope of C
+    q->I1::~I2();       // I2 is looked up in the scope of the postfix-expression
+
+    struct A {
+      ~A();
+    };
+    typedef A AB;
+    int main() {
+      AB* p;
+      p->AB::~AB();     // explicitly calls the destructor for A
+    }
+  \end{lstlisting}
+\end{example}
+
+\begin{note}
+  \ref{basic.lookup.classref}描述名字查询在\tm{.}和\tm{->}运算符之后如何进行。
+\end{note}

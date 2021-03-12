@@ -1,13 +1,56 @@
 % 6.7.5.5.4 Safely-derived pointers [basic.stc.dynamic.safety]
 \paragraph{} % 1
-<++>
+一个\df{可追踪指针对象}指
+\begin{enumerate}
+  \item 一个对象指针类型（\ref{basic.compound}）的对象，或者
+  \item 一个整型对象，至少和\tm{std::intptr\_t}一样大，或者
+  \item 一个窄字符类型（\ref{basic.fundamental}）数组的元素序列，其中序列的大小
+        和对齐匹配某些对象指针类型的大小和对齐。
+\end{enumerate}
 
 \paragraph{} % 2
-<++>
+一个指针值是一个动态存储期对象的\df{安全派生指针}，仅当指针值具有对象指针类型且
+是以下之一：
+\begin{enumerate}
+  \item 调用\cpp{}标准库实现的\tm{::operator new(std::size\_t)}或者
+        \tm{::operator new(std::}\linebreak \tm{size\_t, std::align\_val\_t)}的
+        返回值；\footnote{该子条款不对通过指向不由\tm{::operator new}分配内存的
+        指针进行解引用施加限制。这维护了许多\cpp{}实现使用其他语言所写的二进制库
+        和组件的能力。特别的，这适用于\c{}二进制程序，因为通过指向由
+        \tm{std::malloc}分配内存的指针进行解引用不受限。}
+  \item 取通过一个安全派生指针值解引用所产生的\lvalue{}所表示对象（或其子对象之
+        一）的地址的结果；
+  \item 使用一个安全派生指针值的有定义指针算术（\ref{expr.add}）的结果；
+  \item 一个安全派生指针值的有定义指针转换（\ref{conv.ptr}，
+        \ref{expr.type.conv}，\ref{expr.static.cast}，\ref{expr.cast}）的结果；
+  \item 一个安全派生指针值的\tm{reinterpret\_cast}的结果；
+  \item 一个安全派生指针值的整数表示的\tm{reinterpret\_cast}的结果；
+  \item 值拷贝自一个可追踪指针对象的对象值，在拷贝时源对象包含一个安全派生指针值
+        的拷贝。
+\end{enumerate}
 
 \paragraph{} % 3
-<++>
+一个整数值是一个\df{安全派生指针的整数表示}，仅当其类型至少和\tm{std::intptr\_t}
+一样大且是以下之一：
+\begin{enumerate}
+  \item 一个安全派生指针值的\tm{reinterpret\_cast}的结果；
+  \item 一个安全派生指针值的整数表示的有效转换结果；
+  \item 值拷贝自一个可追踪指针对象的对象值，在拷贝时源对象包含一个安全派生指针值
+        的整数表示；
+  \item 一个加法或按位操作的结果，其操作数之一是一个安全派生指针\tm{P}的整数表
+        示，如果该结果被\tm{reinterpret\_cast}转换与可从
+        \tm{reinterpret\_cast<void*>(P)}计算而得的一个安全派生指针相等。
+\end{enumerate}
 
 \paragraph{} % 4
-<++>
+一个实现可以具有\df{放松的指针安全性}，此时一个指针值的有效性不依赖于其是否是一
+个安全派生指针值。可选的，实现可以具有\df{严格的指针安全性}，此时一个引用动态存
+储期对象的非安全派生指针值是一个无效指针值，除非所引用完整对象之前已经声明为可达
+（\ref{util.dynamic.safety}）。
 
+\begin{note}
+  使用一个无效指针值的效果（包括传递给一个释放函数）是未定义的，见
+  \ref{basic.stc}。即使不安全派生指针值与某些安全派生指针值相等也是。
+\end{note}
+
+一个实现具有放松还是严格指针安全性由实现来定义。

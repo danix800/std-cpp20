@@ -1,16 +1,23 @@
 % 6.4.10 Name hiding [basic.scope.hiding]
 \paragraph{} % 1
-<++>
+一个嵌套声明区中一个名字的声明隐藏一个包含声明区中同名的声明；见
+\ref{basic.scope.declarative}和\ref{basic.lookup.unqual}。
 
 \paragraph{} % 2
-<++>
+如果一个类名（\ref{class.name}）或枚举名（\ref{dcl.enum}）以及一个变量，数据成员
+，函数或\enumr{}在同一个声明区中使用相同的名字（按任何顺序）声明（排除通过
+\nt{using-directive}（\ref{basic.lookup.unqual}）使其可见的声明），则在变量，数
+据成员，函数或\enumr{}名可见之处类或枚举名被隐藏。
 
 \paragraph{} % 3
-<++>
+在一个成员函数定义中，块作用域中一个名字的声明隐藏类的同名成员声明；见
+\ref{basic.scope.class}。一个派生类中成员的声明（\ref{class.derived}）隐藏基类中
+同名的成员声明；见\ref{class.member.lookup}。
 
 \paragraph{} % 4
-<++>
+在一个命名空间名限定的名字查询过程中，使用\nt{using-directive}否则会使其可见的声
+明可被在包含该\nt{using-directive}的命名空间中同名的声明所隐藏；见
+\ref{namespace.qual}。
 
 \paragraph{} % 5
-<++>
-
+如果一个名字处于作用域中且未被隐藏则称其为\df{可见的}。

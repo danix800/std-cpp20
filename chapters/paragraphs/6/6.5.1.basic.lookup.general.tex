@@ -1,13 +1,26 @@
 % 6.5.1 General [basic.lookup.general]
 \paragraph{} % 1
-<++>
+名字查询规则一律适用于所有名字（包括\nt{typedef-name}（\ref{dcl.typedef}），
+\nt{namespace-name}（\ref{basic.namespace}）和\nt{class-name}
+（\ref{class.name}）），只要在一条特定规则所讨论的上下文中语法允许这样的名字。名
+字查询将一个名字的使用与该名字的一组声明（\ref{basic.def}）关联起来。如果名字查
+询所找到的声明全部表示函数或函数模板，则这些声明称作形成一个\df{重载集合}。名字
+查询所找到的声明应该要么全部表示同一个实体，要么形成一个重载集合。重载解析
+（\ref{over.match}，\ref{over.over}）发生在名字查询成功之后。访问规则
+（\ref{class.access}）只在名字查询和函数重载解析（如适用）成功之后考虑一次。只有
+在名字查询，函数重载解析（如适用）和访问检查成功之后该名字的声明及其可达
+（\ref{module.reach}）重声明所引入的语义属性才用于进一步的表达式处理（第
+\ref{expr}条）。
 
 \paragraph{} % 2
-<++>
+一个“在表达式上下文中查询”的名字在找到表达式的作用域中查询。
 
 \paragraph{} % 3
-<++>
+一个类的注入类名（\ref{class.pre}）为名字隐藏和查询的目的也被当作是该类的一个成
+员。
 
 \paragraph{} % 4
-<++>
-
+\begin{note}
+  \ref{basic.link}中讨论了链接问题。作用域，声明点和名字隐藏的概念在
+  \ref{basic.scope}中讨论。
+\end{note}

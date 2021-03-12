@@ -1,31 +1,60 @@
 % 6.1 Preamble [basic.pre]
 \paragraph{} % 1
-<++>
+\begin{note}
+  本条款介绍了\cpp{}语言基本概念。解释了对象和名字间的区别，以及它们与表达式
+  \valcat{}的关联。引入声明和定义的概念，并介绍了\cpp{}的类型，作用域，链接和存
+  储期概念。讨论了程序启动和终止机制。最后，本条款介绍了语言的基本类型，并列出从
+  这些基本类型构造复合类型的方式。
+\end{note}
 
 \paragraph{} % 2
-<++>
+\begin{note}
+  本条件不覆盖只影响语言单个部分的概念。这些概念在相关条款中讨论。
+\end{note}
 
 \paragraph{} % 3
-<++>
+一个\df{实体}指一个值，对象，引用，结构化绑定，函数，\enumr{}，类型，类成员，位
+域，模板，模板特例化，命名空间或包。
 
 \paragraph{} % 4
-<++>
+一个\df{名字}指对一个表示实体或\df{\lbl}的
+\nt{identifier}             （\ref{lex.name}），
+\nt{operator-function-id}   （\ref{over.oper}），
+\nt{literal-operator-id}    （\ref{over.literal}），
+\nt{conversion-function-id} （\ref{class.conv.fct}），或者
+\nt{template-id}            （\ref{temp.names}）的使用。
 
 \paragraph{} % 5
-<++>
+每一个表示实体的名字由一个\nt{declaration}引入。每一个表示\lbl{}的名字由一条
+\tm{goto}语句（\ref{stmt.goto}）或一条\tm{labeled-statement}（\ref{stmt.label}）
+引入。
 
 \paragraph{} % 6
-<++>
+一个\df{变量}由一个除了非静态数据成员的引用声明或一个对象的声明引入。如果有的话
+变量的名字表示该引用或对象。
 
 \paragraph{} % 7
-<++>
+一个\df{局部实体}指一个自动存储期变量（\ref{basic.stc.auto}），一个其对应变量为
+这样的实体的结构化绑定（\ref{dcl.struct.bind}），或者\tm{*this}对象
+（\ref{expr.prim.this}）。
 
 \paragraph{} % 8
-<++>
+某些名字表示类型或模板。一般而言，每当遇到一个名字时，在继续分析包含它的程序之前
+都需要确定该名字是否表示这些实体之一。确定此信息的过程称为\df{名字查询}
+（\ref{basic.lookup}）。
 
 \paragraph{} % 9
-<++>
+如果两个名字
+\begin{enumerate}
+  \item 是由相同字符序列组成的\nt{identifier}，或者
+  \item 是由相同运算符形成的\nt{operator-function-id}，或者
+  \item 是由相同类型形成的\nt{conversion-function-id}，或者
+  \item 是由引用相同类，函数或变量的\nt{template-id}（\ref{temp.type}），或者
+  \item 是由相同字面值后缀标识符形成的\nt{literal-operator-id}
+        （\ref{over.literal}），
+\end{enumerate}
+则这两个名字是\df{相同的}。
 
 \paragraph{} % 10
-<++>
-
+根据每一个翻译单元中对名字所指定的链接（\ref{basic.link}），用于多个翻译单元中的
+一个名字可以潜在地引用这些翻译单元中的相同实体。

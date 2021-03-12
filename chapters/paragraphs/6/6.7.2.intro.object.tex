@@ -1,40 +1,182 @@
 % 6.7.2 Object model [intro.object]
 \paragraph{} % 1
-<++>
+一个\cpp{}程序中的结构创建，销毁，引用，访问并操作对象。一个\df{对象}由一个定义
+（\ref{basic.def}），一个\nt{new-expression}（\ref{expr.new}），一个隐式创建对象
+的操作（见下文），当隐式切换一个联合（\ref{class.union}）的活动成员时或当一个临
+时对象被创建时（\ref{conv.rval}，\ref{class.temporary}）创建。一个对象在其构建期
+（\ref{class.cdtor}）内，在其整个生命期（\ref{basic.life}）内，和其析构期
+（\ref{class.cdtor}）内占据其存储区域。
+
+\begin{note}
+  一个函数不是一个对象，无论它是否按对象的方式占据存储。
+\end{note}
+
+一个对象的属性在对象创建时确定。一个对象可以有一个名字（\ref{basic.pre}）。一个
+对象具有决定其生命期（\ref{basic.life}）的存储期（\ref{basic.stc}）。一个对象具
+有一个类型（\ref{basic.types}）。某些对象是多态的（\ref{class.virtual}）；实现生
+成关联于每一个这种对象的信息，使其能够在程序执行期间确定该对象的类型。对于其他对
+象，其内值的解释由用来访问它们的\nt{expression}（\ref{expr.compound}）的类型确
+定。
 
 \paragraph{} % 2
-<++>
+对象可以包含其他对象，称为\df{子对象}。一个子对象可以是一个\df{成员子对象}
+（\ref{class.mem}），一个\df{基类子对象}（\ref{class.derived}），或者是一个数组
+元素。一个不是任何其他对象的子对象的对象称为\nt{完整对象}。如果一个对象在关联于
+一个成员子对象或数组元素\nt{e}（可能在也可能不在其生命期内）的存储中创建，则所创
+建对象是\nt{e}的包含对象的子对象，如果：
+\begin{enumerate}
+  \item \nt{e}的包含对象的生命期已开始但未结束，并且
+  \item 新对象的存储与关联于\nt{e}的存储位置准确重叠，并且
+  \item 新对象与\nt{e}具有相同类型（忽略cv限定）。
+\end{enumerate}
 
 \paragraph{} % 3
-<++>
+如果一个完整对象在关联于另一个类型为“\nt{N}个\tm{unsigned char}的数组”或“\nt{N}
+个\tm{std::byte}的数组”的对象\nt{e}的存储中创建（\ref{expr.new}），则该数组为所创
+建对象\df{提供存储}，如果：
+\begin{enumerate}
+  \item \nt{e}的包含对象的生命期已开始但未结束，并且
+  \item 新对象的存储可完全容纳于\nt{e}中，并且
+  \item 没有能满足这些约束的更小的数组对象。
+\end{enumerate}
+
+\begin{note}
+  如果数组的该部分之前为另一个对象提供存储，则该对象的生命期因存储被重用而终止
+  （\ref{basic.life}）。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+    template<typename ...T>
+    struct AlignedUnion {
+      alignas(T...) unsigned char data[max(sizeof(T)...)];
+    };
+    int f() {
+      AlignedUnion<int, char> au;
+      int *p = new (au.data) int;         // OK, au.data provides storage
+      char *c = new (au.data) char();     // OK, ends lifetime of *p
+      char *d = new (au.data + 1) char();
+      return *c + *d;                     // OK
+    }
+
+    struct A { unsigned char a[32]; };
+    struct B { unsigned char b[16]; };
+    A a;
+    B *b = new (a.a + 8) B;               // a.a provides storage for *b
+    int *p = new (b->b + 4) int;          // b->b provides storage for *p
+                                          // a.a does not provide storage for *p (directly),
+                                          // but *p is nested within a (see below)
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 4
-<++>
+一个对象\nt{a}\df{嵌套于}另一个对象\nt{b}中，如果：
+\begin{enumerate}
+  \item \nt{a}是\nt{b}的子对象，或者
+  \item \nt{b}为\nt{a}提供存储，或者
+  \item 存在一个对象\nt{c}，其中\nt{a}嵌套于\nt{c}中，而\nt{c}嵌套于\nt{b}中。
+\end{enumerate}
 
 \paragraph{} % 5
-<++>
+对每一个对象\tm{x}，存在某些对象称为\tm{x}\df{的完整对象}，按如下确定：
+\begin{enumerate}
+  \item 如果\tm{x}是一个完整对象，则\tm{x}的完整对象为\tm{x}本身。
+  \item 否则，\tm{x}的完整对象为包含\tm{x}的（唯一）对象的完整对象。
+\end{enumerate}
 
 \paragraph{} % 6
-<++>
+如果一个完整对象，成员子对象，或数组元素具有类类型，则其类型被认为是\df{最终派生
+类}，以区别于任何基类子对象的类类型；一个最终派生类类型或非类类型的对象称为
+\df{最终派生对象}。
 
 \paragraph{} % 7
-<++>
+一个\df{潜在重叠子对象}为：
+\begin{enumerate}
+  \item 一个基类子对象，或者
+  \item 一个使用\tm{no\_unique\_address}属性（\ref{dcl.attr.nouniqueaddr}）声明
+        的非静态数据成员。
+\end{enumerate}
 
 \paragraph{} % 8
-<++>
+一个对象具有非零大小，如果它
+\begin{enumerate}
+  \item 不是一个潜在重叠子对象，或者
+  \item 不具有类类型，或者
+  \item 具有含虚成员函数或虚基类的类类型，或者
+  \item 具有非零大小子对象或非零长位域。
+\end{enumerate}
+否则，如果对象是不含非静态数据成员标准布局类类型的基类子对象，则它具有零大小。否
+则对象具有零大小的情况由实现定义。除非它是一个位域（\ref{class.bit}），一个非零
+大小对象应该占据一个或多个字节的存储，包括每一个被完全占据的字节或其任何子对象所
+占据的部分。一个平凡可拷贝或标准布局类型（\ref{basic.types}）对象应该占据连续字
+节存储。
 
 \paragraph{} % 9
-<++>
+除非一个对象是一个位域或零大小子对象，该对象的地址为其所占据的首字节的地址。两个
+具有重叠生命期非位域的对象如果一个嵌套于另一个中则可能具有相同地址，或如果至少一
+个是零大小子对象且它们具有不同类型；否则，它们具有不同地址且占据不相交字节存储。
+\footnote{在“如同”规则下允许实现存储两个对象于同一机器地址，或如果程序不能观察到
+区别（\ref{intro.execution}）的话可以完全不存储一个对象。}
+
+\begin{example}
+  \begin{lstlisting}
+    static const char test1 = 'x';
+    static const char test2 = 'x';
+    const bool b = &test1 != &test2;        // always true
+  \end{lstlisting}
+\end{example}
+
+零大小非位域子对象的地址为该子对象的完整对象所占据存储的一个未指明字节的地址。
 
 \paragraph{} % 10
-<++>
+某些操作描述为在存储的指定区域中\df{隐式创建对象}。对每一个指定为隐式创建对象的
+操作，该操作在其指定存储区域中隐式创建并开始零个或多个隐式生命期类型
+（\ref{basic.types}）对象的生命期，如果这么做能够在程序中产生有定义行为。如果没
+有这样的对象能够给予程序有定义行为，则程序行为未定义。如果多个这样的对象集合能够
+给予程序有定义行为，则未指明创建哪一个对象集合。
+
+\begin{note}
+  这些操作不会开始这种对象的本身不是隐式生命期类型的子对象的生命期。
+\end{note}
 
 \paragraph{} % 11
-<++>
+更进一步，在指定存储区域中隐式创建对象之后，某些操作描述为产生\df{适当创建对象}
+指针。这些操作选择其中一个其地址为存储区域起始地址的隐式分支对象，并产生一个指向
+该对象的指针，如果该值能在程序中产生有定义行为。如果没有这样的指针值能够给予程序
+有定义行为，则程序行为未定义。如果多个这样的指针值能够给予程序有定义行为，则未指
+明产生哪个指针值。
 
 \paragraph{} % 12
-<++>
+\begin{example}
+  \begin{lstlisting}
+    #include <cstdlib>
+    struct X { int a, b; };
+    X *make_x() {
+      // The call to std::malloc implicitly creates an object of type X
+      // and its subobjects a and b, and returns a pointer to that X object
+      // (or an object that is pointer-interconvertible (6.8.3) with it),
+      // in order to give the subsequent class member access operations
+      // defined behavior.
+      X *p = (X*)std::malloc(sizeof(struct X));
+      p->a = 1;
+      p->b = 2;
+      return p;
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 13
-<++>
+一个开始\tm{char}，\tm{unsigned char}或\tm{std::byte}的数组生命期的操作在该数组
+所占据存储区中隐式对象。
 
+\begin{note}
+  该数组对象为这些对象提供存储。
+\end{note}
+
+任何名为\tm{operator new}或\tm{operator new[]}的函数的隐式或显式调用在所返回存储
+区域中隐式创建对象并返回一个适当创建对象的指针。
+
+\begin{note}
+  \cpp{}标准库中的某些函数隐式创建对象（\ref{allocator.traits.members}，
+  \ref{c.malloc}，\ref{cstring.syn}，\ref{bit.cast}）。
+\end{note}

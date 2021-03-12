@@ -1,19 +1,77 @@
 % 6.8.4 CV-qualifiers [basic.type.qualifier]
 \paragraph{} % 1
-<++>
+一个在\ref{basic.fundamental}和\ref{basic.compound}中所提及的类型是一个\df{无cv
+限定类型}。每一个无cv限定完整或不完整对象类型或者\tm{void}（\ref{basic.types}）
+类型具有其类型的三个对应cv限定版本：一个\df{const限定}版本，一个\df{volatile限
+定}版本以及一个\df{const-volatile限定}版本。一个对象的类型（\ref{intro.object}）
+包括\nt{decl-specifier-seq}（\ref{dcl.spec}）中指定的\nt{cv-qualifier}，
+\nt{declarator}（\ref{dcl.decl}），\nt{type-id}（\ref{dcl.name}）或者当创建对象
+时的\nt{new-type-id}（\ref{expr.new}）。
+\begin{enumerate}
+  \item 一个\df{常对象}是一个类型为\tm{const T}的对象或者常对象的不可变子对象。
+  \item 一个\df{易失对象}是一个类型为\tm{volatile T}的对象或者易失对象的子对象。
+  \item 一个\df{常易失对象}是一个类型为\tm{const volatile T}的对象，常易失对象的
+        不可变子对象，一个易失对象的常子对象或者一个常对象的不可变易失子对象。
+\end{enumerate}
+一个类型的cv限定和无cv限定版本是不同的类型；但它们应该具有相同的表示和对齐要求
+（\ref{basic.align}）。\footnote{相同表示和对齐要求意味着作为函数实参，函数返回
+值和联合的非静态数据成员的可互换性。}
 
 \paragraph{} % 2
-<++>
+除数组类型外，一个复合类型（\ref{basic.compound}）不被复合于类型的cv限定符（如果
+有）所限定。
 
 \paragraph{} % 3
-<++>
+任何元素为cv限定的数组类型被认为与其元素具有相同的cv限定。
+
+\begin{note}
+  应用于一个数组类型的cv限定符附属于其底层类型，因此记号“\nt{cv} \tm{T}”，其中
+  \tm{T}为一个数组类型，指的是其元素如此限定的数组（\ref{dcl.array}）。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+    typedef char CA[5];
+    typedef const char CC;
+    CC arr1[5] = { 0 };
+    const CA arr2 = { 0 };
+  \end{lstlisting}
+  \tm{arr1}和\tm{arr2}的类型均为“5个\tm{const char}的数组”，并且数组类型是常限定
+  的。
+\end{example}
 
 \paragraph{} % 4
-<++>
+\begin{note}
+  见\ref{dcl.fct}和\ref{class.this}关于具有\nt{cv-qualifier}的函数类型。
+\end{note}
 
 \paragraph{} % 5
-<++>
+在cv限定符上存在一个偏序，使得一个类型可以称为比另一个类型“\df{更多限定}”。表
+\ref{tab:basic.type.qualifier.rel}列出构成此偏序的关系。
+
+\begin{table}[!ht]
+  \centering
+  \caption{\tm{const}和\tm{volatile}上的关系[tab:basic.type.qualifier.rel]}
+  \begin{tabular}{|ccc|}
+    \hline
+    \df{无cv限定符} & < & \tm{const}                                          \\
+    \df{无cv限定符} & < & \tm{volatile}                                       \\
+    \df{无cv限定符} & < & \tm{const volatile}                                 \\
+    \tm{const}      & < & \tm{const volatile}                                 \\
+    \tm{volatile}   & < & \tm{const volatile}                                 \\
+    \hline
+  \end{tabular}
+  \label{tab:basic.type.qualifier.rel}
+\end{table}
 
 \paragraph{} % 6
-<++>
+在本文件中，用于类型描述中的记号\nt{cv}（或\nt{cv1}，\nt{cv2}等等）表示任意cv限
+定符集合，即\tm{\{const\}}，\tm{\{volatile\}}，\tm{\{const, volatile\}}之一或者
+空集。对于一个类型\nt{cv} \tm{T}，该类型的顶层\nt{cv-qualifier}由\nt{cv}来表示。
 
+\begin{example}
+  对应于\nt{type-id} \tm{const int\&}的类型没有顶层cv限定符。对应于\nt{type-id}
+  \tm{volatile int * const}的类型具有顶层cv限定符\tm{const}。对一个类类型\tm{C}
+  对应于\tm{type-id} \tm{void (C::* volatile)(int) const}的类型具有顶层cv限定符
+  \tm{volatile}。
+\end{example}

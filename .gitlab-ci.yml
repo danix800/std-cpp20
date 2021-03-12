@@ -1,0 +1,33 @@
+.prepare_env: &prepare_env
+  - |
+    function install_texlive() {
+      sed -i 's:deb.debian.org:mirrors.163.com:;' /etc/apt/sources.list
+      sed -i 's:security.debian.org:mirrors.163.com:;' /etc/apt/sources.list
+      sed -i 's:main$:main non-free contrib:;' /etc/apt/sources.list
+      apt-get update
+      local -p pkgs
+      pkgs+=(graphviz)
+      pkgs+=(texlive-fonts-extra)
+      pkgs+=(texlive-lang-chinese)
+      pkgs+=(texlive-latex-extra)
+      pkgs+=(texlive-latex-recommended)
+      pkgs+=(texlive-xetex)
+      apt-get install -y "${pkgs[@]}"
+    }
+    install_texlive
+
+build:
+  stage: build
+  artifacts:
+    name: pdf
+    paths:
+      - ./*.pdf
+    expire_in: 1 week
+  script:
+    - *prepare_env
+    - scripts/gen.toc.sh
+    - xelatex cpp20.tex
+    - xelatex cpp20.tex
+  tags:
+    - xelatex
+  image: debian:buster

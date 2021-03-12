@@ -1,34 +1,206 @@
 % 6.7.3 Lifetime [basic.life]
 \paragraph{} % 1
-<++>
+一个对象或引用的\df{生命期}指该对象或引用的运行时属性。一个变量如果被缺省初始化
+且具有类类型或其（可能多维的）数组，该类类型具有平凡缺省构造函数，则称其具有
+\df{空初始化}（\df{vacuous initialization}）。\tm{T}类型对象的生命期开始于：
+\begin{enumerate}
+  \item 获取到适合于类型\tm{T}的对齐和大小的存储，并且
+  \item 其初始化（如有）完成（含空初始化）（\ref{dcl.init}），
+\end{enumerate}
+除了如果对象是联合成员或其子对象，其生命期只在该联合成员为联合中被初始化的成员时
+（\ref{dcl.init.aggr}，\ref{class.base.init}）开始，或按\ref{class.union}和
+\ref{class.copy.ctor}所述，并且除了\ref{allocator.members}中所述。\tm{T}类型对象
+\nt{o}的生命期终止于：
+\begin{enumerate}
+  \setcounter{enumi}{2}
+  \item 如果\tm{T}是一个非类类型，对象被销毁时，或者
+  \item 如果\tm{T}是一个类类型，析构函数调用开始时，或者
+  \item 对象所占存储被释放时，或被一个不是嵌套于\nt{o}中的对象重用时
+        （\ref{intro.object}）。
+\end{enumerate}
 
 \paragraph{} % 2
-<++>
+一个引用的生命期开始于其初始化完成时。一个引用的生命期如同一个需要存储的标量对象
+一样终止。
 
 \paragraph{} % 3
-<++>
+\begin{note}
+  \ref{class.base.init}描述了基类和成员子对象的生命期。
+\end{note}
 
 \paragraph{} % 4
-<++>
+本文件中归于对象和引用的属性仅在给定对象或引用的生命期中适用。
+
+\begin{note}
+  特别的，在一个对象生命期开始前和其生命期结束后对该对象的使用具有显著限制，如下
+  文在\ref{class.base.init}和\ref{class.cdtor}中所述。同样，一个正在构建和销毁的
+  对象行为可能与生命期已开始未结束对象的行为不一样。\ref{class.base.init}和
+  \ref{class.cdtor}描述了一个对象在其构造和销毁期间的行为。
+\end{note}
 
 \paragraph{} % 5
-<++>
+一个程序可能通过重用对象所占存储或者通过显式调用对象的一个析构函数或伪析构函数
+（\ref{expr.prim.id.dtor}）来终止任何对象的生命期。对于一个类类型对象，不要求程
+序在对象所占存储被重用或释放前显式调用其析构函数；然而，如果没有显式调用析构函数
+或者如果没有用一个\nt{delete-expression}（\ref{expr.delete}）来释放存储，则不会
+隐式调用析构函数且任何依赖析构函数所产生的副作用的程序具有未定义行为。
 
 \paragraph{} % 6
-<++>
+在一个对象生命期开始前但其将占有存储已分配后，\footnote{比如，在通过用户提供构造函
+数（\ref{class.cdtor}）初始化的全局对象构造之前。}或者在一个对象生命期已结束且
+对象所占存储尚未被重用或释放之前，任何表示对象将会在或者曾经在的存储位置地址的指
+针可用但仅限于有限的方式。对于一个正在构建或销毁的，见\ref{class.cdtor}。否则，
+这样的指针指向所分配存储（\ref{basic.stc.dynamic.allocation}），且如同指针具有
+\tm{void*}类型进行使用是有定义的。这种指针的解引用是允许的但产生的\lvalue{}只能
+按下文所述的有限方式来使用。程序具有未定义行为，如果：
+\begin{enumerate}
+  \item 对象将具有或曾经具有含非平凡析构函数的类类型且该指针用作一个
+        \nt{delete-expression}的操作数，
+  \item 该指针用于访问该对象的非静态数据成员或者调用该对象的非静态成员函数，或者
+  \item 该指针被隐式转换（\ref{conv.ptr}）到指向一个虚基类的指针，或者
+  \item 该指针被用作一个\tm{static\_cast}的操作数，除非当转换是到\nt{cv}
+        \tm{void}的指针，或者是到\tm{cv} \tm{void}指针然后再到\nt{cv}
+        \tm{char}，\nt{cv} \tm{unsigned char}或者\nt{cv} \tm{std::byte}
+        （\ref{cstddef.syn}）的指针，或者
+  \item 该指针用作一个\tm{dynamic\_cast}（\ref{expr.dynamic.cast}）的操作数。
+\end{enumerate}
+
+\begin{example}
+  \begin{lstlisting}
+    #include <cstdlib>
+
+    struct B {
+      virtual void f();
+      void mutate();
+      virtual ~B();
+    };
+
+    struct D1 : B { void f(); };
+    struct D2 : B { void f(); };
+
+    void B::mutate() {
+      new (this) D2;    // reuses storage — ends the lifetime of *this
+      f();              // undefined behavior
+      ... = this;       // OK, this points to valid memory
+    }
+
+    void g() {
+      void* p = std::malloc(sizeof(D1) + sizeof(D2));
+      B* pb = new (p) D1;
+      pb->mutate();
+      *pb;              // OK: pb points to valid memory
+      void* q = pb;     // OK: pb points to valid memory
+      pb->f();          // undefined behavior: lifetime of *pb has ended
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 7
-<++>
+类似的，在一个对象生命期开始前但其将占有存储已分配后，或者在一个对象生命期已结束
+且对象所占存储尚未被重用或释放之前，任何引用原对象的\glvalue{}可用但仅限有限的方
+式。对正在构建或销毁的对象，见\ref{class.cdtor}。否则，这样的\glvalue{}引用已分
+配存储（\ref{basic.stc.dynamic.allocation}），且\glvalue{}的不依赖于其值的属性的
+使用是有定义的。程序具有未定义行为，如果：
+\begin{enumerate}
+  \item 该\glvalue{}用于访问该对象，或者
+  \item 该\glvalue{}用于调用该对象的一个非静态成员函数，或者
+  \item 该\glvalue{}被绑定到一个虚基类（\ref{dcl.init.ref}）的引用，或者
+  \item 该\glvalue{}用作一个\tm{dynamic\_cast}（\ref{expr.dynamic.cast}）或
+        \tm{typeid}的操作数。
+\end{enumerate}
 
 \paragraph{} % 8
-<++>
+如果在一个对象的生命期已结束之后且在对象所占存储被重用或释放之前，一个新对象在原
+对象所占存储位置创建，一个指向原对象的指针，引用原对象的引用，或者原对象的名字将
+自动引用新对象，并且一旦新对象的生命期开始，可以用于操作该新对象，如果原对象可由
+新对象透明替换（见下文）。一个对象\nt{o}\tsub{1}可被一个对象\nt{o}\tsub{2}\df{透明
+替换}，如果：
+\begin{enumerate}
+  \item \nt{o}\tsub{2}所占存储与\nt{o}\tsub{1}所占存储完全重叠，并且
+  \item \nt{o}\tsub{1}和\nt{o}\tsub{2}具有相同类型（忽略顶层cv限定符），并且
+  \item \nt{o}\tsub{1}不是一个完全常量对象，并且
+  \item \nt{o}\tsub{1}和\nt{o}\tsub{2}均不是潜在重叠子对象（\ref{intro.object}）
+        ，并且
+  \item 要么\nt{o}\tsub{1}和\nt{o}\tsub{2}均为完全对象，要么\nt{o}\tsub{1}和
+        \nt{o}\tsub{2}分别为对象\nt{p}\tsub{1}和\nt{p}\tsub{2}的直接子对象，且
+        \nt{p}\tsub{1}可被\nt{p}\tsub{2}透明替换。
+\end{enumerate}
+
+\begin{example}
+  \begin{lstlisting}
+    struct C {
+      int i;
+      void f();
+      const C& operator=( const C& );
+    };
+
+    const C& C::operator=( const C& other) {
+      if ( this != &other ) {
+        this->~C();                   // lifetime of *this ends
+        new (this) C(other);          // new object of type C created
+        f();                          // well-defined
+      }
+      return *this;
+    }
+
+    C c1;
+    C c2;
+    c1 = c2;                          // well-defined
+    c1.f();                           // well-defined; c1 refers to a new object of type C
+  \end{lstlisting}
+\end{example}
+
+\begin{note}
+  如果这些条件不能满足，则通过调用\tm{std::launder}（\ref{ptr.launder}）可以从表
+  示其存储地址的指针获取一个指向新对象的指针。
+\end{note}
 
 \paragraph{} % 9
-<++>
+如果一个程序终止一个\tm{T}类型具有静态（\ref{basic.stc.static}），线程
+（\ref{basic.stc.thread}）或自动（\ref{basic.stc.auto}）存储期对象的生命期，
+\tm{T}具有非平凡析构函数，\footnote{即当自动存储期对象所在块退出时，线程存储期对
+象所在线程退出时，静态存储期对象所在程序退出时，其析构函数会被隐式调用的对象。}
+并且当隐式析构函数调用发生时，原有类型的另一个对象未占据相同存储位置，则程序行为
+未定义。这对以异常结束的块也成立。
+
+\begin{example}
+  \begin{lstlisting}
+    class T { };
+    struct B {
+      ~B();
+    };
+
+    void h() {
+      B b;
+      new (&b) T;
+    }                           // undefined behavior at block exit
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 10
-<++>
+在一个静态，线程或自动存储期常完全对象所占存储中，或者这样的常对象生命期结束之前
+曾占据的存储中创建一个新对象将产生未定义行为。
+
+\begin{example}
+  \begin{lstlisting}
+    struct B {
+      B();
+      ~B();
+    };
+
+    const B b;
+
+    void h() {
+      b.~B();
+      new (const_cast<B*>(&b)) const B;       // undefined behavior
+    }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 11
-<++>
+在此子条款中，“之前”和“之后”指“发生之前”关系（\ref{intro.multithread}）。
 
+\begin{note}
+  因此，如果正在一个线程中构建的对象在另一个线程中无适当同步地引用的话将产生未定
+  义行为。
+\end{note}

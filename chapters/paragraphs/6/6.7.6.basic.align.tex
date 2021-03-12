@@ -1,28 +1,70 @@
 % 6.7.6 Alignment [basic.align]
 \paragraph{} % 1
-<++>
+对象类型具有\df{对齐要求}（\ref{basic.fundamental}，\ref{basic.compound}），对该
+类型对象可以分配的地址作限制。一个\df{对齐}是一个实现定义的整数值，表示一个给定
+对象可分配的连续地址间的字节数。一个对象类型对该类型的每一个对象施加一个对齐要
+求；更严格的对齐可通过对齐说明符（\ref{dcl.align}）来请求。
 
 \paragraph{} % 2
-<++>
+一个\df{基本对齐}由一个小于等于实现在所有上下文中支持的最大对齐的对齐来表示，
+等于\tm{alignof\linebreak{}(std::max\_align\_t)}（\ref{support.types}）。一个类
+型所要求的对齐当用作一个完整对象的类型和用作一个子对象的类型时可能不同。
+
+\begin{example}
+  \begin{lstlisting}
+    struct B { long double d; };
+    struct D : virtual B { char c; };
+  \end{lstlisting}
+  在\tm{D}是一个完整对象的类型时将有一个\tm{B}类型的子对象，因此它必须为
+  \tm{long double}适当地对齐。如果\tm{D}出现为一个基类子对象，则\tm{B}的对齐要求
+  可能只影响最终派生对象的对齐，削减了\tm{D}子对象的对齐要求。
+\end{example}
+
+\tm{alignof}运算符的结果反映了完整对象情形下类型的对齐要求。
 
 \paragraph{} % 3
-<++>
+一个\df{扩展对齐}由大于\tm{alignof(std::max\_align\_t)}的对齐表示。是否支持扩展
+对齐以及支持的上下文（\ref{dcl.align}）由实现定义。一个具有扩展对齐要求的类型是
+一个\df{过度对齐类型}。
+
+\begin{note}
+  每一个过度对齐类型是一个或者包含一个扩展对齐应用于它的类类型（可能通过一个非静
+  态数据成员）。
+\end{note}
+
+一个\df{new扩展对齐}由一个大于\tm{\_\_STDCPP\_DEFAULT\_NEW\_ALIGNMENT\_\_}
+（\ref{cpp.predefined}）的对齐表示。
 
 \paragraph{} % 4
-<++>
+对齐表示为\tm{std::size\_t}类型的值。有效对齐仅包括一个基本类型的\tm{alignof}表
+达式所返回的那些值加上实现定义的额外值集合，可能为空。每一个对齐值应该是一个2的
+非负整数次幂。
 
 \paragraph{} % 5
-<++>
+对齐具有从\df{更弱}到\df{更强}或\df{更严}的顺序。更严对齐具有更大的对齐值。满足
+一个对齐要求的地址也满足任何更弱的有效对齐要求。
 
 \paragraph{} % 6
-<++>
+一个完整类型的对齐要求可使用一个\tm{alignof}表达式（\ref{expr.alignof}）来查询。
+此外，窄字符类型（\ref{basic.fundamental}）应该具有最弱的对齐要求。
+
+\begin{note}
+  这使得常规字符类型可用于一个对齐内存区（\ref{dcl.align}）的底层类型。
+\end{note}
 
 \paragraph{} % 7
-<++>
+比较对齐是有意义的，提供以下明显的结果：
+\begin{enumerate}
+  \item 当其数值相等时两个对齐是相等的。
+  \item 当其数值不相等时两个对齐是不相等的。
+  \item 当一个对齐比另一个对齐更大时它表示一个更严的对齐。
+\end{enumerate}
 
 \paragraph{} % 8
-<++>
+\begin{note}
+  运行时指针对齐函数（\ref{ptr.align}）可用来获取一个缓冲区中的对齐指针；标准库
+  中的对齐存储模板（\ref{meta.trans.other}）可用于获取对齐存储。
+\end{note}
 
 \paragraph{} % 9
-<++>
-
+如果在一个特定上下文中一个特定的扩展对齐请求未被一个实现支持则程序为\illform{}。

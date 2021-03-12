@@ -1,16 +1,50 @@
 % 6.7.1 Memory model [intro.memory]
 \paragraph{} % 1
-<++>
+\cpp{}内存模型中的基本存储单元为\df{字节}。一个字节至少足够大以包含基本执行字符
+集（\ref{lex.charset}）的任何成员和Unicode\footnote{Unicode\textregistered{}是
+Unicode, Inc的注册商标。给出此信息是仅为方便本文件用户，不构成ISO或IEC对该产品的
+认可。} UTF-8编码形式的八位编码单元，且由连续位序列组成，\footnote{一个字节中的
+位数由头\tm{<climits>}（\ref{climits.syn}）中的宏\tm{CHAR\_BIT}定义。}其数目由实
+现定义。最低位称为\df{低阶位}；最高位称为\df{高阶位}。一个\cpp{}程序的可用内存由
+一个或多个连续字节序列组成。每一个字节具有唯一地址。
 
 \paragraph{} % 2
-<++>
+\begin{note}
+  类型的表示在\ref{basic.types}中讨论。
+\end{note}
 
 \paragraph{} % 3
-<++>
+ 一个\df{内存位置}指一个标量类型对象或者全部为非零宽度的相邻位域的最大序列。
+
+ \begin{note}
+   语言的多个特性，比如引用和虚函数，可能涉及额外的内存位置，对程序不可访问，但
+   由实现来管理。
+ \end{note}
+
+ 两个或多个执行线程（\ref{intro.multithread}）可以独立访问不同内存位置而不互相干
+ 涉。
 
 \paragraph{} % 4
-<++>
+\begin{note}
+  因此一个位域和一个相邻非位域处于不同内存位置，因此可由两个执行线程无干涉地并发
+  更新。这对两个位域同样适用，如果其中一个声明于一个嵌套结构体声明而另一个不是，
+  或者如果两个位域由一个零长位域声明分隔开来，或者如果它们由一个非位域声明分隔开
+  来。如果两个位域处于相同结构体且其中间也是非零长位域则并发更新它们是不安全的。
+\end{note}
 
 \paragraph{} % 5
-<++>
-
+\begin{example}
+  \begin{lstlisting}
+    struct {
+      char a;
+      int b:5,
+      c:11,
+      :0,
+      d:8;
+      struct {int ee:8;} e;
+    }
+  \end{lstlisting}
+  包含四个独立内存位置：成员\tm{a}，位域\tm{d}和\tm{e.ee}都是独立内存位置，且可
+  以并发修改而不会彼此干涉。位域\tm{b}和\tm{c}一起构成第四个内存位置。位域\tm{b}
+  和\tm{c}不能并发修改，但\tm{b}和\tm{a}可以。
+\end{example}

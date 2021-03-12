@@ -1,7 +1,45 @@
 % 6.7.4 Indeterminate values [basic.indet]
 \paragraph{} % 1
-<++>
+当一个自动或动态存储期对象获取到存储时，对象具有\df{不确定值}，且如果未对对象进
+行初始化，则该对象维持一个不确定值直到该值被替换掉（\ref{expr.ass}）。
+
+\begin{note}
+  静态或线程存储期对象被零初始化，见\ref{basic.start.static}。
+\end{note}
 
 \paragraph{} % 2
-<++>
+如果一个不确定值由一个求值产生，则除以下情形之外的行为未定义：
+\begin{enumerate}
+  \item 如果一个无符号常规字符类型（\ref{basic.fundamental}）或\tm{std::byte}类
+        型（\ref{cstddef.syn}）的不确定值由以下求值产生：
+        \begin{enumerate}
+          \item 一个条件表达式（\ref{expr.cond}）的第二或第三操作数，
+          \item 一个逗号表达式（\ref{expr.comma}）的右操作数，
+          \item 一个到无符号常规字符类型或\tm{std::byte}类型
+                （\ref{cstddef.syn}）的强制转换或隐式转换（\ref{conv.integral}，
+                \ref{expr.type.conv}，\ref{expr.static.cast}，\ref{expr.cast}）
+                的操作数，或者
+          \item 一个弃值表达式（\ref{expr.context}），
+        \end{enumerate}
+        则操作的结果为不确定值。
+  \item 如果一个无符号常规字符类型或\tm{std::byte}类型的值由一个简单赋值运算符
+        （\ref{expr.ass}）右操作数的求值产生，第一个操作数是一个无符号常规字符类
+        型或\tm{std::byte}类型的\lvalue{}，则一个不确定值替换左操作数所引用对象
+        的值。
+  \item 如果一个无符号常规字符类型的不确定值由初始化一个无符号常规字符类型对象时
+        的初始化求值产生，则该对象被初始化为一个不确定值。
+  \item 如果一个无符号常规字符类型或\tm{std::byte}类型的不确定值由初始化一个
+        \tm{std::byte}类型的对象时的初始化求值产生，则该对象被初始化为一个不确定
+        值。
+\end{enumerate}
 
+\begin{example}
+  \begin{lstlisting}
+    int f(bool b) {
+      unsigned char c;
+      unsigned char d = c;      // OK, d has an indeterminate value
+      int e = d;                // undefined behavior
+      return b ? d : 0;         // undefined behavior if b is true
+    }
+  \end{lstlisting}
+\end{example}

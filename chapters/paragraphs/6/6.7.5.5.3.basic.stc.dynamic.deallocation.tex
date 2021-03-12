@@ -1,16 +1,40 @@
 % 6.7.5.5.3 Deallocation functions [basic.stc.dynamic.deallocation]
 \paragraph{} % 1
-<++>
+释放函数应该是类成员函数或全局函数；如果翻译函数声明于一个非全局作用域的命名空间
+作用域中或在全局作用域中声明为静态的则程序为\illform{}。
 
 \paragraph{} % 2
-<++>
+\begin{sloppypar}
+一个释放函数是一个\df{销毁运算符delete}，如果它具有至少两个形参且第二个形参类型
+为\tm{std::destroying\_delete\_t}。一个销毁运算符delete应该是一个类成员函数，名
+为\tm{operator delete}。
+\end{sloppypar}
+
+\begin{note}
+  数组删除不能使用一个销毁运算符delete。
+\end{note}
 
 \paragraph{} % 3
-<++>
+每一个释放函数应该返回\tm{void}。如果函数是一个声明于类\tm{C}中的销毁运算符
+delete，则其第一个形参类型应该是\tm{C*}；否则其第一个形参类型应该是\tm{void*}。
+一个释放函数可能具有多于一个形参。一个\df{常规释放函数}是一种释放函数，其第一个
+形参之后的形参为
+\begin{enumerate}
+  \item 一个\tm{std::destroying\_delete\_t}类型的可选形参，然后是
+  \item 一个\tm{std::size\_t}\footnote{全局\tm{operator delete(void*,
+        std::size\_t)}排除了一个分配函数\tm{void operator new (std::size\_t,
+        std::size\_t)}用作定点分配函数（\ref{diff.cpp11.basic}）。}类型的可选形
+        参，然后是
+  \item 一个\tm{std::align\_val\_t}类型的可选形参。
+\end{enumerate}
+一个销毁运算符delete应该是一个常规释放函数。一个释放函数可能是一个函数模板的实
+例。第一个形参和返回类型均不应该依赖于一个模板形参。一个释放函数模板应该具有两个
+或多个函数形参。一个模板实例无论其签名如何都不会是一个常规释放函数。
 
 \paragraph{} % 4
-<++>
+如果一个释放函数由抛出一个异常而终止，则行为未定义。提供给一个释放函数的第一个实
+参的值可以是一个零指针值；如果是，且如果释放函数为标准库所提供，则调用无效果。
 
 \paragraph{} % 5
-<++>
-
+如果传递给一个标准库中释放函数的实参是一个非零指针值（\ref{basic.compound}），则
+释放函数应该释放该指针所引用的存储，结束存储区的期限。

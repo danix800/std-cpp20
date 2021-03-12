@@ -1,7 +1,12 @@
 % 6.7.5.3 Thread storage duration [basic.stc.thread]
 \paragraph{} % 1
-<++>
+所有使用\tm{thread\_local}关键字声明的变量具有\df{线程存储期}。这些实体的存储持
+续其被创建所在线程的期限。每一个线程具有一个不同对象或引用，且所声明名字的使用引
+用的是关联于当前线程的实体。
 
 \paragraph{} % 2
-<++>
-
+\begin{note}
+  一个线程存储期变量按\ref{basic.start.static}，\ref{basic.start.dynamic}和
+  \ref{stmt.dcl}所指定进行初始化，并且如果被构建了，在线程终止时销毁
+  （\ref{basic.start.term}）。
+\end{note}
