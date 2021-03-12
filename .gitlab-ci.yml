@@ -25,6 +25,7 @@ build:
     expire_in: 1 week
   script:
     - *prepare_env
+    - scripts/gen.figure.sh
     - scripts/gen.toc.sh
     - xelatex cpp20.tex
     - xelatex cpp20.tex
