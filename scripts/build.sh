@@ -10,6 +10,7 @@ function main() {
 
   xelatex cpp20.tex
   xelatex cpp20.tex
+  xelatex cpp20.tex
 }
 
 main "$@"
