@@ -1,25 +1,97 @@
 % 6.9.3.3 Dynamic initialization of non-local variables [basic.start.dynamic]
 \paragraph{} % 1
-<++>
+如果变量是隐式或显式实例化的特例化，则具有静态存储期变量的动态初始化是无序的；如
+果变量是非隐式或显式实例化的特例化内联变量，则是偏序的，否则是有序的 。
+
+\begin{note}
+  一个显式特例化非内联静态数据成员或变量模板特例化具有有序初始化。
+\end{note}
 
 \paragraph{} % 2
-<++>
+一个声明\tm{D}在\df{外观上有序}于声明\tm{E}之前，如果
+\begin{enumerate}
+  \item \tm{D}与\tm{E}出现在同一翻译单元中，或者
+  \item 包含\tm{E}的翻译单元具有对包含\tm{D}的翻译单元的一个接口依赖，
+\end{enumerate}
+在任一情形下都在\tm{E}之前。
 
 \paragraph{} % 3
-<++>
+具有静态存储期非局部变量\tm{V}和\tm{W}的动态初始化按如下排序：
+\begin{enumerate}
+  \item 如果\tm{V}和\tm{W}具有有序初始化且\tm{V}的定义外观上有序于\tm{W}的定义之
+        前，或者如果\tm{V}具有偏序初始化，\tm{W}不具有无序初始化，且对\tm{W}的每
+        一个定义\tm{E}，存在\tm{V}的定义\tm{D}，使得\tm{D}外观上有序于\tm{E}之前
+        ，那么
+        \begin{enumerate}
+          \item 如果程序不启动除主线程（\ref{basic.start.main}）之外的线程
+                （\ref{intro.multithread}）或者\tm{V}和\tm{W}具有有序初始化，且
+                它们在同一翻译单元中定义，则\tm{V}的初始化前序于\tm{W}的初始化。
+          \item 否则，\tm{V}的初始化强先发生于\tm{W}的初始化。
+        \end{enumerate}
+  \item 否则，程序在\tm{V}或\tm{W}初始化之前启动除主线程之外的线程，未指明\tm{V}
+        和\tm{W}的初始化出现在哪个线程中；如果出现在同一线程中则初始化是无序的。
+  \item 否则，\tm{V}和\tm{W}的初始化是不确定性有序的。
+\end{enumerate}
 
 \paragraph{} % 4
-<++>
+\nt{非初始化\odruse}是由非局部静态或线程存储期变量的初始化非直接或间接引起的
+\odruse{}（\ref{basic.def.odr}）。
 
 \paragraph{} % 5
-<++>
+具有静态存储期非局部非内联变量的动态初始化前序于\tm{main}的第一条
+语句还是推迟由实现定义。如果推迟，则强先发生于与待初始化变量相同的翻译单元中定义
+的任何非内联函数或非内联变量未初始化\odruse{}。\footnote{这种情况下将初始化具有
+静态存储期含副作用初始化的非局部变量，即使该变量本身不是\odrused{}
+（\ref{basic.def.odr}，\ref{basic.stc.static}）。}在程序中的哪个线程以及哪个点发
+生这种延迟动态初始化由实现定义。
+
+\recprac{实现应选择允许程序员避免死锁这样的点。}
+
+\begin{example}
+  \begin{lstlisting}
+    // - File 1 -
+    #include "a.h"
+    #include "b.h"
+    B b;
+    A::A(){
+      b.Use();
+    }
+
+    // - File 2 -
+    #include "a.h"
+    A a;
+
+    // - File 3 -
+    #include "a.h"
+    #include "b.h"
+    extern A a;
+    extern B b;
+
+    int main() {
+      a.Use();
+      b.Use();
+    }
+  \end{lstlisting}
+
+  在进入\tm{main}之前初始化\tm{a}或\tm{b}还是将初始化延迟到\tm{a}首次在\tm{main}
+  中使用由实现定义。特别是，如果\tm{a}在进入\tm{main}之前初始化，则不能保证
+  \tm{b}在\tm{a}的初始化被\odruse{}之前进行初始化，即在调用\tm{A::A}之前。但是，
+  如果\tm{a}在\tm{main}的第一条语句之后的某个时刻被初始化，则\tm{b}将在其在
+  \tm{A::A}中被使用之前进行初始化。
+\end{example}
 
 \paragraph{} % 6
-<++>
+具有静态存储期非局部内联变量的动态初始化前序于\tm{main}的第一条语句还是被延迟由
+实现定义。如果推迟，则其强先发生于对该变量进行任何非初始化\odruse{}。在哪个线程
+中以及在程序中的哪个点发生这种延迟的动态初始化由实现定义。
 
 \paragraph{} % 7
-<++>
+具有线程存储期非局部非内联变量的动态初始化前序于线程初始函数的第一条语句还是推迟
+是由实现来定义的。如果推迟，则与线程\nt{t}的实体相关联的初始化前序于任何非内联变
+量的被\nt{t}第一次非初始化\odruse{}，该非内联变量的线程存储期与待初始化变量在同
+一翻译单元中定义。在哪个线程中以及在程序中的哪个点发生这种延迟的动态初始化由实现
+来定义。
 
 \paragraph{} % 8
-<++>
-
+如果通过异常退出具有静态或线程存储期非局部变量的初始化，则将调用函数
+\tm{std::terminate}（\ref{except.terminate}）。

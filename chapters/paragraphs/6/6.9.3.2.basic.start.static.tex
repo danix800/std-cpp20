@@ -1,10 +1,40 @@
 % 6.9.3.2 Static initialization [basic.start.static]
 \paragraph{} % 1
-<++>
+具有静态存储期变量随程序启动初始化。具有线程存储期变量由于线程执行而被初始化。在
+这些初始化阶段的每个阶段中，初始化按如下进行。
 
 \paragraph{} % 2
-<++>
+如果具有静态或线程存储期变量或临时对象是常量初始化的，则将执行\df{常量初始化}
+（\ref{expr.const}）。如果未执行常量初始化，则将具有静态存储期
+（\ref{basic.stc.static}）或线程存储期（\ref{basic.stc.thread}）的变量进行零初始
+化（\ref{dcl.init}）。零初始化和常量初始化统称为静态初始化。所有其他初始化为
+\df{动态初始化}。所有静态初始化都强先发生于（\ref{intro.races}）任何动态初始化。
+
+\begin{note}
+  非局部变量的动态初始化在\ref{basic.start.dynamic}中描述；静态局部变量初始化在
+  \ref{stmt.dcl}中描述。
+\end{note}
 
 \paragraph{} % 3
-<++>
-
+允许实现将具有静态或线程存储期变量初始化为静态初始化，即使这种初始化不需要静态进
+行也可以，只要满足以下条件即可：
+\begin{enumerate}
+  \item 动态初始化版本不会更改在初始化之前的任何其他静态或线程存储期对象的值，且
+  \item 如果所有不需要静态初始化的变量都进行了动态初始化，则初始化的静态版本在初
+        始化变量中产生的值与动态初始化产生的值相同。
+\end{enumerate}
+\begin{note}
+  其结果就是，如果对象\tm{obj1}的初始化引用了可能需要动态初始化并在以后在同一翻
+  译单元中定义的命名空间作用域对象\tm{obj2}，则不确定使用的\tm{obj2}的值是否将是
+  完全初始化的\tm{obj2}的值（因为\tm{obj2}是静态初始化的），或者\tm{obj2}的值仅
+  仅是零初始化。比如
+  \begin{lstlisting}
+    inline double fd() { return 1.0; }
+    extern double d1;
+    double d2 = d1;     // unspecified:
+                        // either statically initialized to 0.0 or
+                        // dynamically initialized to 0.0 if d1 is
+                        // dynamically initialized, or 1.0 otherwise
+    double d1 = fd();   // either initialized statically or dynamically to 1.0
+  \end{lstlisting}
+\end{note}

@@ -1,16 +1,53 @@
 % 6.9.3.1 main function [basic.start.main]
 \paragraph{} % 1
-<++>
+一个程序应该包含一个称为\tm{main}的全局函数附加于全局模块。执行程序将启动主执行
+线程（\ref{intro.multithread}，\ref{thread.threads}），在该线程中调用\tm{main}函
+数。自由式环境中的程序是否需要定义\tm{main}函数由实现定义。
+
+\begin{note}
+  在自由式环境中，启动和终止由实现来定义；启动包含具有静态存储期命名空间作用域对
+  象的构造函数的执行；终止包含具有静态存储期对象的析构函数的执行。
+\end{note}
 
 \paragraph{} % 2
-<++>
+实现不应预定义\tm{main}函数。该函数不得重载。其类型应具有\cpp{}语言链接，并且应
+具有一个声明为\tm{int}类型的返回类型，否则其类型由实现来定义。一个实现应允许
+\begin{enumerate}
+  \item 一个返回\tm{int}的函数\tm{()}，以及
+  \item 一个返回\tm{int}的函数\tm{(int, char}的指针的指针\tm{)}
+\end{enumerate}
+作为\tm{main}的类型（\ref{dcl.fct}）。在后一种形式中，为说明的目的，第一个函数形
+参称为\tm{argc}，第二个函数形参称为\tm{argv}，其中\tm{argc}为程序运行所在环境传
+递给程序的实参个数。如果\tm{argc}为非零，则这些参数应该在\tm{argv[0]}到
+\tm{argv[argc-1]}中以指向零结尾多字节字符串（NTMBS）（\ref{multibyte.strings}）
+首字符的指针来提供，且\tm{argv[0]}应该是指向表示用来调用程序名字的NTMBS或\tm{""}
+的首字符指针。\tm{argc}的值应该为非负值。\tm{argv[argc]}的值应该0。
+
+\begin{note}
+  建议在\tm{argv}之后添加任何其他（可选）参数。
+\end{note}
 
 \paragraph{} % 3
-<++>
+函数\tm{main}不应在程序内使用。 \tm{main}的链接（\ref{basic.link}）实现来定义。
+将\tm{main}定义为删除或将\tm{main}声明为\tm{inline}，\tm{static}或\tm{constexpr}
+的程序为\illform{}。函数\tm{main}不能是协程（\ref{dcl.fct.def.coroutine}）。不应
+使用\nt{linkage-specification}（\ref{dcl.link}）声明\tm{main}函数。在全局作用域
+内声明变量\tm{main}的程序，或在全局作用域内声明附加到命名模块的函数\tm{main}的程
+序，或使用\c{}语言链接（在任何命名空间中）声明名称\tm{main}的程序都是\illform{}
+。除此之外名称\tm{main}不保留。
+
+\begin{example}
+  成员函数，类和枚举可以称为\tm{main}，其他命名空间中的实体也可以。
+\end{example}
 
 \paragraph{} % 4
-<++>
+在不离开当前块的情况下终止程序（例如，通过调用函数\tm{std::exit(int)}
+（\ref{support.start.term}））不会销毁具有自动存储期（\ref{class.dtor}）的任何对
+象。如果在销毁具有静态或线程存储期对象的过程中调用\tm{std::exit}结束程序，则该程
+序具有未定义行为。
 
 \paragraph{} % 5
-<++>
-
+\tm{main}中的\tm{return}语句（\ref{stmt.return}）具有退出\tm{main}函数（销毁所有
+自动存储期对象）并使用返回值作为实参调用\tm{std::exit}函数的效果。如果控制从
+\tm{main}的\nt{compound-statement}末尾流出，则效果等效于具有操作数为0的
+\tm{return}（另请参见\ref{except.handle}）。
