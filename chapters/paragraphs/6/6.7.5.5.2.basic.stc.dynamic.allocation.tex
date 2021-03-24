@@ -12,13 +12,13 @@
 一个分配函数尝试分配所请求大小的存储。如果成功，则返回存储块首地址，存储块长度应
 该至少和所请求大小一样大。未指明后续调用分配函数所分配存储的顺序，连续性和初始化
 值。即使所请求空间大小为零，请求也可能会失败。如果请求成功，则一个可替换分配函数
-的返回值为非零指针值（\ref{basic.compound}）\tm{p0}，不同于任何之前的返回值
+的返回值为非\nullp{}值（\ref{basic.compound}）\tm{p0}，不同于任何之前的返回值
 \tm{p1}，除非值\tm{p1}曾传递给一个可替换释放函数。更进一步，对
 \ref{new.delete.single}和\ref{new.delete.array}中的标准库分配函数，\tm{p0}表示与
 调用者可访问的任何其他对象存储不相交的存储块的地址。通过零大小请求返回的指针进行
 解引用的效果未定义。\footnote{其目的是使得\tm{operator new()}可以通过调用
 \tm{std::malloc()}或者\tm{std::calloc()}来实现，因此规则本质上是一样的。\cpp{}在
-要求零请求返回非零指针上与\c{}不同。}
+要求零请求返回非\nullp{}上与\c{}不同。}
 
 \paragraph{} % 3
 对于一个除了保留的定点分配函数（\ref{new.delete.placement}）之外的分配函数，一个
@@ -40,8 +40,8 @@
   （\ref{get.new.handler}）来获取当前安装的\tm{new\_handler}的地址。
 \end{note}
 
-一个具有不抛出异常规范（\ref{except.spec}）的分配函数通过返回一个零指针值来表示
-失败。任何其他分配函数永远不会返回零指针值，并只通过抛出匹配\tm{std::bad\_alloc}
+一个具有不抛出异常规范（\ref{except.spec}）的分配函数通过返回一个\nullp{}值来表
+示失败。任何其他分配函数永远不会返回\nullp{}值，并只通过抛出匹配\tm{std::bad\_alloc}
 （\ref{bad.alloc}）类型处理程序的异常（\ref{except.throw}）来表示失败。
 
 \paragraph{} % 5

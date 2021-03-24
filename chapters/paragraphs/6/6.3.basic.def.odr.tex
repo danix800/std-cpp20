@@ -266,10 +266,10 @@ A.3.3 跨TU等价约束
     \item 一个表达式被转换（无论隐式或显式）到\tm{T}类型（\ref{conv}，
           \ref{expr.type.conv}，\ref{expr.dynamic.cast}，
           \ref{expr.static.cast}，\ref{expr.cast}），或者
-    \item 一个非零指针常量且具有除\nt{cv} \tm{void*}之外的类型的表达式使用一个标
-          准转换（\ref{conv}），一个\tm{dynamic\_cast}（\ref{expr.dynamic.cast}）
-          或者一个\tm{static\_cast}（\ref{expr.static.cast}）转换到\tm{T}类型指
-          针或\tm{T}的引用，或者
+    \item 一个非\nullp{}常量且具有除\nt{cv} \tm{void*}之外的类型的表达式使用一
+          个标准转换（\ref{conv}），一个\tm{dynamic\_cast}
+          （\ref{expr.dynamic.cast}）或者一个\tm{static\_cast}
+          （\ref{expr.static.cast}）转换到\tm{T}类型指针或\tm{T}的引用，或者
     \item 一个类成员访问运算符应用于一个\tm{T}类型表达式（\ref{expr.ref}），或者
     \item \tm{typeid}运算符（\ref{expr.typeid}）或\tm{sizeof}运算符
           （\ref{expr.sizeof}）应用于\tm{T}类型操作数，或者

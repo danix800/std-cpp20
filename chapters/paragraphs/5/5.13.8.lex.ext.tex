@@ -45,15 +45,21 @@
 \paragraph{} % 3
 如果\nt{L}是一个\nt{user-defined-integer-literal}，设\nt{n}为不带\nt{ud-suffix}
 的字面值。如果\nt{S}包含一个形参类型为\tm{unsigned long long}的字面值运算符，则
-字面值\nt{L}当作形如                                                          \\
-\mbox{\qquad \tm{operator "" \nt{X}(\nt{n}ULL)}}                              \\
+字面值\nt{L}当作形如
+\begin{codeenv}
+  \code{operator "" \nt{X}(\nt{n}ULL)}
+\end{codeenv}
 的调用。否则，\nt{S}应该包含一个原始字面值运算符或者一个数值字面值运算符模板
 （\ref{over.literal}），但不能两者都有。如果\nt{S}包含一个原始字面值运算符，则字
-面值\nt{L}当作形如                                                            \\
-\mbox{\qquad \tm{operator "" \nt{X}("\nt{n}")}}                               \\
-的调用。否则（\nt{S}包含一个数值字面值运算符模板），\nt{L}当作形如            \\
-\mbox{\qquad \tm{operator "" \nt{X}<'\nt{c\tsub{1}}', '\nt{c\tsub{2}}', ...
-  '\nt{c\tsub{k}}'>()}}                                                       \\
+面值\nt{L}当作形如
+\begin{codeenv}
+  \code{operator "" \nt{X}("\nt{n}")}
+\end{codeenv}
+的调用。否则（\nt{S}包含一个数值字面值运算符模板），\nt{L}当作形如
+\begin{codeenv}
+  \code{operator "" \nt{X}<'\nt{c\tsub{1}}', '\nt{c\tsub{2}}', ...
+        '\nt{c\tsub{k}}'>()}
+\end{codeenv}
 的调用，其中\nt{n}为源码字符序列$c_1c_2\ldots c_k$。
 
 \begin{note} % 1

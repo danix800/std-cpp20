@@ -15,23 +15,25 @@ new[]}以及全局\df{释放函数}\tm{operator delete}和\tm{operator delete[]}
 （\ref{new.delete}）。一个\cpp{}程序应该提供至多一个可替换分配或释放函数的定义。
 任何这样的函数定义替换标准库所提供的缺省版本（\ref{replacement.functions}）。以
 下分配和释放函数（\ref{support.dynamic}）在一个程序的每一个翻译单元的全局作用域
-中隐式声明。\par
-\qquad\tm{[[nodiscard]] void* operator new(std::size\_t);}\par
-\qquad\tm{[[nodiscard]] void* operator new(std::size\_t, std::align\_val\_t);}\\
-\par
-\qquad\tm{void operator delete(void*) noexcept;} \par
-\qquad\tm{void operator delete(void*, std::size\_t) noexcept;} \par
-\qquad\tm{void operator delete(void*, std::align\_val\_t) noexcept;} \par
-\qquad\tm{void operator delete(void*, std::size\_t, std::align\_val\_t) noexcept;}\\
-\par
-\qquad\tm{[[nodiscard]] void* operator new[](std::size\_t);}\par
-\qquad\tm{[[nodiscard]] void* operator new[](std::size\_t, std::align\_val\_t);}\\
-\par
-\qquad\tm{void operator delete[](void*) noexcept;} \par
-\qquad\tm{void operator delete[](void*, std::size\_t) noexcept;} \par
-\qquad\tm{void operator delete[](void*, std::align\_val\_t) noexcept;} \par
-\qquad\tm{void operator delete[](void*, std::size\_t, std::align\_val\_t) noexcept;}
-
+中隐式声明。
+\begin{codeenv}
+  \code{[[nodiscard]] void* operator new(std::size\_t);}
+  \code{[[nodiscard]] void* operator new(std::size\_t, std::align\_val\_t);}
+  \code{}
+  \code{void operator delete(void*) noexcept;}
+  \code{void operator delete(void*, std::size\_t) noexcept;}
+  \code{void operator delete(void*, std::align\_val\_t) noexcept;}
+  \code{void operator delete(void*, std::size\_t, std::align\_val\_t) noexcept;}
+  \code{}
+  \code{[[nodiscard]] void* operator new[](std::size\_t);}
+  \code{[[nodiscard]] void* operator new[](std::size\_t, std::align\_val\_t);}
+  \code{}
+  \code{void operator delete[](void*) noexcept;}
+  \code{void operator delete[](void*, std::size\_t) noexcept;}
+  \code{void operator delete[](void*, std::align\_val\_t) noexcept;}
+  \code{void operator delete[](void*, std::size\_t, std::align\_val\_t)
+        noexcept;}
+\end{codeenv}
 这些隐式声明只引入函数名\tm{operator new}，\tm{operator new[]}，\tm{operator
 delete}和\tm{operator delete[]}。
 
