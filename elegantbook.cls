@@ -227,6 +227,7 @@
 \linespread{1.3}
 \RequirePackage{graphicx}
 %\RequirePackage{enumerate}
+\let\Bbbk\relax
 \RequirePackage{amsmath,mathrsfs,amsfonts,amssymb}
 \RequirePackage{booktabs}
 \RequirePackage{multicol}
