@@ -1,13 +1,58 @@
 % 7.5.2 This [expr.prim.this]
 \paragraph{} % 1
-<++>
+关键字\tm{this}确定一个非静态成员函数（\ref{class.this}）调用或非静态数据成员初
+始化（\ref{class.mem}）求值的对象指针。
 
 \paragraph{} % 2
-<++>
+如果一个声明声明了一个类\tm{X}的一个成员函数或成员函数模板，则表达式\tm{this}是
+一个介于可选的\nt{cv-qualifier-seq}和\nt{funtion-definition}，
+\nt{member-declarator}或\nt{declarator}之间的类型为“\nt{cv-qualifier-seq} \tm{X}
+的指针”的\prvalue{}。它不应该出现在可选的\nt{cv-qualifier-seq}之前，且不应该出现
+静态成员函数声明中（尽管其类型和值范畴与在非静态成员函数中一样有定义）。
+
+\begin{note}
+  这是因为声明匹配直到完整声明子已知时才会进行。
+\end{note}
+
+\begin{note}
+  在一个\nt{trailing-return-type}中，不需要所声明的类是完整的来进行类成员访问
+  （\ref{expr.ref}）。后声明的类成员不可见。
+
+  \begin{example}
+    \begin{lstlisting}
+    struct A {
+    char g();
+      template<class T> auto f(T t) -> decltype(t + g())
+        { return t + g(); }
+    };
+    template auto A::f(int t) -> decltype(t + g());
+    \end{lstlisting}
+  \end{example}
+
+\end{note}
 
 \paragraph{} % 3
-<++>
+否则，如果一个\nt{member-declarator}声明了类\tm{X}的一个非静态数据成员
+（\ref{class.mem}），则表达式\tm{this}是介于可选缺省成员初始化
+（\ref{class.mem}）之间的一个类型为“\tm{X}的指针”的\prvalue{}。在
+\nt{member-declarator}中它不应该出现在其他位置。
 
 \paragraph{} % 4
-<++>
+表达式\tm{this}不应该出现在任何其他上下文中。
 
+\begin{example}
+  \begin{lstlisting}
+    class Outer {
+      int a[sizeof(*this)];             // error: not inside a member function
+      unsigned int sz = sizeof(*this);  // OK: in default member initializer
+
+      void f() {
+        int b[sizeof(*this)];           // OK
+
+        struct Inner {
+          int c[sizeof(*this)];         // error: not inside a member function of Inner
+        };
+      }
+    };
+  \end{lstlisting}
+\end{example}

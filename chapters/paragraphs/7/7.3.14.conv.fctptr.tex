@@ -1,4 +1,15 @@
 % 7.3.14 Function pointer conversions [conv.fctptr]
 \paragraph{} % 1
-<++>
+一个“\tm{noexcept}函数指针”类型\prvalue{}可以转换为“函数指针”类型\prvalue{}。结
+果为指向函数的指针。一个“\tm{noexcept}函数类型的成员指针”类型\prvalue{}可以转换
+为“函数类型成员指针”类型\prvalue{}。结果表示成员函数。
 
+\begin{example}
+  \begin{lstlisting}
+    void (*p)();
+    void (**pp)() noexcept = &p;    // error: cannot convert to pointer to noexcept function
+
+    struct S { typedef void (*p)(); operator p(); };
+    void (*q)() noexcept = S();     // error: cannot convert to pointer to noexcept function
+  \end{lstlisting}
+\end{example}

@@ -1,4 +1,15 @@
 % 7.5.1 Literals [expr.prim.literal]
-\paragraph{} % 1
-<++>
+\synsym{primary-expression}
+  \synprd{\nt{literal}}
+  \synprd{\tm{this}}
+  \synprd{\tm{(} \nt{expression} \tm{)}}
+  \synprd{\nt{id-expression}}
+  \synprd{\nt{lambda-expression}}
+  \synprd{\nt{fold-expression}}
+  \synprd[]{\nt{requires-expression}}
 
+\paragraph{} % 1
+一个\nt{literal}是一个基本表达式。按\ref{lex.literal}所指定，一个\nt{literal}的
+类型基于其形式来确定。一个\nt{string-literal}是一个\lvalue{}，按\ref{lex.ext}所
+指定，一个\nt{user-defined-literal}与对应运算符调用表达式具有相同值范畴，任何其
+他\nt{literal}是一个\prvalue{}。

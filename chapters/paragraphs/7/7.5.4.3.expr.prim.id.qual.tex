@@ -1,6 +1,18 @@
 % 7.5.4.3 Qualified names [expr.prim.id.qual]
+\synsym{qualified-id}
+  \synprd{\nt{nested-name-specifier} \tm{template}\nt{\tsub{opt}
+    unqualified-id}}
+\synsym{nested-name-specifier}
+  \synprd{\tm{::}}
+  \synprd{\nt{type-name} \tm{::}}
+  \synprd{\nt{decltype-specifier} \tm{::}}
+  \synprd{\nt{nested-name-specifier identifier} \tm{::}}
+  \synprd[]{\nt{nested-name-specifier} \tm{template}\nt{\tsub{opt}
+    simple-template-id} \tm{::}}
+
 \paragraph{} % 1
-<++>
+一个\nt{nested-name-specifier}中的\nt{decltype-specifier}所表示的类型应该是一个
+类或枚举类型。
 
 \paragraph{} % 2
 <++>
@@ -13,4 +25,3 @@
 
 \paragraph{} % 5
 <++>
-

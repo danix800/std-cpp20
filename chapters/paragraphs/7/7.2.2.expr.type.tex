@@ -1,10 +1,53 @@
 % 7.2.2 Type [expr.type]
 \paragraph{} % 1
-<++>
+如果一个表达式最初具有“\tm{T}的引用”类型（\ref{dcl.ref}，\ref{dcl.init.ref}），
+则在任何进一步分析前类型被调整为\tm{T}。表达式指明引用所表示的对象或函数，且依据
+表达式，表达式是一个\lvalue{}或一个\xvalue{}。
+
+\begin{note}
+  在引用生命期开始前或结束后，行为未定义（见\ref{basic.life}）。
+\end{note}
 
 \paragraph{} % 2
-<++>
+如果\prvalue{}最初具有“\nt{cv} \tm{T}”类型，其中\tm{T}是一个cv未限定非类，非数组
+类型，则在进一步分析前表达式的类型调整为\tm{T}。
 
 \paragraph{} % 3
-<++>
-
+两个类型分别为\tm{T1}和\tm{T2}（其中至少一个是指针或成员指针类型或
+\tm{std::nullptr\_t}）的操作数\tm{p1}和\tm{p2}的\df{复合指针类型}为：
+\begin{enumerate}
+  \item 如果\tm{p1}和\tm{p2}均为\nullp{}常量，则为\tm{std::nullptr\_t}；
+  \item 如果\tm{p1}或\tm{p2}之一是\nullp{}常量，则分别为\tm{T2}或\tm{T1}；
+  \item 如果\tm{T1}或\tm{T2}为“指向\nt{cv} \tm{void}的指针”而另一个类型为“指向
+        \nt{cv2} \tm{T}的指针”，其中\tm{T}是一个对象类型或\tm{void}，则为“指向
+        \nt{cv12} \tm{void}的指针”，其中\nt{cv12}为\nt{cv1}和\nt{cv2}的并集；
+  \item 如果\tm{T1}中\tm{T2}为“指向\tm{noexcept}函数的指针”且另一个类型为“函数指
+        针”，此外其中的函数类型是相同的，则为“函数指针”；
+  \item 如果\tm{T1}是“指向\nt{cv1} \tm{C1}的指针”，\tm{T2}是“指向\nt{cv2}
+        \tm{C2}的指针”，其中\tm{C1}与\tm{C2}引用相关或\tm{C2}与\tm{C1}引用相关
+        （\ref{dcl.init.ref}），则分别为\tm{T1}和\tm{T2}的cv组合类型
+        （\ref{conv.qual}）或\tm{T2}和\tm{T1}的cv组合类型；
+  \item 如果\tm{T1}或\tm{T2}为“指向\tm{C}的函数类型成员的指针”，另一个类型为“指
+        向\tm{C2}的\tm{noexcept}函数成员指针”，且\tm{C1}与\tm{C2}引用相关，或者
+        \tm{C2}与\tm{C1}引用相关（\ref{dcl.init.ref}），此外其中的函数类型是相同
+        的，则分别为“指向\tm{C2}的函数类型指针”或者“指向\tm{C1}的函数类型成员指
+        针”；
+  \item 如果对某些非函数类型\tm{U}，\tm{T1}为“指向\tm{C1}的\nt{cv1} \tm{U}类型的
+        指针”且\tm{T2}为“指向\tm{C2}的\nt{cv2} \tm{U}类型的成员指针”，其中
+        \tm{C1}与\tm{C2}引用相关，或者\tm{C2}与\tm{C1}引用相关
+        （\ref{dcl.init.ref}），则分别为\tm{T2}和\tm{T1}的cv组合类型
+        （\ref{conv.qual}）或\tm{Tl}和\tm{T2}的cv组合类型；
+  \item 如果\tm{T1}和\tm{T2}为相似类型（\ref{conv.qual}），则为\tm{T1}和\tm{T2}
+        的组合类型；
+  \item 否则，需要确定一个复合指针类型的程序为\illform{}。
+\end{enumerate}
+\begin{example}
+  \begin{lstlisting}
+    typedef void *p;
+    typedef const int *q;
+    typedef int **pi;
+    typedef const int **pci;
+  \end{lstlisting}
+  \tm{p}和\tm{q}的复合指针类型为“\tm{const void}指针”；\tm{pi}和\tm{pci}的复合指
+  针类型为“\tm{const int}的\tm{const}指针的指针”。
+\end{example}

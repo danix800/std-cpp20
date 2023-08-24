@@ -1,13 +1,57 @@
 % 7.3.2 Lvalue-to-rvalue conversion [conv.lval]
 \paragraph{} % 1
-<++>
+一个非函数，非数组类型\tm{T}的\glvalue{}（\ref{basic.lval}）可以转换为一个
+\prvalue{}。\footnote{由于历史原因，该转换被称作是“\lvalue{}到\rvalue{}”转换，即
+使这些名字并不准确反应\ref{basic.lval}中所描述的术语。}如果\tm{T}是一个不完整类
+型，则需要该转换的程序为\illform{}。如果\tm{T}是一个非类类型，则\prvalue{}的类型
+是\tm{T}的cv非限定版本。否则，该\prvalue{}的类型为\tm{T}。\footnote{在\cpp{}类和
+数组\prvalue{}中可以有cv限定类型。这与\isoc{}不同，在\isoc{}中非\lvalue{}永远不
+会具有cv限定类型。}
 
 \paragraph{} % 2
-<++>
+当一个\lvalue{}到\rvalue{}转换应用于一个表达式\nt{E}时，且要么
+\begin{enumerate}
+  \item \nt{E}不会潜在求值，或者
+  \item \nt{E}的求值导致\nt{E}的潜在结果集成员\nt{E}\tsub{\tm{x}}的求值，且
+        \nt{E}\tsub{\tm{x}}确定未被\nt{E}\tsub{\tm{x}}\odruse{}的变量\tm{x}
+        （\ref{basic.def.odr}），
+\end{enumerate}
+所引用对象所包含的值不会被访问。
+
+\begin{example}
+  \begin{lstlisting}
+    struct S { int n; };
+    auto f() {
+      S x { 1 };
+      constexpr S y { 2 };
+      return [&](bool b) { return (b ? y : x).n; };
+    }
+    auto g = f();
+    int m = g(false);     // undefined behavior: access of x.n outside its lifetime
+    int n = g(true);      // OK, does not access y.n
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 3
-<++>
+转换的结果根据以下规则确定：
+\begin{enumerate}
+  \item 如果\tm{T}是\nt{cv} \tm{std::nullptr\_t}，则结果为\nullp{}常量
+        （\ref{conv.ptr}）。
+
+        \begin{note}
+          因转换不访问\glvalue{}所引用对象，即使\tm{T}为易失限定
+          （\ref{intro.execution}）也不会有副作用，且\glvalue{}可以引用一个联合
+          的非活动成员（\ref{class.union}）。
+        \end{note}
+  \item 否则，如果\tm{T}具有类类型，则转换拷贝初始化来自\glvalue{}的结果对象。
+  \item 否则，如果该\glvalue{}所引用的对象包含一个无效指针值
+        （\ref{basic.stc.dynamic.deallocation}，\ref{basic.stc.dynamic.safety}）
+        ，则行为由实现定义。
+  \item 否则，读取（\ref{defns.access}）该\glvalue{}所指代的对象，且包含在对象中
+        的值是该\prvalue{}结果。
+\end{enumerate}
 
 \paragraph{} % 4
-<++>
-
+\begin{note}
+  见\ref{basic.lval}。
+\end{note}

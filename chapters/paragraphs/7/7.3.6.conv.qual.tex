@@ -1,16 +1,69 @@
 % 7.3.6 Qualification conversions [conv.qual]
 \paragraph{} % 1
-<++>
+一个类型\tm{T}的\df{cv分解}指一个\nt{cv\tsub{i}}和\nt{P\tsub{i}}的序列使得\tm{T}
+为                                                                          \par
+\mbox\qquad{“\nt{cv\tsub{0} P\tsub{0} cv\tsub{1} ... \nt{P\tsub{1}
+             \nt{cv\tsub{n}}}} \tm{U}”对\nt{n $\ge$ 0}，}                   \par
+其中每一个\nt{cv\tsub{i}}是一个cv限定（\ref{basic.type.qualifier}）的集合，且每
+一个\nt{P\tsub{i}}是一个“指向...”（\ref{dcl.ptr}），“类型为...的类\nt{C\tsub{i}}
+的成员指针”（\ref{dcl.mptr}），“\nt{N\tsub{i}}的数组”，或者“...的未知上界数组”
+（\ref{dcl.array}）。如果\nt{P\tsub{i}}表示一个数组，则元素类型上的cv限定符
+\nt{cv\tsub{i+1}}也被当作数组的cv限定符\nt{cv\tsub{i}}。
+
+\begin{example}
+  由\nt{type-id} \tm{const int **}所表示的类型
+\end{example}
+
+第一个之后的cv限定符\nt{n}元组为\tm{T}的最长cv分解，即\nt{cv\tsub{1}，cv\tsub{2}
+，...，cv\tsub{n}}称为\tm{T}的\df{cv限定签名}。
 
 \paragraph{} % 2
-<++>
+两个类型\tm{T1}和\tm{T2}是\df{相似的}，如果它们具有的cv分解具有相同的\nt{n}，使
+得对应的\nt{P\tsub{i}}成分要么是相同的，要么其中一个是“\nt{N\tsub{i}}的数组”，另
+一个是“未知上界的数组”，且\tm{U}所表示的类型相同。
 
 \paragraph{} % 3
-<++>
+两个类型\tm{T1}和\tm{T2}的\df{cv组合类型}为与\tm{T1}相似的类型\tm{T2}，使得其cv
+分解：
+\begin{enumerate}
+  \item 对每一个$i > 0$，$cv^3_i$为$cv^1_i$和$cv^2_i$的并集，
+  \item 如果$P^1_i$或$P^2_i$为“未知上界的数组”，$P^3_i$为“未知上界的数组”，否则
+        其为$P^1_i$，且
+  \item 如果所产生的$cv^3_i$不同于$cv^1_i$或$cv^2_i$，或者产生的$P^3_i$不同于
+        $P^1_i$或$P^2_i$，则向对$0 < k < i$的每一个$cv^3_k$添加\tm{const}。
+\end{enumerate}
+其中$cv^j_i$和$P^j_i$为\tm{T}\nt{j}的cv分解的成分。一个类型\tm{T1}的\prvalue{}可
+以转换为类型\tm{T2}，如果\tm{T1}和\tm{T2}的cv组合类型为\tm{T2}。
+
+\begin{note}
+  如果程序能将类型\tm{T**}的指针赋给一个类型\tm{const T**}的指针（即如果允许以下
+  的行\#1），则不恰当的修改一个常对象将成为可能（如\#2所做的那样）。比如，
+  \begin{lstlisting}
+  int main() {
+    const char c = ’c’;
+    char* pc;
+    const char** pcc = &pc;   // #1: not allowed
+    *pcc = &c;
+    *pc = ’C’;                // #2: modifies a const object
+  }
+  \end{lstlisting}
+\end{note}
+
+\begin{note}
+  给定相似类型\tm{T1}和\tm{T2}，该结构确保二者均可转换为\tm{T1}和\tm{T2}的cv组合
+  类型。
+\end{note}
 
 \paragraph{} % 4
-<++>
+\begin{note}
+  类型“\nt{cv1} \tm{T}的指针”的\prvalue{}可以转换成类型“\nt{cv2} \tm{T}的指针”的
+  \prvalue{}，如果“\nt{cv2} \tm{T}”比“\nt{cv1} \tm{T}”具有更强cv限定。类型为
+  “\nt{cv1} \tm{T}类型的\tm{T}的成员指针”的\prvalue{}可以转换为一个类型为
+  “\nt{cv1} \tm{T}类型的\tm{T}的成员指针”，如果“\nt{cv2} \tm{T}”比
+  “\nt{cv1} \tm{T}”具有更强cv限定。
+\end{note}
 
 \paragraph{} % 5
-<++>
-
+\begin{note}
+  函数类型（含用于成员函数指针类型的那些）永远不会cv限定（\ref{dcl.fct}）。
+\end{note}

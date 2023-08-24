@@ -1,34 +1,149 @@
 % 7.2.1 Value category [basic.lval]
 \paragraph{} % 1
-<++>
+表达式按图\ref{fig:basic.lval}进行分类。
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=0.4\textwidth]{figure/valuecategories.pdf}
+  \caption{表达式分类 [fig:basic.lval]}
+  \label{fig:basic.lval}
+\end{figure}
+
+\begin{enumerate}
+  \item 一个\glvalue{}是一个表达式，其求值确定对象，位域或函数的身份。
+  \item 一个\prvalue{}是一个表达式，按其所出现的上下文所指定，其求值初始化一个对
+        象，位域或计算一个运算符的操作数的值，或是一个具有\nt{cv} \tm{void}类型
+        的表达式。
+  \item 一个\xvalue{}是一个\glvalue{}，表示一个对象或位域，其资源可被重用（通常
+        因其接近其生命期终止时）。
+  \item 一个\lvalue{}是一个非\xvalue{}的\glvalue{}。
+  \item 一个\rvalue{}是一个\prvalue{}或一个\xvalue{}。
+\end{enumerate}
 
 \paragraph{} % 2
-<++>
+每一个表达式属于该基本分类当中的一类：\lvalue{}，\xvalue{}或\prvalue{}。表达式的
+该属性称为其\df{值范畴}。
+
+\begin{note}
+  \ref{expr.compound}中关于每一个内置运算符的讨论表明其所产生值范畴以及其所期望
+  的操作数的值范畴。比如，内置赋值运算符期望左操作数是一个\lvalue{}，右操作数是
+  一个\prvalue{}，并产生一个\lvalue{}作为结果。自定义运算符是函数，且其所期望和
+  所产生的值范畴由其形参和返回类型所确定。
+\end{note}
 
 \paragraph{} % 3
-<++>
+\begin{note}
+  在历史上，\lvalue{}和\rvalue{}因其出现在赋值的左侧和右侧而得名（尽管这一般不再
+  正确）；\glvalue{}指“广义的”（generalized）\lvalue{}，\prvalue{}指“纯”（pure）
+  \rvalue{}，而\xvalue{}指“即将到期的”（eXpiring）\lvalue{}。尽管如此命名，这些
+  术语实际是对表达式的分类，而不是值。
+\end{note}
 
 \paragraph{} % 4
-<++>
+\begin{note}
+  一个表达式是一个\xvalue{}，如果它是：
+  \begin{enumerate}
+    \item 调用一个函数的结果，无论隐式还是显式，其返回类型是一个对象类型的
+          \rvalue{}引用（\ref{expr.call}），
+    \item 一个对象类型的\rvalue{}引用的转换（\ref{expr.type.conv}，
+          \ref{expr.dynamic.cast}，\ref{expr.static.cast}，
+          \ref{expr.reinterpret.cast}，\ref{expr.const.cast}，
+          \ref{expr.cast}），
+    \item 一个\xvalue{}数组操作数的下标操作（\ref{expr.sub}），
+    \item 表示一个非引用类型的非静态数据成员的类成员访问表达式，其中对象表达式是
+          一个\xvalue{}（\ref{expr.ref}），或者
+    \item 一个\tm{.*}成员指针表达式，其中第一个操作数是一个\xvalue{}，第二个操作
+          数是一个数据成员指针（\ref{expr.mptr.oper}）。
+  \end{enumerate}
+  一般地，该规则的效果是命名\rvalue{}引用当作\lvalue{}，而对象的未命名\rvalue{}
+  引用当作是\xvalue{}；函数的\rvalue{}引用无论是否命名都当作是\lvalue{}。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+    struct A {
+      int m;
+    };
+    A&& operator+(A, A);
+    A&& f();
+
+    A a;
+    A&& ar = static_cast<A&&>(a);
+  \end{lstlisting}
+  表达式\tm{f()}，\tm{f().m}，\tm{static\_cast<A\&\&>(a)}，和\tm{a + a}是
+  \xvalue{}。表达式\tm{ar}是\lvalue{}。
+\end{example}
 
 \paragraph{} % 5
-<++>
+\glvalue{}的\df{结果}是由表达式所表示的实体。\prvalue{}的\df{结果}是该表达式存储
+到其上下文中的值；一个\nt{cv} \tm{void}类型的\prvalue{}无结果。一个结果为\nt{V}
+的\prvalue{}有时称为具有或确定值\nt{V}。一个\prvalue{}的\df{结果对象}为该
+\prvalue{}所初始化的对象；一个用于计算内置运算符操作数的值的非弃值\prvalue{}或者
+一个具有\nt{cv} \tm{void}类型的\prvalue{}无结果对象。
+
+\begin{note}
+  除非当\prvalue{}是一个\nt{decltype-specifier}的操作数，一个类或数组类型
+  \prvalue{}总是具有结果对象。对于一个具有除\nt{cv} \tm{void}类型之外的弃值
+  \prvalue{}会\mat{}一个临时对象；见\ref{expr.context}。
+\end{note}
 
 \paragraph{} % 6
-<++>
+当一个\glvalue{}作为一个期望\prvalue{}的运算符操作数出现时，应用\lvalue{}到
+\rvalue{}（\ref{conv.lval}），数组到指针（\ref{conv.array}）或函数到指针
+（\ref{conv.func}）标准转换以转换表达式为一个\prvalue{}。
+
+\begin{note}
+  尝试绑定一个\rvalue{}引用到一个\lvalue{}不是这种上下文；见\ref{dcl.init.ref}。
+\end{note}
+
+\begin{note}
+  当表达式转换到一个\prvalue{}时，因cv限定符从非类类型表达式的类型中移除，一个
+  \tm{const int}类型的\lvalue{}可被用于比如需要\tm{int}类型\prvalue{}的地方。
+\end{note}
+
+\begin{note}
+  不存在\prvalue{}位域；如果位域被转换成一个\prvalue{}（\ref{conv.lval}），则创
+  建一个位域类型的\prvalue{}，随后可被提升（\ref{conv.prom}）。
+\end{note}
 
 \paragraph{} % 7
-<++>
+当一个\prvalue{}作为需要\glvalue{}的运算符的操作数出现时，应用临时\mat{}转换
+（\ref{conv.rval}）以转换表达式为一个\xvalue{}。
 
 \paragraph{} % 8
-<++>
+\ref{dcl.init.ref}中关于引用初始化的讨论和\ref{class.temporary}中关于临时对象的
+讨论指明其他重要上下文中\lvalue{}和\rvalue{}的行为。
 
 \paragraph{} % 9
-<++>
+除非另有指明（\ref{dcl.type.decltype}），一个\prvalue{}应该总是具有完整类型或
+\tm{void}类型；如果它具有类类型或（可能多维）类类型数组，则该类不应该是抽象类
+（\ref{class.abstract}）。一个\glvalue{}不应该具有\nt{cv} \tm{void}类型。
+
+\begin{note}
+  一个\glvalue{}可以具有完整或不完整非\tm{void}类型。类或数组\prvalue{}可以具有
+  cv限定类型；其他\prvalue{}总是具有cv非限定类型。见\ref{expr.type}。
+\end{note}
 
 \paragraph{} % 10
-<++>
+一个\lvalue{}是\df{可修改的}，除非它类型为const限定或是一个函数类型。
+
+\begin{note}
+  尝试通过一个不可修改\lvalue{}或通过一个\rvalue{}来修改一个对象的程序是
+  \illform{}的。
+\end{note}
 
 \paragraph{} % 11
-<++>
+如果程序尝试通过类型不与以下类型之一相似的\glvalue{}访问（\ref{defns.access}）。
+一个对象所存值，则行为未定义：\footnote{该列表旨在指明对象可以或不可以有别名的情
+形。}
+\begin{enumerate}
+  \item 该对象的动态类型，
+  \item 对应于对象动态类型的有符号或无符号类型，或者
+  \item 一个\tm{char}，\tm{unsigned char}或\tm{std::byte}类型。
+\end{enumerate}
+如果程序使用在其生命期内不表示\nt{cv} \tm{U}类型对象的\glvalue{}实参来调用类型
+\tm{U}的联合的缺省拷贝/移动构造函数或者拷贝/移动赋值运算符，则行为未定义。
 
+\begin{note}
+  与\c{}不同，\cpp{}无类类型的访问。
+\end{note}

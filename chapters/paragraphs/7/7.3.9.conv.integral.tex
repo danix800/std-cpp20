@@ -1,13 +1,14 @@
 % 7.3.9 Integral conversions [conv.integral]
 \paragraph{} % 1
-<++>
+一个整型\prvalue{}可以转换为另一个整型\prvalue{}。一个无作用域枚举类型\prvalue{}
+可以转换为一个整型\prvalue{}。
 
 \paragraph{} % 2
-<++>
+如果目标类型为\tm{bool}，见\ref{conv.bool}。如果源类型为\tm{bool}，则值
+\tm{false}转换为零，值\tm{true}转换为一。
 
 \paragraph{} % 3
-<++>
+否则，结果为与源整型模$2^N$同余的目标类型唯一值，其中$N$为目标类型的宽度。
 
 \paragraph{} % 4
-<++>
-
+整型提升所允许的转换从整型转换中排除。

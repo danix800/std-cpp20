@@ -1,7 +1,42 @@
 % 7.2.3 Context dependence [expr.context]
 \paragraph{} % 1
-<++>
+某些上下文中会出现\df{未求值操作数}（\ref{expr.prim.req}，\ref{expr.typeid}，
+\ref{expr.sizeof}，\ref{expr.unary.noexcept}，\ref{dcl.type.decltype}，
+\ref{temp.pre}，\ref{temp.concept}）。未求值操作数不会进行求值。
+
+\begin{note}
+  在一个未求值操作数中可以指定一个非静态类成员（\ref{expr.prim.id}），而指定对象
+  或函数本身不要求提供定义（\ref{basic.def.odr}）。一个未求值操作数认为是一个全
+  表达式（\ref{intro.execution}）。
+\end{note}
 
 \paragraph{} % 2
-<++>
+在某些上下文中一个表达式仅为其副作用而出现。这样的表达式称为\df{弃值表达式}。不
+应用数组到指针（\ref{conv.array}）和函数到指针（\ref{conv.func}）标准转换。当且
+仅当表达式是一个易失限定类型的\glvalue{}且为以下之一时才应用\lvalue{}到\rvalue{}
+转换（\ref{conv.lval}）：
+\begin{enumerate}
+  \item \tm{(} \nt{expression} \tm{)}，其中\nt{expression}为这些表达式其中之一，
+  \item \nt{id-expression}（\ref{expr.prim.id}），
+  \item 下标（\ref{expr.sub}），
+  \item 类成员访问（\ref{expr.ref}），
+  \item 间接取值（\ref{expr.unary.op}），
+  \item 成员指针操作（\ref{expr.mptr.oper}），
+  \item 条件表达式（\ref{expr.cond}），其中第二和第三操作数均为这些表达式其中之
+        一，或者
+  \item 逗号表达式（\ref{expr.comma}），其中右操作数为这些表达式其中之一。
+\end{enumerate}
 
+\begin{note}
+  使用重载运算符引用函数调用；以上仅覆盖具有内置语义的运算符。
+\end{note}
+
+如果（可能转换的）表达式是一个\prvalue{}，则应用临时\mat{}转换
+（\ref{conv.rval}）。
+
+\begin{note}
+  如果表达式是一个类类型\lvalue{}，其必须具有一个易失拷贝构造函数以初始化该临时
+  对象，该对象是\lvalue{}到\rvalue{}转换的结果对象。
+\end{note}
+
+对该\glvalue{}表达式进行求值，其值被丢弃。

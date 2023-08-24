@@ -1,7 +1,67 @@
 % 7.5.4.2 Unqualified names [expr.prim.id.unqual]
+\synsym{unqualified-id}
+  \synprd{\nt{identifier}}
+  \synprd{\nt{operator-function-id}}
+  \synprd{\nt{conversion-function-id}}
+  \synprd{\nt{literal-operator-id}}
+  \synprd{\tm{\tat} \nt{type-name}}
+  \synprd{\tm{\tat} \nt{decltype-specifier}}
+  \synprd[]{\nt{template-id}}
+
 \paragraph{} % 1
-<++>
+一个\nt{identifier}仅是一个\nt{id-expression}，如果其经过适当地声明
+（第\ref{dcl.dcl}条）或如果其作为一个\nt{declarator-id}的一部分出现。一个确定协
+程形参的\nt{identifier}引用该形参的拷贝（\ref{dcl.fct.def.coroutine}）。
+
+\begin{note}
+  对于\nt{operator-function-id}，见\ref{over.oper}；对于
+  \nt{conversion-function-id}，见\ref{class.conv.fct}；对于
+  \nt{literal-operator-id}（\ref{over.literal}）；对于\nt{template-id}，见
+  \ref{temp.names}。一个前缀为\tm{\tat}的\nt{type-name}或\nt{decltype-specifier}
+  表示所确定类型的析构函数；见\ref{expr.prim.id.dtor}。在一个非静态成员函数定义
+  中，一个确定非静态成员的\nt{identifier}被转换成一个类成员访问表达式
+  （\ref{class.mfct.non-static}）。
+\end{note}
 
 \paragraph{} % 2
-<++>
+结果为标识符所表示的实体。如果该实体是一个局部实体且从出现\nt{unqualified-id}的
+声明区域中的未求值操作数外部对其进行引用，将导致某些中间的\nt{lambda-expression}
+被拷贝抓取（\ref{expr.prim.lambda.capture}），则表达式的类型为确定非静态数据成员
+的类成员访问表达式（\ref{expr.ref}）的类型，该类成员将在最内层这种中间
+\nt{lambda-expression}闭包对象中为进行此抓取而声明。
 
+\begin{note}
+  如果该\nt{lambda-expression}未声明为\tm{mutable}，则这种标识符的类型通常为
+  \tm{const}限定的。
+\end{note}
+
+表达式的类型为结果的类型。
+
+\begin{note}
+  如果实体是一个\tm{T}类型的模板形参（\ref{temp.param}）的模板形参对象，则表达式
+  的类型为\tm{const T}。
+\end{note}
+
+\begin{note}
+  如果是cv限定或是一个引用类型则该类型将按\ref{expr.type}进行调整。
+\end{note}
+
+如果实体是一个函数，变量，结构化绑定（\ref{dcl.struct.bind}），数据成员或模板形
+参对象则表达式是一个\lvalue{}，否则为\prvalue{}（\ref{basic.lval}）；如果标识符
+表示一个位域则它也是一个位域。
+
+\begin{example}
+  \begin{lstlisting}
+  void f() {
+    float x, &r = x;
+      [=] {
+      decltype(x) y1;         // y1 has type float
+      decltype((x)) y2 = y1;  // y2 has type float const& because this lambda
+                              // is not mutable and x is an lvalue
+
+      decltype(r) r1 = y1;    // r1 has type float&
+      decltype((r)) r2 = y2;  // r2 has type float const&
+    };
+  }
+  \end{lstlisting}
+\end{example}

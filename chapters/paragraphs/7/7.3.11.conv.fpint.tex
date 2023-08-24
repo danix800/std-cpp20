@@ -1,7 +1,20 @@
 % 7.3.11 Floating-integral conversions [conv.fpint]
 \paragraph{} % 1
-<++>
+一个符点类型\prvalue{}可以转换为一个整型的\prvalue{}。转换会截断；即，丢弃小数部
+分。如果截断值不能在目标类型中表示则行为未定义。
+
+\begin{note}
+  如果目标类型为\tm{bool}，见\ref{conv.bool}。
+\end{note}
 
 \paragraph{} % 2
-<++>
+一个整型或枚举类型的\prvalue{}可以转换为一个符点类型\prvalue{}。如果可能则结果是
+确切的。如果被转换值在可表示值范围内但不能确切表示，则由实现定义来选择下一个更低
+或更高的可表示值。
 
+\begin{note}
+  如果整型值不能确切表示为符点类型值则会丢失精度。
+\end{note}
+
+如果被转换值位于可表示值范围之外，则行为未定义。如果源类型为\tm{bool}，则
+\tm{false}转换为零，\tm{true}转换为一。

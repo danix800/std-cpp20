@@ -1,4 +1,18 @@
 % 7.3.5 Temporary materialization conversion [conv.rval]
 \paragraph{} % 1
-<++>
+类型\tm{T}的\prvalue{}可以转换成类型\tm{T}的\xvalue{}。
+该转换通过将临时对象作为结果对象来求值\prvalue{}，从而从该\prvalue{}初始化一个类
+型\tm{T}的临时对象，并产生一个表示该临时对象的\xvalue{}。\tm{T}应该是一个完整类
+型。
 
+\begin{note}
+  如果\tm{T}是一个类类型（或其数组），则它必须具有一个可访问且未删除的析构函数；
+  见\ref{class.dtor}。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+    struct X { int n; };
+    int k = X().n;      // OK, X() prvalue is converted to xvalue
+  \end{lstlisting}
+\end{example}

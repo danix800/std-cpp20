@@ -1,4 +1,5 @@
 % 7.3.4 Function-to-pointer conversion [conv.func]
 \paragraph{} % 1
-<++>
-
+函数类型\tm{T}的\lvalue{}可以转换成“指向\tm{T}”的指针类型的\prvalue{}。结果为指
+向函数的指针。\footnote{该转换永远不会应用到非静态成员函数，因为不能获取引用非静
+态成员函数的\lvalue{}。}

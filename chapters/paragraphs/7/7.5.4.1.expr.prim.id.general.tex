@@ -1,13 +1,64 @@
 % 7.5.4.1 General [expr.prim.id.general]
+\synsym{id-expression}
+  \synprd{\nt{unqualified-id}}
+  \synprd[]{\nt{qualified-id}}
+
 \paragraph{} % 1
-<++>
+一个\nt{id-expression}是一个\nt{primary-expression}的限制形式。
+
+\begin{note}
+  一个\nt{id-expression}可以出现在\tm{.}和\tm{->}运算符（\ref{expr.ref}）之后。
+\end{note}
 
 \paragraph{} % 2
-<++>
+一个表示类的非静态数据成员或非静态成员函数的\nt{id-expression}只能用于：
+\begin{enumerate}
+  \item 作为类成员访问（\ref{expr.ref}）的一部分，其中对象表达式引用该成员的类
+        \footnote{当对象表达式是一个隐式的\tm{(*this)}
+        （\ref{class.mfct.non-static}）时也适用。}或派生自该类的类，或者
+  \item 形成一个成员指针（\ref{expr.unary.op}），或者
+  \item 如果该\nt{id-expression}表示一个非静态数据成员且其出现在一个未求值操作数
+        中。
+
+\begin{example}
+  \begin{lstlisting}
+    struct S {
+    int m;
+    };
+    int i = sizeof(S::m); // OK
+    int j = sizeof(S::m + 42); // OK
+  \end{lstlisting}
+\end{example}
+\end{enumerate}
 
 \paragraph{} % 3
-<++>
+一个表示中间函数（\ref{dcl.constexpr}）的潜在求值\nt{id-expression}应该仅出现
+\begin{enumerate}
+  \item 作为一个中间调用的子表达式，或者
+  \item 在一个中间函数上下文中（\ref{expr.const}）。
+\end{enumerate}
 
 \paragraph{} % 4
-<++>
+对一个表示重载集合的\nt{id-expression}，应用重载解析来选择一个唯一的函数
+（\ref{over.match}，\ref{over.over}）。
 
+\begin{note}
+  一个程序不能引用具有一个其\nt{constraint-expression}不能满足的结尾
+  \nt{requires-clause}的函数，因这种函数不会被重载解析选中。
+
+\begin{example}
+  \begin{lstlisting}
+    template<typename T> struct A {
+      static void f(int) requires false;
+    }
+
+    void g() {
+      A<int>::f(0);                       // error: cannot call f
+      void (*p1)(int) = A<int>::f;        // error: cannot take the address of f
+      decltype(A<int>::f)* p2 = nullptr;  // error: the type decltype(A<int>::f) is invalid
+    }
+  \end{lstlisting}
+  在每一种情况下\tm{f}的约束都不能满足。在\tm{p2}的声明中即使\tm{f}是一个未求值
+  操作也要求满足这些约束（\ref{expr.prop}）。\end{example}
+
+\end{note}

@@ -1,10 +1,25 @@
 % 7.3.12 Pointer conversions [conv.ptr]
 \paragraph{} % 1
-<++>
+一个\df{\nullp{}常量}是一个整型字面值（\ref{lex.icon}），其值为零或
+\tm{std::nullptr\_t}类型的一个\prvalue{}。一个\nullp{}常量可以转换为一个指针类
+型；结果为该类型的\nullp{}值（\ref{basic.compound}）且不同于任何其他对象指针值或
+函数指针值。这样的转换称为\df{\nullp{}转换}。同一个类型的两个\nullp{}值比较应该
+相等。一个\nullp{}常量到cv限定类型指针的转换是单个转换，而不是一个指针转换后加上
+一个限定转换（\ref{conv.qual}）。一个整型的\nullp{}常量可以转换为
+\tm{std::nullptr\_t}类型的\prvalue{}。
+
+\begin{note}
+  所产生的\prvalue{}不是一个\nullp{}值。
+\end{note}
 
 \paragraph{} % 2
-<++>
+“\nt{cv} \tm{T}指针”类型的\prvalue{}，其中\tm{T}是一个对象类型，可以转换为一个
+“\nt{cv} \tm{void}指针”类型的\prvalue{}。指针值（\ref{basic.compound}）在该转换
+下不变。
 
 \paragraph{} % 3
-<++>
-
+“\nt{cv} \tm{D}指针”类型的\prvalue{}，其中\tm{D}是一个完整类类型，可以转换为
+“\nt{cv} \tm{B}指针”类型的\prvalue{}，其中\tm{B}是\tm{D}的一个基类
+（\ref{class.derived}）。如果\tm{B}是\tm{D}的一个不可访问（\ref{class.access}）
+或有歧义（\ref{class.member.lookup}）基类，则需要此转换的程序为\illform{}。转换
+结果是派生类对象的基类子对象指针。\nullp{}值可以转换为目标类型的\nullp{}值。

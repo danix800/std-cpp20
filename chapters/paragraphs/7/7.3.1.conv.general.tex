@@ -1,25 +1,69 @@
 % 7.3.1 General [conv.general]
 \paragraph{} % 1
-<++>
+标准转换为具有内置语义的隐式转换。\ref{conv}列举所有这样的转换。一个\df{标准转换
+序列}指以下顺序的标准转换序列：
+\begin{enumerate}
+  \item 以下集合零个或一个转换：\lvalue{}到\rvalue{}转换，数组到指针转换以及函数
+        到指针转换。
+  \item 以下集合零个或一个转换：整型提升，符点转换，整型转换，符点转换，符点整型
+        转换，指针转换，成员指针转换以及布尔转换。
+  \item 零或一个函数指针转换。
+  \item 零或一个限定转换。
+\end{enumerate}
+
+\begin{note}
+  一个标准转换序列可以为空，即不含有转换。
+\end{note}
+
+一个标准转换序列按需应用到一个表达式以转换其到所需目标类型。
 
 \paragraph{} % 2
-<++>
+\begin{note}
+  给定类型的表达式在多个上下文中会被隐式转换到其他类型：
+  \begin{enumerate}
+    \item 当被用作运算符操作数时。这些运算符操作数的要求表明其目标类型
+          （\ref{expr.compound}）。
+    \item 当被用于\tm{if}语句（\ref{stmt.if}）或迭代语句（\ref{stmt.iter}）的条
+          件中时。目标类型为\tm{bool}。
+    \item 当被用于\tm{switch}语句（\ref{stmt.switch}）的表达式中时。目标类型为整
+          型。
+    \item 当被用作初始化的源表达式时（包括用作函数调用的实参和\tm{return}语句的
+          表达式）。被初始化的实体类型（通常）是目标类型。见\ref{dcl.init}，
+          \ref{dcl.init.ref}。
+  \end{enumerate}
+\end{note}
 
 \paragraph{} % 3
-<++>
+一个表达式\nt{E}可被\df{隐式转换}到类型\tm{T}，当且仅当对某些假想的临时变量
+\tm{t}（\ref{dcl.init}），声明\tm{T t =} \nt{E}\tm{;}是\wellform{}的。
 
 \paragraph{} % 4
-<++>
+某些语言结构需要表达式转换为一个布尔值。一个出现在这种上下文中的表达式\nt{E}称为
+\df{被上下文转换为\tm{bool}}，且当且仅当对某些假想的临时变量\tm{t}
+（\ref{dcl.init}），声明\tm{bool t(}\nt{E}\tm{);}是\wellform{}的。
 
 \paragraph{} % 5
-<++>
+某些语言结构要求转换到一个具有适合该结构的指定集合类型之一。出现在这种上下文中的
+类类型\tm{C}的一个表达式\nt{E}称为\df{被上下文转换}到特定类型\tm{T}，且当且仅当
+\nt{E}可按如下确定隐式转换到一个类型\tm{T}：搜索\tm{C}的非隐式转换函数，其返回类
+型为\nt{cv} \tm{T}或\nt{cv} \tm{T}的引用，使得\tm{T}被上下文所允许。应该仅有一个
+这样的\tm{T}。
 
 \paragraph{} % 6
-<++>
+任何隐式转换的效果与执行相应的声明和初始化并将临时变量用作转换结果的效果相同。如
+果\tm{T}是\lvalue{}引用类型或是对函数类型（\ref{dcl.ref}）的\rvalue{}引用，则结
+果为\lvalue{}；如果\tm{T}是对对象类型的\rvalue{}引用，则结果为\xvalue{}，否则为
+\prvalue{}。当且仅当初始化将其用作\glvalue{}时，才将表达式\nt{E}用作\glvalue{}。
 
 \paragraph{} % 7
-<++>
+\begin{note}
+  对于类类型，还应考虑自定义的转换。见\ref{class.conv}。通常，隐式转换序列
+  （\ref{over.best.ics}）由一个标准转换序列，一个自定义的转换，另一个标准转换序
+  列组成。
+\end{note}
 
 \paragraph{} % 8
-<++>
-
+\begin{note}
+  存在某些上下文，其中某些转换被抑制。比如，\lvalue{}到\rvalue{}转换不在一元
+  \tm{\&}运算符上进行。特定的例外情形在这些运算符和上下文的描述中给出。
+\end{note}

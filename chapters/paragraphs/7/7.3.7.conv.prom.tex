@@ -1,22 +1,41 @@
 % 7.3.7 Integral promotions [conv.prom]
 \paragraph{} % 1
-<++>
+整型转换阶（\ref{conv.rank}）小于\tm{int}的除\tm{bool}，\tm{char16\_t}，
+\tm{char32\_t}或\tm{wchar\_t}外的整型\prvalue{}可以转换为\tm{int}类型的
+\prvalue{}，如果\tm{int}可以表示源类型的所有值；否则，源\prvalue{}可以转换为
+\tm{unsigned int}类型的\prvalue{}。
 
 \paragraph{} % 2
-<++>
+类型为\tm{char16\_t}，\tm{char32\_t}或\tm{wchar\_t}（\ref{basic.fundamental}）的
+\prvalue{}可以转换为可以表示其底层类型所有值的以下类型中第一个的\prvalue{}：
+\tm{int}，\tm{unsigned int}，\tm{long int}，\tm{unsigned long int}，
+\tm{long long int}，或\tm{unsigned long long int}。如果该列表中类型都不能表示其
+底层类型的所有值，一个\tm{char16\_t}，\tm{char32\_t}或\tm{wchar\_t}类型的
+\prvalue{}可以转换为其底层类型的\prvalue{}。
 
 \paragraph{} % 3
-<++>
+一个底层类型不固定的无作用域枚举类型\prvalue{}可以转换为可表示其所有枚举值
+（\ref{dcl.enum}）的以下类型中的第一个：
+\tm{int}，\tm{unsigned int}，\tm{long int}，\tm{unsigned long int}，
+\tm{long long int}，或\tm{unsigned long long int}。如是该列表中类型都不能表示枚
+举的所有值，则一个无作用域枚举类型\prvalue{}可以转换为一个扩展整型的\prvalue{}，
+具有大于\tm{long long}的最低整型转换阶（\ref{conv.rank}），所有枚举的值可在其中
+表示。如果存在两个这样的扩展类型，则取有符号的那个。
 
 \paragraph{} % 4
-<++>
+底层类型固定（\ref{dcl.enum}）的无作用域枚举类型\prvalue{}可以转换为可以表示其底
+层类型的\prvalue{}。更进一步，如果整型提升可用于其底层类型，则一个底层类型固定的
+无作用域枚举类型\prvalue{}也可以转换为提升后底层类型的\prvalue{}。
 
 \paragraph{} % 5
-<++>
+一个整型位域（\ref{class.bit}）\prvalue{}可以转换为\tm{int}类型的\prvalue{}，如
+果\tm{int}可以表示所有位域的值；否则，其可以转换为\tm{unsigned int}，如果
+\tm{unsigned int}可以表示位域的所有值。如果位域还是大，则不对其应用整型提升。如
+果位域具有枚举类型，则为提升的目的将其当作该类型的任何其他值。
 
 \paragraph{} % 6
-<++>
+一个\tm{bool}类型的\prvalue{}可以转换为一个\tm{int}类型的\prvalue{}，其中
+\tm{false}转换为零，\tm{true}转换为一。
 
 \paragraph{} % 7
-<++>
-
+这些转换称为\df{整型提升}。
