@@ -15,13 +15,38 @@
 类或枚举类型。
 
 \paragraph{} % 2
-<++>
+表示一个类，后跟可选的关键字\tm{template}（\ref{temp.names}）和该类
+（\ref{class.mem}）或其基类（\ref{class.derived}）之一的成员名的
+\nt{nested-name-specifier}是一个\nt{qualified-id}；\ref{class.qual}描述了出现在
+\nt{qualified-id}中的类成员名字查询。结果即该成员。结果类型为该成员的类型。如果
+成员是一个静态成员函数或数据成员，则结果是一个左值，否则为纯右值。
+
+\begin{note}
+  类成员可在其潜在作用域（\ref{basic.scope.class}）中的任意点通过一个
+  \nt{qualified-id}进行引用。
+\end{note}
+\nt{type-name}\tm{::\tat}\nt{type-name}中的两个\nt{type-name}应引用同一个类型（
+忽略cv限定）；表示以此命名的类型的析构函数（\ref{expr.prim.id.dtor}）。
+\nt{qualified-id}中的\nt{unqualified-id}不应该是
+\tm{\tat}\nt{decltype-specifier}。
 
 \paragraph{} % 3
-<++>
+\nt{nested-name-specifier} \tm{::}表示全局命名空间。表示命名空间
+（\ref{basic.namespace}）的\nt{nested-name-specifier}，后跟可选的关键字
+\tm{template}（\ref{temp.names}）和该命名空间成员（或通过\nt{using-directive}使
+其可见的命名空间成员名），是一个\nt{qualified-id}；\ref{namespace.qual}中描述了
+出现在\nt{qualified-id}中的命名空间名字的查询。其结果即该成员。结果类型为该成员
+的类型。如果成员是一个函数、变量或结构化绑定（\ref{dcl.struct.bind}），则结果是
+一个左值，否则为纯右值。
 
 \paragraph{} % 4
-<++>
+表示枚举（\ref{dcl.enum}）的\nt{nested-name-specifier}，后跟该枚举成员名，是一
+个引起该枚举常量的\nt{qualified-id}。其结果是该枚举常量，结果类型为枚举的类型。
+结果是一个纯右值。
 
 \paragraph{} % 5
-<++>
+在一个\nt{qualified-id}中，如果\nt{unqualified-id}是一个
+\nt{conversion-function-id}，其\nt{conversion-type-id}首先在由\nt{qualified-id}
+的\nt{nested-name-specifier}所表示的类中进行查询，如果找到，则使用该名字。否则
+在\nt{qualified-id}所出现的整个上下文中进行查询。在两种查询中，只考虑其名字表示
+类型或特例化为类型的模板的名字。

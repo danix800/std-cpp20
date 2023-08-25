@@ -1,10 +1,32 @@
 % 7.5.4.4 Destruction [expr.prim.id.dtor]
 \paragraph{} % 1
-<++>
+如果\tm{T}是类（\ref{class.dtor}），则表示\tm{T}的析构函数的\nt{id-expression}
+确定\tm{T}的析构函数，否则\nt{id-expression}确定的是一个
+\nt{pseudo-destructor}。
 
 \paragraph{} % 2
-<++>
+如果\nt{id-expression}确定一个伪析构函数，\tm{T}应该是一个标量类型，且
+\nt{id-expression}应该以形成函数调用（\ref{expr.call}）的
+\nt{postfix-expression}的类成员访问（\ref{expr.ref}）的右操作数的形式出现。
+
+\begin{note}
+  这样的调用结束对象的生命期（\ref{expr.call}，\ref{basic.life}）。
+\end{note}
+
+\newpage
 
 \paragraph{} % 3
-<++>
-
+\begin{example}
+  \begin{lstlisting}
+  struct C { };
+  void f() {
+    C * pc = new C;
+    using C2 = C;
+    pc->C::~C2();   // OK, destroys *pc
+    C().C::~C();    // undefined behavior: temporary of type C destroyed twice
+    using T = int;
+    0 .T::~T();     // OK, no effect
+    0.T::~T();      // error: 0.T is a user-defined-floating-point-literal (5.13.8)
+  }
+  \end{lstlisting}
+\end{example}
