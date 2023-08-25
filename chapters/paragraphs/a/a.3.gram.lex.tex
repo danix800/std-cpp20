@@ -1,2 +1,277 @@
 % A.3 Lexical conventions [gram.lex]
-<++>
+
+\synsym{hex-quad}
+  \synprd{\nt{hexadecimal-digit} \nt{hexadecimal-digit} \nt{hexadecimal-digit}
+    \nt{hexadecimal-digit}}
+
+\synsym{universal-character-name}
+  \synprd{\tm{\bs u} \nt{hex-quad}}
+  \synprd{\tm{\bs U} \nt{hex-quad} \nt{hex-quad}}
+
+\synsym{preprocessing-token}
+  \synprd{\nt{header-name}}
+  \synprd{\nt{import-keyword}}
+  \synprd{\nt{module-keyword}}
+  \synprd{\nt{export-keyword}}
+  \synprd{\nt{identity}}
+  \synprd{\nt{pp-number}}
+  \synprd{\nt{character-literal}}
+  \synprd{\nt{user-defined-character-literal}}
+  \synprd{\nt{string-literal}}
+  \synprd{\nt{user-defined-string-literal}}
+  \synprd{\nt{preprocessing-op-or-punc}}
+  \synprd{each non-white-space character that cannot be one of the above}
+
+\synsym{token}
+  \synprd{\nt{identity}}
+  \synprd{\nt{keyword}}
+  \synprd{\nt{literal}}
+  \synprd{\nt{operator-or-punctuator}}
+
+synsym{header-name}
+  \synprd{\tm{<} \nt{h-char-sequence} \tm{>}}
+  \synprd{\tm{\dq} \nt{h-char-sequence} \tm{\dq}}
+
+\synsym{h-char-sequence}
+  \synprd{\nt{h-char}}
+  \synprd{\nt{h-char-sequence h-char}}
+\synsym{h-char}
+  \synprd{除新行和\tm{>}以外的任何源码字符集成员}
+
+\synsym{q-char-sequence}
+  \synprd{\nt{q-char}}
+  \synprd{\nt{q-char-sequence q-char}}
+
+\synsym{q-char}
+  \synprd{除新行和\tm{\dq}以外的任何源码字符集成员}
+
+\synsym{pp-number}
+  \synprd{\nt{digit}}
+  \synprd{\tm{.} \nt{digit}}
+  \synprd{\nt{pp-number digit}}
+  \synprd{\nt{pp-number identifier-nondigit}}
+  \synprd{\nt{pp-number} \tm{\sq} \nt{digit}}
+  \synprd{\nt{pp-number} \tm{\sq} \nt{nondigit}}
+  \synprd{\nt{pp-number} \tm{e} \nt{sign}}
+  \synprd{\nt{pp-number} \tm{E} \nt{sign}}
+  \synprd{\nt{pp-number} \tm{p} \nt{sign}}
+  \synprd{\nt{pp-number} \tm{P} \nt{sign}}
+  \synprd{\nt{pp-number} \tm{.}}
+
+\synsym{identifier}
+  \synprd{\nt{identifier-nondigit}}
+  \synprd{\nt{identifier identifier-nondigit}}
+  \synprd{\nt{identifier digit}}
+\synsym{identifier-nondigit}
+  \synprd{\nt{nondigit}}
+  \synprd{\nt{universal-character-name}}
+\synsym[one of]{nondigit}
+  \synprd{\tm{a b c d e f g h i j k l m}}
+  \synprd{\tm{n o p q r s t u v w x y z}}
+  \synprd{\tm{A B C D E F G H I J K L M}}
+  \synprd{\tm{N O P Q R S T U V W X Y Z \_}}
+\synsym[one of]{digit}
+  \synprd{\tm{0 1 2 3 4 5 6 7 8 9}}
+
+\synsym{keyword}
+  \synprd{表\ref{tab:lex.key}中所列的所有标识符}
+  \synprd{\nt{import-keyword}}
+  \synprd{\nt{module-keyword}}
+  \synprd{\nt{export-keyword}}
+
+\synsym{preprocessing-op-or-punc}
+  \synprd{\nt{preprocessing-operator}}
+  \synprd{\nt{operator-or-punctuator}}
+\synsym[one of]{preprocessing-operator}
+  \synprd{\tm{\# \ \ \ \ \ \ \#\# \ \ \ \ \%: \ \ \ \ \%:\%:}}
+\synsym[one of]{operator-or-punctuator}
+  \synprd{\tm{\{ \ \ \ \ \ \ \}  \ \ \ \ \ [ \ \ \ \ \ \ ] \ \ \ \ \ \ ( \ \ \ \
+    \ \ )}}
+  \synprd{\tm{<: \ \ \ \ :> \ \ \ \ <\% \ \ \ \ \ \%> \ \ \ \ \ ; \ \ \ \ \ \ :
+    \ \ \ \ ...}}
+  \synprd{\tm{?\ \ \ \ \ \ \ :: \ \ \ . \ \ \ \ \ .* \ \ \ \ \ -> \ \ \ \ \ ->*
+    \ \ \ \tat}}
+  \synprd{\tm{! \ \ \ \ \ + \ \ \ \ \ - \ \ \ \ \ \ * \ \ \ \ \ \ / \ \ \ \ \ \
+    \% \ \ \ \ \ \tac \ \ \ \ \ \ \& \ \ \ |}}
+  \synprd{\tm{= \ \ \ \ \ \ += \ \ \ \ -= \ \ \ \ \ *= \ \ \ \ \ /= \ \ \ \ \
+    \%= \ \ \ \ \tac= \ \ \ \ \&= \ \ |=}}
+  \synprd{\tm{== \ \ \ \ \ != \ \ \ \ \tl \ \ \ \ \ \ \ \tg \ \ \ \ \ \ \ \tl=
+    \ \ \ \ \ \tg= \ \ \ \ \tl=\tg \ \ \ \ \&\&}}
+  \synprd{\tm{\tl{}\tl \ \ \ \ \ \ \tg{}\tg \ \ \ \ \ \tl{}\tl{}= \ \ \ \
+    \tg{}\tg{}= \ \ \ \ ++ \ \ \ \ \ -{}- \ \ \ \ ,}}
+  \synprd{\tm{and \ \ \ \ or \ \ \ \ xor \ \ \ \ not \ \ \ \ bitand \ bitor
+    \ compl}}
+  \synprd{\tm{and\_eq \ or\_eq \ xor\_eq \ not\_eq}}
+
+\synsym{literal}
+  \synprd{\nt{integer-literal}}
+  \synprd{\nt{character-literal}}
+  \synprd{\nt{floating-point-literal}}
+  \synprd{\nt{string-literal}}
+  \synprd{\nt{boolean-literal}}
+  \synprd{\nt{pointer-literal}}
+  \synprd{\nt{user-defined-literal}}
+
+\synsym{integer-literal}
+  \synprd{\nt{binary-literal integer-suffix\tsub{opt}}}
+  \synprd{\nt{octal-literal integer-suffix\tsub{opt}}}
+  \synprd{\nt{decimal-literal integer-suffix\tsub{opt}}}
+  \synprd{\nt{hexdecimal-literal integer-suffix\tsub{opt}}}
+\synsym{binary-literal}
+  \synprd{\tm{0b} \nt{binary-digit}}
+  \synprd{\tm{0B} \nt{binary-digit}}
+  \synprd{\nt{binary-literal} \tm{\sq}\nt{\tsub{opt} binary-digit}}
+\synsym{octal-literal}
+  \synprd{\tm{0}}
+  \synprd{\nt{octal-literal} \tm{\sq}\nt{\tsub{opt} octal-digit}}
+\synsym{decimal-literal}
+  \synprd{\nt{nonzero-digit}}
+  \synprd{\nt{decimal-literal} \tm{\sq}\nt{\tsub{opt} digit}}
+\synsym{hexdecimal-literal}
+  \synprd{\nt{hexdecimal-prefix hexdecimal-digit-sequence}}
+\synsym[one of]{binary-digit}
+  \synprd{\tm{0 1}}
+\synsym[one of]{octal-digit}
+  \synprd{\tm{0 1 2 3 4 5 6 7}}
+\synsym[one of]{nonzero-digit}
+  \synprd{\tm{1 2 3 4 5 6 7}}
+\synsym[one of]{hexdecimal-prefix}
+  \synprd{\tm{0x 0X}}
+\synsym{hexdecimal-digit-sequence}
+  \synprd{\nt{hexdecimal-digit}}
+  \synprd{\nt{hexdecimal-digit-sequence} \tm{\sq}\nt{\tsub{opt}
+    hexdecimal-digit}}
+\synsym[one of]{hexdecimal-digit}
+  \synprd{\tm{0 1 2 3 4 5 6 7 8 9}}
+  \synprd{\tm{a b c d e f}}
+  \synprd{\tm{A B C D E F}}
+\synsym{integer-suffix}
+  \synprd{\nt{unsigned-suffix long-suffix\tsub{opt}}}
+  \synprd{\nt{unsigned-suffix long-long-suffix\tsub{opt}}}
+  \synprd{\nt{long-suffix unsigned-suffix\tsub{opt}}}
+  \synprd{\nt{long-long-suffix unsigned-suffix\tsub{opt}}}
+\synsym[one of]{unsigned-prefix}
+  \synprd{\tm{u U}}
+\synsym[one of]{long-prefix}
+  \synprd{\tm{l L}}
+\synsym[one of]{long-long-prefix}
+  \synprd{\tm{ll LL}}
+
+\synsym{character-literal}
+  \synprd{\nt{encoding-prefix\tsub{opt}}
+          \tm{\sq} \nt{c-char-sequence} \tm{\sq}}
+\synsym[one of]{encoding-prefix}
+  \synprd{\tm{u8 u U L}}
+\synsym{c-char-sequence}
+  \synprd{\nt{c-char}}
+  \synprd{\nt{c-char-sequence} \nt{c-char}}
+\synsym{c-char}
+  \synprd{除单引号\tm{\sq}、反斜杠\tm{\bs}或新行字符以外的基本源码字符集成员}
+  \synprd{\nt{escape-sequence}}
+  \synprd{\nt{universal-character-name}}
+\synsym{escape-sequence}
+  \synprd{\nt{simple-escape-sequence}}
+  \synprd{\nt{octal-escape-sequence}}
+  \synprd{\nt{hexadecimal-escape-sequence}}
+\synsym[one of]{simple-escape-sequence}
+  \synprd{\tm{\bs\sq\ \ \bs\dq\ \ \bs?\ \ \bs\bs}}
+  \synprd{\tm{\bs a \ \bs b \ \bs f \ \bs n \ \bs r \ \bs t \ \bs v}}
+\synsym{octal-escape-sequence}
+  \synprd{\tm{\bs} \nt{octal-digit}}
+  \synprd{\tm{\bs} \nt{octal-digit octal-digit}}
+  \synprd{\tm{\bs} \nt{octal-digit octal-digit octal-digit}}
+\synsym{hexadecimal-escape-sequence}
+  \synprd{\tm{\bs x} \nt{hexadecimal-digit}}
+  \synprd{\nt{hexadecimal-escape-sequence} \nt{hexadecimal-digit}}
+
+\synsym{floating-point-literal}
+  \synprd{\nt{decimal-floating-point-literal}}
+  \synprd{\nt{hexadecimal-floating-point-literal}}
+\synsym{decimal-floating-point-literal}
+  \synprd{\nt{fractional-constant exponent-part\tsub{opt}
+    floating-point-suffix\tsub{opt}}}
+  \synprd{\nt{digit-sequence exponent-part floating-point-suffix\tsub{opt}}}
+\synsym{hexadecimal-floating-point-literal}
+  \synprd{\nt{hexadecimal-prefix hexadecimal-fractional-constant
+    binary-exponent-part}} % cont
+  \synprd{\tm{\ \ \ \ }\nt{floating-point-suffix\tsub{opt}}}
+  \synprd{\nt{hexadecimal-prefix hexadecimal-digit-sequence
+    binary-exponent-part}} % cont
+  \synprd{\tm{\ \ \ \ }\nt{floating-point-suffix\tsub{opt}}}
+\synsym{fractional-constant}
+  \synprd{\nt{digit-sequence\tsub{opt}} \tm{.} \nt{digit-sequence}}
+  \synprd{\nt{digit-sequence} \tm{.}}
+\synsym{hexadecimal-fractional-constant}
+  \synprd{\nt{hexadecimal-digit-sequence\tsub{opt}} \tm{.}
+    \nt{hexadecimal-digit-sequence}}
+  \synprd{\nt{hexadecimal-digit-sequence} \tm{.}}
+\synsym{exponent-part}
+  \synprd{\tm{e} \nt{sign\tsub{opt} digit-sequence}}
+  \synprd{\tm{E} \nt{sign\tsub{opt} digit-sequence}}
+\synsym[one of]{sign}
+  \synprd{\tm{+ -}}
+\synsym{digit-sequence}
+  \synprd{\nt{digit}}
+  \synprd{\nt{digit-sequence} \tm{'}\nt{\tsub{opt} digit}}
+\synsym[one of]{floating-point-suffix}
+  \synprd{\tm{f l F L}}
+
+\synsym{string-literal}
+  \synprd{\nt{encoding-prefix\tsub{opt}}
+    \tm{"}\nt{s-char-sequence\tsub{opt}}\tm{\dq}}
+  \synprd{\nt{encoding-prefix\tsub{opt}} \tm{R} \nt{raw-string}}
+\synsym{s-char-sequence}
+  \synprd{\nt{s-char}}
+  \synprd{\nt{s-char-sequence s-char}}
+\synsym{s-char}
+  \synprd{除双引号\tm{"}、反斜杠\tm{\bs}或新行字符以外的基本源码字符集成员}
+  \synprd{\nt{escape-sequence}}
+  \synprd{\nt{universal-character-name}}
+\synsym{raw-string}
+  \synprd{\tm{"} \nt{d-char-sequence\tsub{opt}} \tm{(}
+    \nt{r-char-sequence\tsub{opt}} \tm{)} \nt{d-char-sequence\tsub{opt}}
+    \tm{\dq}}
+\synsym{r-char-sequence}
+  \synprd{\nt{r-char}}
+  \synprd{\nt{r-char-sequence r-char}}
+\synsym{r-char}
+  \synprd{除右括号\tm{)}后跟初始\nt{d-char-sequence}（可空）再跟上双引号\tm{"}的
+    源码字符集成员}
+\synsym{d-char-sequence}
+  \synprd{\nt{d-char}}
+  \synprd{\nt{d-char-sequence d-char}}
+\synsym{d-char}
+  \synprd{除空格、左括号\tm{(}、右括号\tm{)}、反斜杠\tm{\bs}和表示水平制表、垂直
+    制表、换页和新}
+  \synprd{行的控制字符以外的基本源码字符集成员。}
+
+\synsym{boolean-literal}
+  \synprd{\tm{false}}
+  \synprd{\tm{true}}
+
+\synsym{pointer-literal}
+  \synprd{\tm{nullptr}}
+
+\synsym{user-defined-literal}
+  \synprd{\nt{user-defined-integer-literal}}
+  \synprd{\nt{user-defined-floating-point-literal}}
+  \synprd{\nt{user-defined-string-literal}}
+  \synprd{\nt{user-defined-character-literal}}
+\synsym{user-defined-integer-literal}
+  \synprd{\nt{decimal-literal ud-suffix}}
+  \synprd{\nt{octal-literal ud-suffix}}
+  \synprd{\nt{hexadecimal-literal ud-suffix}}
+  \synprd{\nt{binary-literal ud-suffix}}
+\synsym{user-defined-floating-point-literal}
+  \synprd{\nt{fractional-constant exponent-part\tsub{opt} ud-suffix}}
+  \synprd{\nt{digit-sequence exponent-part ud-suffix}}
+  \synprd{\nt{hexadecimal-prefix hexadecimal-fractional-constant
+    binary-exponent-part ud-suffix}}
+  \synprd{\nt{hexadecimal-prefix hexadecimal-digit-sequence
+    binary-exponent-part ud-suffix}}
+\synsym{user-defined-string-literal}
+  \synprd{\nt{string-literal ud-suffix}}
+\synsym{user-defined-character-literal}
+  \synprd{\nt{character-literal ud-suffix}}
+\synsym{ud-suffix}
+  \synprd{\nt{identifier}}
