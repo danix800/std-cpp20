@@ -1,16 +1,70 @@
 % 7.5.5.1 General [expr.prim.lambda.general]
+\synsym{lambda-expression}
+  \synprd{\nt{lambda-introducer} \nt{lambda-declarator\tsub{opt}}
+    \nt{compound-statement}}
+  \synprd{\nt{lambda-introducer} \tm{<} \nt{template-parameter-list} \tm{>}
+    \nt{requires-clause\tsub{opt}} \nt{lambda-declarator\tsub{opt}}}
+    \synprd{\tm{\ \ \ \ }\nt{compound-statement}}
+\synsym{lambda-introducer}
+  \synprd{\tm{[} \nt{lambda-capture\tsub{opt}} \tm{]}}
+\synsym{lambda-declarator}
+  \synprd{\tm{(} \nt{parameter-declaration-clause} \tm{)}
+    \nt{decl-specifier-seq\tsub{opt}} \nt{noexcept-specifier\tsub{opt}}}
+    \synprd{\tm{\ \ \ \ }\nt{attribute-specifier-seq\tsub{opt}}
+      \nt{trailing-return-type\tsub{opt}} \nt{requires-clause\tsub{opt}}}
+
 \paragraph{} % 1
-<++>
+一个\nt{lambda-expression}提供一种准确的方式来创建一个简单函数对象。
+
+\begin{example}
+  \begin{lstlisting}
+  #include <algorithm>
+  #include <cmath>
+  void abssort(float* x, unsigned N) {
+    std::sort(x, x + N, [](float a, float b) { return std::abs(a) < std::abs(b); });
+  }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 2
-<++>
+一个\nt{lambda-expression}是一个纯右值，其结果对象称为\nt{闭包对象}。
+
+\begin{note}
+  闭包对象的行为与函数对象一样（\ref{function.objects}）。
+\end{note}
 
 \paragraph{} % 3
-<++>
+在\nt{lambda-declarator}的\nt{decl-specifier-seq}中，每一个\nt{decl-specifier}
+应该是\nt{mutable}、\nt{constexpr}或\nt{consteval}之一。
+
+\begin{note}
+  结尾的\nt{requires-clause}在\ref{dcl.decl}中描述。
+\end{note}
 
 \paragraph{} % 4
-<++>
+如果一个\nt{lambda-expression}不包含\nt{lambda-declarator}，则如同
+\nt{lambda-declarator}为\tm{()}。该$\lambda$返回类型为\tm{auto}，由
+\nt{trailing-return-type}（如果有）指定和/或从\nt{return}语句推导
+（\ref{dcl.spec.auto}）而来的类型替换。
+
+\begin{example}
+  \begin{lstlisting}
+  auto x1 = [](int i){ return i; };     // OK: return type is int
+  auto x2 = []{ return { 1, 2 }; };     // error: deducing return type from braced-init-list
+  int j;
+  auto x3 = []()->auto&& { return j; }  // OK: return type is int&
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 5
-<++>
+如果\nt{lambda-expression}具有任何形参类型占位符（\ref{dcl.spec.auto}），或如果
+$\lambda$具有一个\nt{template-parameter-list}，则该$\lambda$是一个
+\nt{泛型$\lambda$}。
+
+\begin{example}
+  \begin{lstlisting}
+  int i = [](int i, auto a) { return i; }(3, 4);        // OK: a generic lambda
+  int j = []<class T>(T t, int i) { return i; }(3, 4);  // OK: a generic lambda
+  \end{lstlisting}
+\end{example}
 
