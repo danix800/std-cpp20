@@ -1,52 +1,387 @@
 % 7.5.5.3 Captures [expr.prim.lambda.capture]
+\synsym{lambda-capture}
+  \synprd{\nt{capture-default}}
+  \synprd{\nt{capture-list}}
+  \synprd{\nt{capture-default} \tm{,} \nt{capture-list}}
+\synsym{capture-default}
+  \synprd{\tm{\&}}
+  \synprd{\tm{=}}
+\synsym{capture-list}
+  \synprd{\nt{capture}}
+  \synprd{\nt{capture-list} \tm{,} \nt{capture}}
+\synsym{capture}
+  \synprd{\nt{simple-capture}}
+  \synprd{\nt{init-capture}}
+\synsym{simple-capture}
+  \synprd{\nt{identifier} \tm{...}\nt{\tsub{opt}}}
+  \synprd{\tm{\&} \nt{identifier} \tm{...}\nt{\tsub{opt}}}
+  \synprd{\tm{this}}
+  \synprd{\tm{* this}}
+\synsym{init-capture}
+  \synprd{\tm{...}\nt{\tsub{opt}} \nt{identifier} \nt{initializer}}
+  \synprd{\tm{\& ...}\nt{\tsub{opt}} \nt{identifier} \nt{initializer}}
+
 \paragraph{} % 1
-<++>
+\nt{lambda-expression}的函数体可以按如下所述的捕获来访问包含作用域中的实体。
 
 \paragraph{} % 2
-<++>
+如果\nt{lambda-capture}包含一个\nt{capture-default}为\tm{\&}，则该
+\nt{lambda-capture}的\nt{simple-capture}中标识符不应该以\tm{\&}开头。如果
+\nt{lambda-capture}包含一个\nt{capture-default}为\tm{=}，则该
+\nt{lambda-capture}的每一个\nt{simple-capture}应形如
+“\tm{\&} \nt{identifier} \tm{...}\nt{\tsub{opt}}”、“\tm{this}”或“\tm{* this}”。
+
+\begin{note}
+  为与ISO \cpp{} 2014兼容，形式\tm{[\&,this]}是多余的，但可接受。
+\end{note}
+
+忽略\nt{init-capture}中的\nt{initializer}，标识符或\tm{this}在
+\nt{lambda-capture}不应该出现多于一次。
+
+\begin{example}
+  \begin{lstlisting}
+  struct S2 { void f(int i); };
+  void S2::f(int i) {
+    [&, i]{ }         // OK
+    [&, this, i]{ };  // OK, equivalent to [&, i]
+    [&, &i]{ };       // error: i preceded by & when & is the default
+    [=, *this]{ };    // OK
+    [=, this]{ };     // OK, equivalent to [=]
+    [i, i]{ };        // error: i repeated
+    [this, *this]{ }; // error: this appears twice
+  }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 3
-<++>
+一个\nt{lambda-expression}在其\nt{lambda-introducer}中不应该具有
+\nt{capture-default}或\nt{simple-capture}，除非其最内层包含作用域是块作用域
+（\ref{basic.scope.block}）或它出现在一个缺省成员初始化中，而其最内层作用域是对
+应的类作用域（\ref{basic.scope.class}）。
 
 \paragraph{} % 4
-<++>
+\nt{simple-capture}中的\nt{identifier}使用常规的未限定名查询
+（\ref{basic.lookup.unqual}）规则进行查询；每个这种查询都应该找到一个局部实体。
+\nt{simple-capture} \tm{this}和\tm{* this}表示局部实体\tm{*this}。由
+\nt{simple-capture}表示的实体称为\nt{显式捕获}。
 
 \paragraph{} % 5
-<++>
+如果\nt{simple-capture}中的\nt{identifier}用作\nt{lambda-declarator}的
+\nt{parameter-declaration-clause}的形参\nt{declarator-id}则程序为非法。
+
+\begin{example}
+  \begin{lstlisting}
+  void f() {
+    int x = 0;
+    auto g = [x](int x) { return 0; };  // error: parameter and simple-clause have the same name
+  }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 6
-<++>
+不带省略号的\nt{init-capture}如同声明并显式捕获了形如
+“\tm{auto} \nt{init-capture} \tm{;}”的变量，其声明区为\nt{lambda-expression}的
+\nt{compound-statement}，除非：
+\begin{enumerate}
+  \item 如果捕获为拷贝（见下文），则为捕获声明的非静态数据成员和变量被当作引用
+        相同对象的两种不同方式，具有非静态数据成员的生命期，不进行额外的拷贝和
+        析构，并且
+  \item 如果捕获为引用，变量生命期在闭包对象生命期结束时结束。
+\end{enumerate}
+
+\begin{note}
+  这允许形如“\tm{x = std::move(x)}”的\nt{init-capture}；第二个“\tm{x}”必须绑
+  定到包含上下文中的声明。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+  int x = 4;
+  auto y = [&r = x, x = x+1]()->int {
+              r += 2;
+              return x+2;
+            }();              // Updates ::x to 6, and initializes y to 7.
+
+  auto z = [a = 42](int a) { return 1; }; // error: parameter and local variable have the same name
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 7
-<++>
+为实现$\lambda$捕获，一个表达式按如下潜在引用局部实现：
+\begin{enumerate}
+  \item 确定局部实体的\nt{id-expression}潜在引用该实现；确定一个或多个非静态类
+        成员，但不形成成员指针（\ref{expr.unary.op}）的\nt{id-expression}潜在引
+        用\tm{*this}。
+        \begin{note}
+          即使重载解析为该\nt{id-expression}选择了静态成员函数也是如此。
+        \end{note}
+  \item \tm{this}表达式潜在引用\tm{*this}。
+  \item \nt{lambda-expression}潜在引用其\nt{simple-capture}确定的局部实体。
+\end{enumerate}
+如果表达式在一个声明区内潜在引用一个局部实体，在声明内该实体是odr可用的，并且如
+果忽略任何包含的\tm{typeid}表达式（\ref{expr.typeid}）的副作用则表达式将是被潜
+在求值的，则实体称为被中间的每一个带有关联\nt{capture-default}，未显式捕获的
+\nt{lambda-expression}\nt{隐式捕获}。当\nt{capture-default}为\tm{=}时\tm{*this}
+的隐式捕获将被废弃；见\ref{depr.capture.this}。
+
+\begin{example}
+  \begin{lstlisting}
+  void f(int, const int (&)[2] = {});   // #1
+  void f(const int&, const int (&)[1]); // #2
+  void test() {
+    const int x = 17;
+    auto g = [](auto a) {
+      f(x);               // OK: calls #1, does not capture x
+    };
+
+    auto g1 = [=](auto a) {
+      f(x);               // OK: calls #1, captures x
+    };
+
+    auto g2 = [=](auto a) {
+      int selector[sizeof(a) == 1 ? 1 : 2]{};
+      f(x, selector);     // OK: captures x, can call #1 or #2
+    };
+
+    auto g3 = [=](auto a) {
+      typeid(a + x);      // captures x regardless of whether a + x is an unevaluated operand
+    };
+  }
+  \end{lstlisting}
+在\tm{g1}中，实现可以优化掉\tm{x}的捕获，因其不是odr使用的。
+\end{example}
+
+\begin{note}
+  捕获的实体集从语法上决定，且实体是隐式捕获的，即使表达式表示一个丢弃语句
+  （\ref{stmt.if}）中的局部实体。
+
+  \newpage
+  \begin{example}
+    \begin{lstlisting}
+    template<bool B>
+    void f(int n) {
+      [=](auto a) {
+        if constexpr (B && sizeof(a) > 4) {
+          (void)n;                  // captures n regardless of the value of B and sizeof(int)
+        }
+      }(0);
+    }
+    \end{lstlisting}
+  \end{example}
+
+\end{note}
 
 \paragraph{} % 8
-<++>
+如果被显式或隐式捕获，则称实体是被\nt{捕获}的。由\nt{lambda-expression}捕获的实
+体在包含\nt{lambda-expression}的作用域中是odr使用的（\ref{basic.def.odr}）。
+
+\begin{note}
+  其结果是，如果一个\nt{lambda-expression}显式捕获一个不是odr使用的实体，则程序
+  是非法的（\ref{basic.def.odr}）。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+  void f1(int i) {
+    int const N = 20;
+    auto m1 = [=]{
+      int const M = 30;
+      auto m2 = [i]{
+        int x[N][M];      // OK: N and M are not odr-used
+        x[0][0] = i;      // OK: i is explicitly captured by m2 and implicitly captured by m1
+      };
+    };
+    struct s1 {
+      int f;
+      void work(int n) {
+        int m = n*n;
+        int j = 40;
+        auto m3 = [this,m] {
+          auto m4 = [&,j] { // error: j not odr-usable due to intervening lambda m3
+            int x = n;      // error: n is odr-used but not odr-usable due to intervening lambda m3
+            x += m;         // OK: m implicitly captured by m4 and explicitly captured by m3
+            x += i;         // error: i is odr-used but not odr-usable
+                            // due to intervening function and class scopes
+            x += f;         // OK: this captured implicitly by m4 and explicitly by m3
+          };
+        };
+      }
+    };
+  }
+
+  struct s2 {
+    double ohseven = .007;
+    auto f() {
+      return [this] {
+        return [*this] {
+          return ohseven;   // OK
+        };
+      }();
+    }
+    auto g() {
+      return [] {
+        return [*this] { }; // error: *this not captured by outer lambda-expression
+      }();
+    }
+  };
+  \end{lstlisting}
+\end{example}
+
+\newpage
 
 \paragraph{} % 9
-<++>
+\begin{note}
+  因局部实体在缺省实参（\ref{basic.def.odr}）中不是odr可用的，一个出现在缺省实
+  参中的\nt{lambda-expression}不能被任何实体隐式或显式捕获。如果其
+  \nt{initializer}中的任何全表达式满足出现在缺省实参（\ref{dcl.fct.default}）中
+  表达式的约束则这样的\nt{lambda-expression}仍可以有一个\nt{init-capture}。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+  void f2() {
+    int i = 1;
+    void g1(int = ([i]{ return i; })());        // error
+    void g2(int = ([i]{ return 0; })());        // error
+    void g3(int = ([=]{ return i; })());        // error
+    void g4(int = ([=]{ return i; })());        // OK
+    void g5(int = ([]{ return sizeof i; })());  // OK
+    void g6(int = ([x=1]{ return x; })());      // OK
+    void g7(int = ([x=i]{ return x; })());      // error
+  }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 10
-<++>
+一个实体是被\nt{拷贝捕获}的，如果
+\begin{enumerate}
+  \item 它是被隐式捕获的，\nt{capture-default}为\tm{=}，且所捕获实体不是
+        \tm{*this}，或者
+  \item 它是被不是\tm{this}、\tm{\&} \nt{identifier}或
+        \tm{\&} \nt{identifier initializer}之一的捕获所显式捕获的。
+\end{enumerate}
+
+对每一个拷贝捕获的实体，在其闭包类型中声明一个无名非静态数据成员。这些成员的声
+明顺序未指明。如果实体是一个对象的引用则声明成员的类型为引用类型，如果实体是一
+个函数的引用，则声明成员为所引用函数类型的左值引用，否则为对应所捕获类型。一个
+匿名联合不应该被拷贝捕获。
 
 \paragraph{} % 11
-<++>
+一个\nt{lambda-expression}的\nt{compound-statement}中的每一个是拷贝捕获实体odr
+使用（\ref{basic.def.odr}）的\nt{id-expression}，被转换为闭包类型的对应无名数据
+成员的访问。
+
+\begin{note}
+  不是odr使用的\nt{id-expression}引用原实体，不会引用闭包类型的成员。但这样的
+  \nt{id-expression}仍能引起实体的隐式捕获。
+\end{note}
+
+如果\tm{*this}是拷贝捕获，每一个odr使用的\tm{*this}表达式被转换为引用闭包类型的
+对应无名数据成员。
+
+\begin{example}
+  \begin{lstlisting}
+  void f(const int*);
+  void g() {
+    const int N = 10;
+    [=] {
+      int arr[N];       // OK: not an odr-use, refers to automatic variable
+      f(&N);            // OK: causes N to be captured; &N points to
+                        // the corresponding member of the closure type
+    };
+  }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 12
-<++>
+如果被隐式或显式捕获但不是拷贝捕获则实体是\nt{引用捕获}。未指明是否为引用捕获实
+体在闭包类型内声明额外 的无名非静态数据成员。如果声明，则这样的非静态数据成员应
+该为字面类型。
+
+\begin{example}
+  \begin{lstlisting}
+  // The inner closure type must be a literal type regardless of how reference captures are represented.
+  static_assert([](int n) { return [&n] { return ++n; }(); }(3) == 4);
+  \end{lstlisting}
+\end{example}
+
+位域或匿名联合的成员不应该被引用捕获。
 
 \paragraph{} % 13
-<++>
+一个\nt{lambda-expression}的\nt{compound-statement}中引用捕获的引用的odr使用的
+\nt{id-expression}，引用的是引用捕获所绑定的实体，不是所捕获的引用。
+
+\begin{note}
+  这样的捕获的有效性由所引用的对象生命期确定，而不是由引用本身的生命期来确定。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+  auto h(int &r) {
+    return [&] {
+      ++r;              // Valid after h returns if the lifetime of the
+                        // object to which r is bound has not ended
+    };
+  }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 14
-<++>
+如果\nt{lambda-expression} \tm{m2}捕获一个实体，且该实体被一个直接包含的
+\nt{lambda-expression} \tm{m1}所捕获，则\tm{m2}的捕获按如下方式进行变换：
+\begin{enumerate}
+  \item 如果\tm{m1}对实体拷贝捕获，则\tm{m2}捕获\tm{m1}的闭包类型对应的非静态数
+        据成员；
+  \item 如果\tm{m1}对实体引用捕获，则\tm{m2}捕获\tm{m1}所捕获的相同实体。
+\end{enumerate}
+
+\begin{example}
+  \begin{lstlisting}
+  int a = 1, b = 1, c = 1;
+  auto m1 = [a, &b, &c]() mutable {
+    auto m2 = [a, b, &c]() mutable {
+      std::cout << a << b << c;
+      a = 4; b = 4; c = 4;
+    };
+    a = 3; b = 3; c = 3;
+    m2();
+  };
+  a = 2; b = 2; c = 2;
+  m1();
+  std::cout << a << b << c;
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 15
-<++>
+当\nt{lambda-expression}被求值时，拷贝引用的实体用于直接初始化产生的闭包对象中
+每一个非静态数据成员，且对应于\nt{init-capture}的非静态数据成员初始化为对应
+\nt{initializer}所指定的值（可能拷贝初始化或直接初始化）。（对数组成员，数组元
+素按下标升序进行直接初始化。）这些初始化按非（未指明）静态数据成员声明顺序进行。
+
+\begin{note}
+  这确保了析构按构造的相反顺序进行。
+\end{note}
 
 \paragraph{} % 16
-<++>
+\begin{note}
+  如果非引用实体被隐式或显式引用捕获，则在实体生命期结束后调用对应
+  \nt{lambda-expression}的函数调用算子很可能产生未定义行为。
+\end{note}
 
 \paragraph{} % 17
-<++>
+一个包含省略号的\nt{simple-capture}是一个包展开（\ref{temp.variadic}）。一个包
+含省略号的\nt{init-capture}是一个引入\nt{init-capture}包（\ref{temp.variadic}）
+的包展开，其声明区为\nt{lambda-expression}的\nt{compound-statement}。
 
+\begin{example}
+  \begin{lstlisting}
+  template<class... Args>
+  void f(Args... args) {
+    auto lm = [&, args...] { return g(args...); };
+    lm();
+
+    auto lm2 = [...xs=std::move(args)] { return g(xs...); };
+    lm2();
+  }
+  \end{lstlisting}
+\end{example}
