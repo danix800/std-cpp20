@@ -1,7 +1,34 @@
 % 7.5.7.5 Nested requirements [expr.prim.req.nested]
+\synsym{nested-requirement}
+  \synprd{\tm{requires} \nt{constraint-expression} \tm{;}}
+
 \paragraph{} % 1
-<++>
+\nt{nested-requirement}可用于指定局部参数上的额外约束。替换模板实参时应满足该
+\nt{constraint-expression}（如有）（\ref{temp.constr.decl}）。除
+\ref{temp.constr.constr}中指明之外，\nt{nested-requirement}中模板实参的替换不会
+导致\nt{constraint-expression}中的替换。
+
+\begin{example}
+  \begin{lstlisting}
+  template<typename U> concept C = sizeof(U) == 1;
+
+  template<typename T> concept D = requires (T t) {
+    requires C<decltype (+t)>;
+  };
+  \end{lstlisting}
+  如果\tm{sizeof(decltype (+t)) == 1}则满足\tm{D<T>}
+  （\ref{temp.constr.atomic}）。
+\end{example}
 
 \paragraph{} % 2
-<++>
+一个局部形参应该仅以未求值操作数（\ref{expr.prop}）出现在
+\nt{constraint-expression}中。
 
+\begin{example}
+  \begin{lstlisting}
+  template<typename T> concept C = requires (T a) {
+    requires sizeof(a) == 4;        // OK
+    requires a == 0;                // error: evaluation of a constraint variable
+  };
+  \end{lstlisting}
+\end{example}

@@ -1,7 +1,27 @@
 % 7.5.7.2 Simple requirements [expr.prim.req.simple]
+\synsym{simple-requirement}
+  \synprd{\nt{expression} \tm{;}}
+
 \paragraph{} % 1
-<++>
+一个\nt{simple-requirement}断言\nt{expression}的合法性。
+
+\begin{note}
+  如果到\nt{expression}中的模板实参替换失败，则包含的\nt{requires-expression}求
+  值为\tm{false}。\nt{expression}为未求值操作数（\ref{expr.prop}）。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+  template<typename T> concept C =
+    requires (T a, T b) {
+      a + b;          // C<T> is true if a + b is a valid expression
+    };
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 2
-<++>
+以\tm{requires}标记开头的\nt{requirement}不按\nt{simple-requirement}解释。
 
+\begin{note}
+  这可以简化区分\nt{simple-requirement}和\nt{nested-requirement}。
+\end{note}

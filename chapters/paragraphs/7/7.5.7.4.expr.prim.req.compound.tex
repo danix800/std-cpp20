@@ -1,7 +1,66 @@
 % 7.5.7.4 Compound requirements [expr.prim.req.compound]
+\synsym{compound-requirement}
+  \synprd{\tm{\{} \nt{expression} \tm{\} noexcept}\nt{\tsub{opt}}
+    \nt{return-type-requirement\tsub{opt}} \tm{;}}
+\synsym{return-type-requirement}
+  \synprd{\tm{->} \nt{type-constraint}}
+
 \paragraph{} % 1
-<++>
+\nt{compound-requirement}断言\nt{expression} \tm{E}的合法性。模板实参（如有）替
+换和语义属性验证按如下顺序进行：
+\begin{enumerate}
+  \item 进行\nt{expression}中的模板实参替换（如有）。
+  \item 如果存在\tm{noexcept}说明符，\nt{E}不应该是潜在抛异常表达式
+    （\ref{except.spec}）。
+  \item 如果存在\nt{return-type-requirement}，则：
+    \begin{enumerate}
+      \item 进行\nt{return-type-requirement}中的模板实参替换（如有）。
+      \item 应满足为\tm{decltype((E))}的\nt{type-constraint}直接声明的约束
+        （\ref{temp.param}）。
+
+        \begin{example}
+          给定概念\tm{C}和\tm{D}，
+          \begin{lstlisting}
+  requires {
+    { E1 } -> C;
+    { E2 } -> D<A1, ..., An>;
+  };
+          \end{lstlisting}
+          等价于
+          \begin{lstlisting}
+  requires {
+    E1; requires C<decltype((E1))>;
+    E2; requires D<decltype((E2)), A1, ..., An>; 
+  };
+          \end{lstlisting}
+          （包括\nt{n}为零的情形）。
+        \end{example}
+    \end{enumerate}
+\end{enumerate}
 
 \paragraph{} % 2
-<++>
-
+\begin{example}
+  \begin{lstlisting}
+  template<typename T> concept C1 = requires(T x) {
+    {x++};
+  };
+  \end{lstlisting}
+  \tm{C1}中的\nt{compound-requirement}要求\tm{x++}是有效表达式。等价于
+  \nt{simple-requirement} \tm{x++;}。
+  \begin{lstlisting}
+  template<typename T> concept C2 = requires(T x) {
+    {*x} -> std::same_as<typename T::inner>;
+  };
+  \end{lstlisting}
+  \tm{C2}中的\nt{compound-requirement}要求\tm{*x}为有效表达式，
+  \tm{typename T::inner}为有效类型，且满足
+  \tm{std::same_as<decltype((*x)), typename T::inner>}。
+  \begin{lstlisting}
+  template<typename T> concept C3 =
+    requires(T x) {
+      {g(x)} noexcept;
+    };
+  \end{lstlisting}
+  \tm{C3}中的\nt{compound-requirement}要求\tm{g(x)}为有效表达式且\tm{g(x)}不抛
+  异常。
+\end{example}

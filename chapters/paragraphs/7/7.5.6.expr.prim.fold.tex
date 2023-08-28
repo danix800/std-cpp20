@@ -1,10 +1,41 @@
 % 7.5.6 Fold expressions [expr.prim.fold]
 \paragraph{} % 1
-<++>
+折叠表达式对二元运算符上的包进行展开（\ref{temp.variadic}）。
+
+\synsym{fold-expression}
+  \synprd{\tm{(} \nt{cast-expression} \nt{fold-operator} \tm{... )}}
+  \synprd{\tm{( ...} \nt{fold-operator} \nt{cast-expression} \tm{)}}
+  \synprd{\tm{(} \nt{cast-expression} \nt{fold-operator} \tm{...}
+    \nt{fold-operator} \nt{cast-expression} \tm{)}}
+\synsym[one of]{fold-operator}
+  \synprd{\tm{+ \ \ - \ \ * \ \ / \ \ \% \ \ ^ \ \ \& \ \ | \ \ \tl{}\tl \ \ \tg{}\tg}}
+  \synprd{\tm{+= \ -= \ *= \ /= \ \%= \ ^= \ \&= \ |= \ \tl{}\tl{}= \tg{}\tg{}= =}}
+  \synprd{\tm{== \ != \ < \ \ > \ \ <= \ >= \ \&\& \ || \ , \ \ .* \ ->*}}
 
 \paragraph{} % 2
-<++>
+形如\tm{(...} \nt{op} \tm{e)}的表达式，其中\nt{op}是一个\nt{fold-operator}，称
+为\nt{一元左折叠}。形如\tm{(e} \nt{op} \tm{...)}的表达式，其中\nt{op}是一个
+\nt{fold-operator}，称为\nt{一元右折叠}。一元左折叠和一元右折叠统称为
+\nt{一元折叠}。在一个一元折叠中，\nt{cast-expression}应该包含一个未展开包
+（\ref{temp.variadic}）。
 
 \paragraph{} % 3
-<++>
+形如\tm{(e1} \nt{op1} \tm{...} \nt{op2} \tm{e2)}的表达式，其中\nt{op1}和
+\nt{op2}为\nt{fold-operator}，称为\nt{二元折叠}。在一个二元折叠中，\nt{op1}和
+\nt{op2}应该是相同的\nt{fold-operator}，且要么\tm{e1}，要么\tm{e2}包含一个未展
+开包，但不是同时包含。如果\tm{e2}包含一个未展开包，则表达式称为\nt{二元左折叠}。
+如果\tm{e1}包含一个未展开包，则表达式称为\nt{二元右折叠}。
 
+\begin{example}
+  \begin{lstlisting}
+  template<typename ...Args>
+  bool f(Args ...args) {
+    return (true && ... && args); // OK
+  }
+
+  template<typename ...Args>
+  bool f(Args ...args) {
+    return (args + ... + args);   // error: both operands contain unexpanded packs
+  }
+  \end{lstlisting}
+\end{example}

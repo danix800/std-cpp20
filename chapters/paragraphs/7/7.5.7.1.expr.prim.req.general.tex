@@ -1,19 +1,89 @@
 % 7.5.7.1 General [expr.prim.req.general]
 \paragraph{} % 1
-<++>
+一个\nt{requires-expression}提供了一种准确的方式来表述模板参数的需求，可用于名
+字查询（\ref{basic.lookup}）时检查或检查类型和表达式的属性。
+
+\synsym{requires-expression}
+  \synprd{\tm{requires} \nt{requirement-parameter-list\tsub{opt}}
+          \nt{requirement-body}}
+\synsym{requirement-parameter-list}
+  \synprd{\tm{(} \nt{parameter-declaration-clause\tsub{opt}} \tm{)}}
+\synsym{requirement-body}
+  \synprd{\tm{\{} \nt{requirement-seq} \tm{\}}}
+\synsym{requirement-seq}
+  \synprd{\nt{requirement}}
+  \synprd{\nt{requirement-seq} \nt{requirement}}
+\synsym{requirement}
+  \synprd{\nt{simple-requirement}}
+  \synprd{\nt{type-requirement}}
+  \synprd{\nt{compound-requirement}}
+  \synprd{\nt{nested-requirement}}
 
 \paragraph{} % 2
-<++>
+一个\nt{requires-expression}是一个\tm{bool}类型的纯右值，其值如下所述。出现在
+\nt{requirement-body}中的表达式是未求值操作数（\ref{expr.prop}）。
 
 \paragraph{} % 3
-<++>
+\begin{example}
+  \nt{requires-expression}的一个常见用法是用来定义概念中的需求，如下：
+  \begin{lstlisting}
+  template<typename T>
+    concept R = requires (T i) {
+      typename T::type;
+      {*i} -> std::convertible_to<const typename T::type&>;
+    };
+  \end{lstlisting}
+  一个\nt{requires-expression}也可用于\nt{requires-clause}（\ref{temp.pre}），作
+  为描述模板实参的特定约束，如下：
+  \begin{lstlisting}
+  template<typename T>
+    requires requires (T x) { x + x; }
+      T add(T a, T b) { return a + b; }
+  \end{lstlisting}
+  其中第一个\tm{requires}引入\nt{requires-clause}，第二个引入
+  \nt{requires-expression}。
+\end{example}
 
 \paragraph{} % 4
-<++>
+一个\nt{requires-expression}可能通过\nt{parameter-declaration-clause}
+（\ref{dcl.fct}）引入局部形参。\nt{requires-expression}的局部形参不应该有缺省实
+参。每一个局部形参所引入的名字位于自其声明点开始到\nt{requirement-body}结尾括号
+的作用域。这些形参无链接、存储或生命期；仅用作定义\nt{requirement}的记号。
+\nt{requirement-parameter-list}中的\nt{parameter-declaration-clause}不应该以省
+略号结尾。
+
+\begin{example}
+  \begin{lstlisting}
+  template<typename T>
+  concept C = requires(T t, ...) {  // error: terminates with an ellipsis
+    t;
+  };
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 5
-<++>
+\nt{requirement-body}包含\nt{requirement}序列。这些\nt{requirement}可能引用局部
+形参，模板形参以及包含上下文中任何可见声明。
 
 \paragraph{} % 6
-<++>
+到\nt{requires-expression}中的模板实参替换可能在其\nt{requirement}中产生无效类
+型或表达式形式，或违反这些\nt{requirement}的语义约束。在这种情况下，
+\nt{requires-expression}求值为\tm{false}；这不会使程序为非法。替换和语义约束检
+查按词法顺序继续，并在遇到确定\nt{requires-expression}结果的条件时停止。如果替
+换（如有）和语义约束检查成功，则\nt{requires-expression}求值为\tm{true}。
 
+\begin{note}
+  如果\nt{requires-expression}在其\nt{requirement}中包含无效类型或表达式，且其
+  未出现在模板实体的声明中，则程序为非法。
+\end{note}
+
+如果\nt{requirement}中的模板实参替换产生替换失败，则程序为非法；无需诊断。
+
+\begin{example}
+  \begin{lstlisting}
+  template<typename T> concept C =
+  requires {
+    new int[-(int)sizeof(T)];   // ill-formed, no diagnostic required
+  };
+  \end{lstlisting}
+\end{example}

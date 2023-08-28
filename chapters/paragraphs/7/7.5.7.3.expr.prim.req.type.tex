@@ -1,7 +1,27 @@
 % 7.5.7.3 Type requirements [expr.prim.req.type]
+\synsym{type-requirement}
+  \synprd{\tm{typename} \nt{nested-name-specifier\tsub{opt}} \nt{type-name} \tm{;}}
+
 \paragraph{} % 1
-<++>
+一个\nt{type-requirement}断言一个类型的合法性。
+
+\begin{note}
+  如果模板实参替换失败则包含的\nt{requires-expression}求值为\tm{false}。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+  template<typename T, typename T::type = 0> struct S;
+  template<typename T> using Ref = T&;
+
+  template<typename T> concept C = requires {
+    typename T::inner;    // requires nested member name
+    typename S<T>;        // requires class template specialization
+    typename Ref<T>;      // requires alias template substitution, fails if T is void
+  };
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 2
-<++>
-
+确定类模板特例化的\nt{type-requirement}不要求该类型是完整的
+（\ref{basic.types}）。
