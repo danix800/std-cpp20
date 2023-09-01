@@ -1,43 +1,181 @@
 % 7.6.1.3 Function call [expr.call]
 \paragraph{} % 1
-<++>
+函数调用是一个后缀表达式，后跟括号包含的，可能为空，逗号分隔的
+\nt{initializer-clause}列表组成函数的实参。
+
+\begin{note}
+  如果后缀表达式是一个函数或成员函数名，则根据\ref{over.match}中的规则确定合适
+  的函数及调用的合法性。
+\end{note}
+
+后缀表达式应具有函数类型或函数指针类型。对应非成员函数或静态成员函数调用，后缀
+表达式应该是一个引用函数的左值（此时不在后缀表达式上进行函数到指针的标准转换
+（\ref{conv.func}）），或是一个函数指针。
 
 \paragraph{} % 2
-<++>
+对于非静态成员函数调用，后续表达式应该是一个隐式（\ref{class.mfct.non-static}，
+\ref{class.static}）或显式类成员访问（\ref{expr.ref}），其\nt{id-expression}是
+一个函数成员名，或是一个选择函数成员的成员指针表达式（\ref{expr.mptr.oper}）；
+该调用是作为对象表达式所引用的类对象的成员进行的。在隐式类成员访问的情况下，所
+隐含的是\tm{this}所指对象。
+
+\begin{note}
+  形如\tm{f()}的成员函数调用解释为\tm{(*this).f()}
+  （见\ref{class.mfct.non-static}）。
+\end{note}
 
 \paragraph{} % 3
-<++>
+如果所选函数为非虚函数，或如果类成员访问表达式中的\nt{id-expression}是一个
+\nt{qualified-id}，则调用该函数。否则调用对象表达式动态类型中的最终重写函数
+（\ref{class.virtual}）；这样的调用称为\nt{虚函数调用}。
+
+\begin{note}
+  动态类型指对应表达式当前值所引对象的类型。\ref{class.cdtor}描述了对象表达式引
+  用处于构造或析构状态下对象时的虚函数调用行为。
+\end{note}
 
 \paragraph{} % 4
-<++>
+\begin{note}
+  如果使用了函数或成员函数名，且名字查询（\ref{basic.lookup}）找不到该名字的声
+  明，则程序为非法。不会因为此调用而隐式声明函数。
+\end{note}
 
 \paragraph{} % 5
-<++>
+如果\nt{postfix-expression}确定一个析构函数或伪析构函数
+（\ref{expr.prim.id.dtor}），则函数调用表达式的类型为\tm{void}；否则函数调用表
+达式的类型为静态所选函数的返回类型（即忽略\tm{virtual}关键字），即使实际调用的
+函数的类型不一样。这一返回类型应该是一个对象类型、引用类型或\nt{cv} \tm{void}。
+如果\nt{postfix-expression}确定一个伪析构函数（此时\nt{postfix-expression}是一
+个可能加括号的类成员访问），该函数调用销毁类成员访问的对象表达式所表示的标量对
+象（\ref{expr.ref}，\ref{basic.life}）。
 
 \paragraph{} % 6
-<++>
+通过函数类型与所调用函数定义的函数类型不一致的表达式来调用一个函数，将产生未定
+义行为。
 
 \paragraph{} % 7
-<++>
+调用一个函数时，每一个形参（\ref{dcl.fct}）使用其对应实参（\ref{dcl.init}，
+\ref{class.copy.ctor}）进行初始化。如果没有对应实参，则使用形参的缺省实参。
+
+\begin{example}
+  \begin{lstlisting}
+  template<typename ...T> int f(int n = 0, T ...t);
+  int x = f<int>();               // error: no argument for second function parameter
+  \end{lstlisting}
+\end{example}
+
+如果函数是非静态成员函数，则使用如同经过显式类型转换后（\ref{expr.cast}）的调用
+的对象指针来初始化函数的\tm{this}形参（\ref{class.this}）。
+
+\begin{note}
+  不对此转换进行访问或歧义检查；访问检查和去歧义在（可能隐式的）类成员访问部分
+  进行。见\ref{class.member.lookup}，\ref{class.access.base}和\ref{expr.ref}。
+\end{note}
+
+在调用函数时，任何形参不应该是不完整或抽象类类型。
+
+\begin{note}
+  允许形参是这种类型的指针或引用。但不允许传值形参具有不完整或抽象类类型。
+\end{note}
+
+在所定义的函数结束时或在全表达式结束时形参生命期是否结束由实现定义。每一个形参
+的初始化和销毁在调用函数的上下文中进行。
+
+\begin{example}
+  在调用函数的调用点进行构造函数、转换函数或析构函数的访问检查。如果函数形参的
+  构造函数或析构函数抛出异常，则异常处理的搜索在调用函数的作用域中进行；特别的
+  如果被调用函数具有一个能处理该异常的\nt{function-try-block}
+  （\ref{except.pre}）也不考虑该处理程序。
+\end{example}
 
 \paragraph{} % 8
-<++>
+\nt{postfix-expression}前序于\nt{expression-list}中的每一个\nt{expression}和任
+何缺省实参。形参的初始化，包括关联的值计算和副作用，相对于任何其他形参不确定性
+有序。
+
+\begin{note}
+  实参求值的任何副作用前序于进入该函数（见\ref{intro.execution}）。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+  void f() {
+    std::string s = "but I have heard it works even if you don't believe in it";
+		s.replace(0, 4, "").replace(s.find("even"), 4, "only").replace(s.find(" don't"), 6, "");
+    assert(s == "I have heard it works only if you believe in it");   // OK
+  }
+  \end{lstlisting}
+\end{example}
+
+\begin{note}
+  如果一个算子函数使用算子记法来调用，则实参求值与内置运算符所指定的一样有序；
+  见\ref{over.match.oper}。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+  struct S {
+    S(int);
+  };
+  int operator<<(S, int);
+  int i, j;
+  int x = S(i=1) << (i=2);
+  int y = operator<<(S(j=1), j=2);
+  \end{lstlisting}
+
+  在进行初始化后，\tm{i}的值为$2$（见\ref{expr.shift}），但\tm{j}的值为$1$还是
+  $2$未指定。
+\end{example}
 
 \paragraph{} % 9
-<++>
+函数调用的结果为可能经过转换的\tm{return}语句的操作数（\ref{stmt.return}），该
+语句将控制转换出被调用函数（如有），除了在虚函数调用中，如果最终重写函数的返回
+类型与静态所选函数的类型不一致时，最终重写函数的返回值被转换为静态所选函数的返
+回类型。
 
 \paragraph{} % 10
-<++>
+\begin{note}
+  函数可以改变其非常量形参，但这些变更不会影响实参的值，除非形参为引用类型
+  （\ref{dcl.ref}）；如果引用是一个常限定类型，要改变实参的值则需要
+  \tm{const_cast}来去除其常量特性。当形参为\tm{const}引用类型时会按需引入一个临
+  时对象（\ref{dcl.type}，\ref{lex.literal}，\ref{lex.string}，
+  \ref{dcl.array}，\ref{class.temporary}）。此外还可以通过指针形参来修改非常量
+  对象的值。
+\end{note}
 
 \paragraph{} % 11
-<++>
+一个函数可以声明为接受比函数定义（\ref{dcl.fct.def}）中形参数量更少的实参（通过
+声明缺省实参（\ref{dcl.fct.default}））或更多实参（通过使用省略号，\tm{...}，或
+函数参数包（\ref{dcl.fct}））。
+
+\begin{note}
+  这意味着除非使用了省略号（\tm{...}）或函数参数包，每一个实参都对应一个形参。
+\end{note}
 
 \paragraph{} % 12
-<++>
+如给定实参不存在对应形参，则实参通过一种接受函数可藉由调用\tm{va_arg}
+（\ref{support.runtime}）的方式来获取其值的方式进行传递。
+
+\begin{note}
+  本段对通过函数参数包方式进行传参不适用。函数参数包在模板实例化
+  （\ref{temp.variadic}）时进行展开，因此在函数模板特例化实际被调用时每一个这样
+  的实参都具有一个对应的形参。
+\end{note}
+
+在实参表达式上进行左值到右值（\ref{conv.lval}）、数组到指针（\ref{conv.array}）
+和函数到指针（\ref{conv.func}）标准转换。类型为\nt{cv} \tm{std::nullptr_t}的实
+参转换为\tm{void *}类型（\ref{conv.ptr}）。在这些转换之后，如果实参不具有算术、
+枚举、指针、成员指针或类类型，则程序为非法。传递潜在求值的，具有有作用域枚举类
+型或类类型（第\ref{class}条），这些类型具有一个可消除非平凡拷贝构造函数，一个可
+消除非平凡移动构造函数或一个非平凡析构函数（\ref{special}），而无对应的形参，这
+种行为是有条件支持的，具有实现定义的语义。如果实参为受制于整型提升
+（\ref{conv.prom}）的整型或受制于符点类型提升的枚举类型（\ref{conv.fpprom}），
+则实参的值在调用前转换为提升类型。这些提升称为\nt{缺省实参提升}。
 
 \paragraph{} % 13
-<++>
+除\tm{main}函数（\ref{basic.start.main}）外，允许递归调用。
 
 \paragraph{} % 14
-<++>
-
+如果结果类型是一个左传引用类型或函数类型的右值引用类型，则函数调用是一个左值，
+如果结果类型是一个对象类型的右值引用类型则函数调用是一个即期值，否则是一个纯右
+值。

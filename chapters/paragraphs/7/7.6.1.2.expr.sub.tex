@@ -1,13 +1,22 @@
 % 7.6.1.2 Subscripting [expr.sub]
 \paragraph{} % 1
-<++>
+后跟方括号中表达式的后续表达式是一个后缀表达式。其中一个表达式应该是
+“\tm{T}数组”类型的广义左值或“\tm{T}的指针”类型的纯右值，且另一个应该是对象类型
+的纯右值。\footnote{即使下标运算符用于\tm{\&x[0]}这种习惯用法中也成立。}表达式
+\tm{E1[E2]}（定义上）等价于\tm{*((E1)+(E2))}，除了在数组操作数的情况下，如果该
+操作数是一个左值，其结果为左值，否则为即期值。表达式\tm{E1}前序于表达式\tm{E2}。
 
 \paragraph{} % 2
-<++>
+\begin{note}
+  作为下标表达式的\nt{expr-or-braced-init-list}出现的逗号表达式
+  （\ref{expr.comma}）已被废弃；见\ref{depr.comma.subscript}。
+\end{note}
 
 \paragraph{} % 3
-<++>
+\begin{note}
+  尽管看起来是非对称的，除序列点外，下标是一个可交换操作。见\ref{expr.unary}和
+  \ref{expr.add}关于\tm{*}和\tm{+}以及\ref{dcl.array}关于数组类型细节。
+\end{note}
 
 \paragraph{} % 4
-<++>
-
+\nt{braced-init-list}不应该用于内置下标运算符。

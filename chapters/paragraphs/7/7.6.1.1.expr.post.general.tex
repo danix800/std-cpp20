@@ -1,7 +1,33 @@
 % 7.6.1.1 General [expr.post.general]
 \paragraph{} % 1
-<++>
+后缀表达式是左结合的。
+
+\synsym{postfix-expression}
+  \synprd{\nt{primary-expression}}
+  \synprd{\nt{postfix-expression} \tm{[} \nt{expr-or-braced-init-list} \tm{]}}
+  \synprd{\nt{postfix-expression} \tm{(} \nt{expression-list\tsub{opt}} \tm{)}}
+  \synprd{\nt{simple-type-specifier} \tm{(} \nt{expression-list\tsub{opt}}
+    \tm{)}}
+  \synprd{\nt{typename-specifier} \tm{(} \nt{expression-list\tsub{opt}}
+    \tm{)}}
+  \synprd{\nt{simple-type-specifier} \nt{braced-init-list}}
+  \synprd{\nt{typename-specifier} \nt{braced-init-list}}
+  \synprd{\nt{postfix-expression} \tm{ . template}\nt{\tsub{opt}} \nt{id-expression}}
+  \synprd{\nt{postfix-expression} \tm{ -> template}\nt{\tsub{opt}} \nt{id-expression}}
+  \synprd{\nt{postfix-expression} \tm{++}}
+  \synprd{\nt{postfix-expression} \tm{--}}
+  \synprd{\tm{dynamic_cast <} \nt{type-id} \tm{> (} \nt{expression} \tm{)}}
+  \synprd{\tm{static_cast <} \nt{type-id} \tm{> (} \nt{expression} \tm{)}}
+  \synprd{\tm{reinterpret_cast <} \nt{type-id} \tm{> (} \nt{expression} \tm{)}}
+  \synprd{\tm{const_cast <} \nt{type-id} \tm{> (} \nt{expression} \tm{)}}
+  \synprd{\tm{type-id (} \nt{expression} \tm{)}}
+  \synprd{\tm{type-id (} \nt{type-id} \tm{)}}
+\synsym{expression-list}
+  \synprd{\nt{initializer-list}}
 
 \paragraph{} % 2
-<++>
-
+\begin{note}
+  \tm{dynamic_cast}、\tm{static_cast}、\tm{reinterpret_cast}或\tm{const_cast}中
+  \nt{type-id}之后的\tm{>}标记可由替换一个\tm{\tg{}\tg}为两个连续的\tm{>}标记产
+  生（\ref{temp.names}）。
+\end{note}
