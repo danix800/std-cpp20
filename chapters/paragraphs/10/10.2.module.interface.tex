@@ -1,28 +1,210 @@
 % 10.2 Export declaration [module.interface]
+\synsym{export-declaration}
+  \synprd{\tm{export} \nt{declaration}}
+  \synprd{\tm{export \{} \nt{declaration-seq\tsub{opt}} \tm{\}}}
+  \synprd{\nt{export-keyword} \nt{module-import-declaration}}
+
 \paragraph{} % 1
-<++>
+一个\nt{export-declaration}应该只出现在命名空间作用域和模块接口单元范围中。
+\nt{export-declaration}不应该直接或间接出现无名命名空间中或一个
+\nt{private-module-fragment}。一个\nt{export-declaration}具有其
+\nt{declaration}、\nt{declaration-seq}（如有）或\nt{module-import-declaration}
+的声明效果。一个\nt{export-declaration}不建立作用域，且其\nt{declaration}或
+\nt{declaration-seq}不应该包含一个\nt{export-declaration}或
+\nt{module-import-declaration}。
 
 \paragraph{} % 2
-<++>
+一个声明是被\nt{导出的}，如果它是
+\begin{enumerate}
+  \item 声明在一个\nt{export-declaration}中的命名空间作用域中的声明，或者
+  \item 一个包含导出声明的\nt{namespace-definition}，或者
+  \item 引入至少一个名字的头单元（\ref{module.import}）中的声明。
+\end{enumerate}
 
 \paragraph{} % 3
-<++>
+不是\nt{module-import-declaration}的导出声明应该至少声明一个名字。如果声明不在
+头单元中，则它不应该声明一个具有内部链接的名字。
 
 \paragraph{} % 4
-<++>
+\begin{example}
+
+  源文件“a.h”：
+  \begin{lstlisting}
+  export int x;
+  \end{lstlisting}
+  翻译单元\#1：
+  \begin{lstlisting}
+  module;
+  #include "a.h"              // error: declaration of x is not in the
+                              // purview of a module interface unit
+  export module M;
+  export namespace {};        // error: does not introduce any names
+  export namespace {
+    int a1;                   // error: export of name with internal linkage
+  }
+  namespace {
+    export int a2;            // error: export of name with internal linkage
+  }
+  export static int b;        // error: b explicitly declared static
+  export int f();             // OK
+  export namespace N { }      // OK
+  export using namespace N;   // error: does not declare a name
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 5
-<++>
+如果声明是一个\nt{using-declaration}（\ref{namespace.udecl}）且不在一个头单元
+中，所有\nt{using-declarator}最终引用（如有）的所有实体应该已由具有外部链接的名
+字引入。
+
+\begin{example}
+
+  源文件“b.h”：
+  \begin{lstlisting}
+  int f();
+  \end{lstlisting}
+  可导入头“c.h”：
+  \begin{lstlisting}
+  int g();
+  \end{lstlisting}
+  翻译单元\#1：
+  \begin{lstlisting}
+  export module X;
+  export int h();
+  \end{lstlisting}
+  翻译单元\#2：
+  \begin{lstlisting}
+  module;
+  #include "b.h"
+  export module M;
+  import "c.h";
+  import X;
+  export using ::f, ::g, ::h;   // OK
+  struct S;
+  export using ::S;             // error: S has module linkage
+  namespace N {
+    export int h();
+    static int h(int);          // #1
+  }
+  export using N::h;            // error: #1 has internal linkage
+  \end{lstlisting}
+\end{example}
+
+\begin{note}
+  这些约束不适用于\tm{typedef}声明和\nt{alias-declaration}引入的类型名字。
+\end{note}
+
+\begin{example}
+  \begin{lstlisting}
+  export module M;
+  struct S;
+  export using T = S;           // OK, exports name T denoting type S
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 6
-<++>
+一个实体的导出声明的重声明是隐式导出的。一个未导出声明的导出重声明是非法的。
+
+\begin{example}
+  \begin{lstlisting}
+  export module M;
+  struct S { int n; };
+  typedef S S;
+  export typedef S S;   // OK, does not redeclare an entity
+  export struct S;      // error: exported declaration follows non-exported declaration
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 7
-<++>
+如果一个名字由一个模块范围中导出声明引入或重声明的则它是被导出的。
+
+\begin{note}
+  导出名字为有链接或无链接；见\ref{basic.link}。由模块导出的命名空间作用域名字可见于任
+  何导出该模块的翻译单元中的名字查询；见\ref{basic.scope.namespace}。类和枚举成员名可见于类型定
+  义可达的任何上下文中的名字查询。
+\end{note}
+
+\begin{example}
+
+  接口单元\tm{M}：
+  \begin{lstlisting}
+  export module M;
+  export struct X {
+    static void f();
+    struct Y { };
+  };
+
+  namespace {
+    struct S { };
+  }
+  export void f(S);         // OK
+  struct T { };
+  export T id(T);           // OK
+
+  export struct A;          // A exported as incomplete
+
+  export auto rootFinder(double a) {
+    return [=](double x) { return (x + a/x)/2; };
+  }
+
+  export const int n = 5;   // OK, n has external linkage
+  \end{lstlisting}
+  实现单元\tm{M}：
+  \begin{lstlisting}
+  module M;
+  struct A {
+    int value;
+  };
+  \end{lstlisting}
+  主程序：
+  \begin{lstlisting}
+  import M;
+  int main() {
+    X::f();                 // OK, X is exported and definition of X is reachable
+    X::Y y;                 // OK, X::Y is exported as a complete type
+    auto f = rootFinder(2); // OK
+    return A{45}.value;     // error: A is incomplete
+  }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 8
-<++>
+\begin{note}
+  重声明一个\nt{export-declaration}中的名字不能改变名字的链接
+  （\ref{basic.link}）。
+
+  \begin{example}
+
+    接口单元\tm{M}：
+    \begin{lstlisting}
+  export module M;
+  static int f();     // #1
+  export int f();     // error: #1 gives internal linkage
+  struct S;           // #2
+  export struct S;    // error: #2 gives module linkage
+  namespace {
+    namespace N {
+      extern int x;   // #3
+    }
+  }
+  export int N::x;    // error: #3 gives internal linkage
+    \end{lstlisting}
+  \end{example}
+\end{note}
 
 \paragraph{} % 9
-<++>
+\begin{note}
+  一个导出\nt{namespace-definition}或一个导出\nt{linkage-specification}
+  （\ref{dcl.link}）中的声明是导出的且受限于导出声明的规则。
 
+  \begin{example}
+    \begin{lstlisting}
+  export module M;
+  export namespace N {
+    int x;                        // OK
+    static_assert(1 == 1);        // error: does not declare a name
+  }
+    \end{lstlisting}
+  \end{example}
+
+\end{note}

@@ -1,25 +1,137 @@
 % 10.1 Module units and purviews [module.unit]
+\synsym{module-declaration}
+  \synprd{\nt{export-keyword\tsub{opt}} \nt{module-keyword} \nt{module-name}
+    \nt{module-partition\tsub{opt}}}
+    \synprd{\ \ \ \ \nt{attribute-specifier-seq\tsub{opt}} \tm{:}}
+\synsym{module-name}
+  \synprd{\nt{module-name-qualifier\tsub{opt}} \nt{identifier}}
+\synsym{module-partition}
+  \synprd{\tm{:} \nt{module-name-qualifier\tsub{opt}} \nt{identifier}}
+\synsym{module-name-qualifier}
+  \synprd{\nt{identifier} \tm{.}}
+  \synprd{\nt{module-name-qualifier} \nt{identifier} \tm{.}}
+
 \paragraph{} % 1
-<++>
+\nt{模块单元}指包含一个\nt{module-declaration}的翻译单元。\nt{命名模块}指具有相
+同的\nt{module-name}的模块单元集合。标识符\tm{module}和\tm{import}不应该用作一
+个\nt{module-name}或\nt{module-partition}中的\nt{identifier}。所有以包含
+\tm{std}后跟零个或多个\nt{digit}的\nt{identifier}开始，或者包含保留标识符
+（\ref{lex.name}）的\nt{module-name}都是保留的，不应该出现在
+\nt{module-declaration}中；无需诊断。如果一个保留\nt{module-name}中的任何
+\nt{identifier}是一个保留标识符，则模块名保留用于\cpp{}实现；否则保留用作未来标
+准化。可选的\nt{attribute-specifier-seq}用于\nt{module-declaration}。
 
 \paragraph{} % 2
-<++>
+\nt{module-declaration}以\nt{export-keyword}开头的模块单元是一个\nt{模块接口单
+元}；其他模块单元称为\nt{模块实现单元}。一个命名模块应该包含仅一个不含
+\nt{module-partition}的模块接口单元，称为模块的\nt{主模块接口单元}；无需诊断。
 
 \paragraph{} % 3
-<++>
+一个\nt{module-declaration}中包含\nt{module-partition}的模块单元称为
+\nt{模块分区}。命名模块不应该包含相同的\nt{module-partition}多次。模块接口单元
+的所有模块分区应该直接或间接地由主模块接口单元导出（\ref{module.import}）。违反
+此规则无需诊断。
+
+\begin{note}
+  模块分区只能被同一模块中的其他模块单元导入。将模块切分为模块单元对外不可见。
+\end{note}
 
 \paragraph{} % 4
-<++>
+\begin{example}
+
+  翻译单元\#1：
+  \begin{lstlisting}
+  export module A;
+  export import :Foo;
+  export int baz();
+  \end{lstlisting}
+  翻译单元\#2：
+  \begin{lstlisting}
+  export module A::Foo;
+  import :Internals;
+  export int foo() { return 2 * (bar() + 1); }
+  \end{lstlisting}
+  翻译单元\#3：
+  \begin{lstlisting}
+  module A:Internals;
+  int bar();
+  \end{lstlisting}
+  翻译单元\#4：
+  \begin{lstlisting}
+  module A;
+  import :Internals;
+  int bar() { return baz() - 10; }
+  int baz() { return 30; }
+  \end{lstlisting}
+  模块\tm{A}包含4个翻译单元：
+  \begin{enumerate}
+    \item 一个主模块接口单元，
+    \item 一个模块分区\tm{A:Foo}，这是一个模块接口单元，形成模块\tm{A}接口的一
+      部分
+    \item 一个模块分区\tm{A:Internals}，对模块\tm{A}的外部接口无作用，以及
+    \item 一个模块实现单元，提供\tm{bar}和\tm{baz}的实现，不能导出，因为它没有
+      模块分区名。
+  \end{enumerate}
+\end{example}
 
 \paragraph{} % 5
-<++>
+一个\nt{模块单元范围}指从\nt{module-declaration}开始直到翻译单元结束的\nt{token}
+序列。命名模块\tm{M}的\nt{范围}指\tm{M}的模块单元范围集合。
 
 \paragraph{} % 6
-<++>
+\nt{全局模块}指所有\nt{global-module-fragment}以及所有不是模块单元的翻译单元
+集合。出现在这样的上下文中的声明称为处于全局模块的\nt{范围}中。
+
+\begin{note}
+  全局模块没有名字，没有模块接口单元，也不由任何\nt{module-declaration}引入。
+\end{note}
 
 \paragraph{} % 7
-<++>
+一个模块要么是命名模块，要么是全局模块。一个声明按如下\nt{附属于}一个模块：
+\begin{enumerate}
+  \item 如果声明
+    \begin{enumerate}
+      \item 是一个可替换的全局分配或释放函数
+        （\ref{new.delete.single}，\ref{new.delete.array}），或者
+      \item 是一个具有外部链接的\nt{namespace-definition}，或者
+      \item 出现在\nt{linkage-specification}中，
+    \end{enumerate}
+    则它附属于全局模块。
+  \item 否则该声明附属于其所在范围的模块中。
+\end{enumerate}
 
 \paragraph{} % 8
-<++>
+一个即不包含\nt{export-keyword}也不包含\nt{module-partition}的
+\nt{module-declaration}如同使用\nt{module-import-declaration}来隐式导入模块的主
+模块接口单元。
 
+\begin{example}
+
+  翻译单元\#1：
+  \begin{lstlisting}
+  module B:Y;           // does not implicitly import B
+  int y();
+  \end{lstlisting}
+  翻译单元\#2：
+  \begin{lstlisting}
+  export module B;
+  import :Y;            // OK, does not create interface dependency cycle
+  int n = y();
+  \end{lstlisting}
+  翻译单元\#3：
+  \begin{lstlisting}
+  module B:X1;          // does not implicitly import B
+  int &a = n;           // error: n not visible here
+  \end{lstlisting}
+  翻译单元\#4：
+  \begin{lstlisting}
+  module B:X2;          // does not implicitly import B
+  import B;
+  int &b = n;           // OK
+  \end{lstlisting}
+  翻译单元\#5：
+  \begin{lstlisting}
+  module B;             // implicitly imports B
+  int &c = n;           // OK
+  \end{lstlisting}
+\end{example}

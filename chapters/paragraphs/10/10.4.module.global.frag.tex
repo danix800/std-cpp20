@@ -1,19 +1,139 @@
 % 10.4 Global module fragment [module.global.frag]
+\synsym{global-module-fragment}
+  \synprd{\nt{module-keyword} \tm{;} \nt{declaration-seq\tsub{opt}}}
+
 \paragraph{} % 1
-<++>
+\begin{note}
+  在翻译阶段4之前，只有预处理指针可以出现在\nt{declaration-seq}中
+  （\ref{cpp.pre}）。
+\end{note}
 
 \paragraph{} % 2
-<++>
+\nt{global-module-fragment}为一个模块单元指定\nt{全局模块段}的内容。全局模块段
+可用于提供附属于全局模块，在模块单元中可用的声明。
 
 \paragraph{} % 3
-<++>
+在同一个翻译单元中，声明\nt{D}从声明\nt{S}是\nt{声明可达的}，如果：
+\begin{enumerate}
+  \item \nt{D}不是声明一个函数或函数模板，且\nt{S}包含一个确定\nt{D}的
+    \nt{id-expression}、\nt{namespace-name}、\nt{type-name}、\nt{template-name}
+    或\nt{concept-name}，或者
+  \item \nt{D}声明一个出现在\nt{S}中的表达式（\ref{basic.def.odr}）确定的函数或
+    函数模板，或者
+  \item \nt{S}包含形如\par\qquad
+      \nt{postfix-expression} \tm{(} \nt{expression-list\tsub{opt}} \tm{)}\par
+    的表达式，其\nt{postfix-expression}表示一个依赖名，或对一个算子表达式而言，
+    其算子表示一个依赖名，且通过替换每个类型依赖实参或操作数为一个无关联命名空
+    间或实体的占位符类型值，\tm{E}合成的表达式中对应的名字经名字查询找到\nt{D}，
+    或者
+  \item \nt{S}包含取重载函数（\ref{over.over}）地址的表达式，其重载集合包含
+    \nt{D}，且其目标类型是依赖的，或者
+  \item 存在不是\nt{namespace-definition}的声明\nt{M}，其中\nt{M}从\nt{S}是声明
+    可达的，且
+    \begin{enumerate}
+      \item \nt{D}从\nt{M}是声明可达的，或者
+      \item \nt{D}重声明了\nt{M}声明的实体，或\nt{M}重声明了\nt{D}声明的实体，
+        且\nt{D}即不是友元声明也不是块作用域声明，或者
+      \item \nt{D}声明了一个命名空间\nt{N}，且\nt{M}是\nt{N}的成员，或者
+      \item \nt{M}和\nt{D}其中之一声明一个类或类模板\nt{C}，另一个声明的是
+        \nt{C}的成员或友元，或者
+      \item \nt{D}和\nt{M}其中之一声明一个检举\nt{E}，另一个声明的是\nt{E}的枚
+        举常量，或者
+      \item \nt{D}声明了一个函数或变量，且\nt{M}在\nt{D}中声明，\footnote{一个
+        声明可以出现在变量的初始化中的\nt{lambda-expression}中。}或者
+      \item \nt{M}和\nt{D}其中之一声明一个模板，另一个声明的是该模板的部分或显
+        式特例化，或者隐式或显式实例化，或者
+      \item \nt{M}和\nt{D}其中之一声明一个类或枚举类型，另一个为链接目的为该类
+        型引入了一个类型定义名。
+    \end{enumerate}
+    在这种确定性中，以下是未指明的
+  \item 一个\nt{alias-declaration}、\nt{typedef}声明、\nt{using-declaration}或
+    \nt{namespace-alias-definition}的引用在这种确定性之前是否替换为其所确定的声
+    明，
+  \item 不表示确定类型且其\nt{template-name}确定一个别名模板的
+    \nt{simple-template-id}在这种确定性之前是否替换为其所表示的类型，
+  \item 不表示依赖类型的\nt{decltype-specifier}在这种确定性之前是否替换为其所表
+    示的类型，
+  \item 非值依赖常表达式在这种确定性之前是否替换为常量求值结果。
+\end{enumerate}
 
 \paragraph{} % 4
-<++>
+一个模块单元的全局模块段中声明\tm{D}被\nt{废弃}，如果\tm{D}不是从
+\nt{translation-unit}的\nt{declaration-seq}中任何\nt{declaration}声明可达的。
+
+\begin{note}
+  废弃声明在模块单元之外即不可达，对名字查询也不可见，也不在实例化点
+  （\ref{temp.point}）位于模块单元之外的模板实例化中，即使实例化上下文
+  （\ref{module.context}）包含此模块单元。
+\end{note}
 
 \paragraph{} % 5
-<++>
+\begin{example}
+  \begin{lstlisting}
+  const int size = 2;
+  int ary1[size];               // unspecified whether size is decl-reachable from ary1
+  constexpr int identity(int x) { return x; }
+  int ary2[identity(2)];        // unspecified whether identity is decl-reachable from ary2
+
+  template<typename> struct S;
+  template<typename, int> struct S2;
+  constexpr int g(int);
+  template<typename T, int N>
+  S<S2<T, g(N)>> f();           // S, S2, g, and :: are decl-reachable from f
+
+  template<int N>
+  void h() noexcept(g(N) == N); // g and :: are decl-reachable from h
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 6
-<++>
+\begin{example}
 
+  源文件\tm{"foo.h"}：
+  \begin{lstlisting}
+  namespace N {
+    struct X {};
+    int d();
+    int e();
+    inline int f(X, int = d()) { return e(); }
+    int g(X);
+    int h(X);
+  }
+  \end{lstlisting}
+  模块\tm{M}接口：
+  \begin{lstlisting}
+  module;
+  #include "foo.h"
+  export module M;
+  template<typename T> int use_f() {
+    N::X x;               // N::X, N, and :: are decl-reachable from use_f
+    return f(x, 123);     // N::f is decl-reachable from use_f,
+                          // N::e is indirectly decl-reachable from use_f
+                          // because it is decl-reachable from N::f, and
+                          // N::d is decl-reachable from use_f
+                          // because it is decl-reachable from N::f
+                          // even though it is not used in this call
+  }
+  template<typename T> int use_g() {
+    N::X x;               // N::X, N, and :: are decl-reachable from use_g
+    return g((T(), x));   // N::g is not decl-reachable from use_g
+  }
+  template<typename T> int use_h() {
+    N::X x;               // N::X, N, and :: are decl-reachable from use_h
+    return h((T(), x));   // N::h is not decl-reachable from use_h, but
+                          // N::h is decl-reachable from use_h<int>
+  }
+  int k = use_h<int>();
+    // use_h<int> is decl-reachable from k, so
+    // N::h is decl-reachable from k
+  \end{lstlisting}
+  模块\tm{M}实现：
+  \begin{lstlisting}
+  module M;
+  int a = use_f<int>();   // OK
+  int b = use_g<int>();   // error: no viable function for call to g;
+                          // g is not decl-reachable from purview of
+                          // module M's interface, so is discarded
+  int c = use_h<int>();   // OK
+  \end{lstlisting}
+\end{example}

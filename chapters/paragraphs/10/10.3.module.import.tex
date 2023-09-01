@@ -1,31 +1,132 @@
 % 10.3 Import declaration [module.import]
+\synsym{module-import-declaration}
+  \synprd{\nt{import-keyword} \nt{module-name}
+    \nt{attribute-specifier-seq\tsub{opt}} \tm{;}}
+  \synprd{\nt{import-keyword} \nt{module-partition}
+    \nt{attribute-specifier-seq\tsub{opt}} \tm{;}}
+  \synprd{\nt{import-keyword} \nt{header-name}
+    \nt{attribute-specifier-seq\tsub{opt}} \tm{;}}
+
 \paragraph{} % 1
-<++>
+一个\nt{module-import-declaration}应该仅出现在全局命名空间作用域中。在一个模块
+单元中，所有导出\nt{module-import-declaration}的\nt{module-import-declaration}
+和\nt{export-declaration}应该出现在\nt{translation-unit}和
+\nt{private-module-fragment}（如有）中所有其他\nt{declaration-seq}
+中的\nt{declaration}之前。可选的\nt{attribute-specifier-seq}附属于
+\nt{module-import-declaration}。
 
 \paragraph{} % 2
-<++>
+一个\nt{module-import-declaration}按如下所述\nt{导入}翻译单元集合。
+
+\begin{note}
+  被导入翻译单元中所导出的命名空间名字在导入翻译单元中成为可见的
+  （\ref{basic.scope.namespace}），且被导入翻译单元中的声明在导入翻译单元中导入
+  声明点之后成为可见（\ref{module.reach}）。
+\end{note}
 
 \paragraph{} % 3
-<++>
+指定\nt{module-name} \tm{M}的\nt{module-import-declaration}导入\tm{M}的所有模块
+接口单元。
 
 \paragraph{} % 4
-<++>
+指定\nt{module-partition}的\nt{module-import-declaration}应该只出现在某模块
+\tm{M}的一个模块单元中\nt{module-declaration}之后。这样的声明导入\tm{M}的以此命
+名的模块分区。
 
 \paragraph{} % 5
-<++>
+指定\nt{header-name} \tm{H}的\nt{module-import-declaration}导入一个合成的
+\nt{头单元}，这是一个对源文件或\tm{H}所确定的头文件应用翻译阶段1到7
+（\ref{lex.phases}）所形成的翻译单元，其中不应该包含\nt{module-declaration}。
+
+\begin{note}
+  头单元中的所有声明都会隐式导出（\ref{module.interface}），并附属于全局模块
+  （\ref{module.unit}）。
+\end{note}
+
+一个\nt{可导入头}指包含所有可导入\cpp{}标准库头文件的实现定义头文件集合的一个成
+员。\tm{H}应该标识一个可导入头。给定两个这样的\nt{module-import-declaration}：
+\begin{enumerate}
+  \item 如果其\nt{header-name}标识不同的头或源文件（\ref{cpp.include}），则它们
+    导入不同的头单元；
+  \item 否则，如果其出现在相同的翻译单元中，则它们导入相同的头单元；
+  \item 否则，未指明它们是否导入相同的头单元。
+    \begin{note}
+      因此在一个可导入头中可能存在声明为内部链接实体的多个拷贝。
+    \end{note}
+\end{enumerate}
+
+\begin{note}
+  确定\nt{header-name}的\nt{module-import-declaration}也可以被预处理器识别，并
+  产生头单元在翻译阶段4之后可见的宏定义，如\ref{cpp.import}所述。任何其他
+  \nt{module-import-declaration}不会使宏可见。
+\end{note}
 
 \paragraph{} % 6
-<++>
+尽管所有声明会隐式导出（\ref{module.interface}），头单元中允许内部链接名字的声
+明。
+
+\begin{note}
+  多个翻译单元中出现的定义通常不能引用这样的名字（\ref{basic.def.odr}）。
+\end{note}
+
+头单元不应该包含具有外部链接的非内联函数或变量的定义。
 
 \paragraph{} % 7
-<++>
+当\nt{module-import-declaration}导入一个翻译单元\nt{T}时，也会导入\nt{T}中所导
+出的\nt{module-import-declaration}所导入的所有翻译单元；这样的翻译单元称为被
+\nt{T}\nt{导出}。此外，当某模块\tm{M}的模块单元中一个
+\nt{module-import-declaration}导入另一个\nt{M}的模块单元\nt{U}时，也会导入
+\nt{T}的模块单元范围\footnote{这与导入名字（\ref{basic.scope.namespace}）的可见
+性规则一致。}中非导出\nt{module-import-declaration}所导入的所有翻译单元。这些规
+则也因此会导入更多翻译单元。
 
 \paragraph{} % 8
-<++>
+模块实现单元不应该被导出。
+
+\begin{example}
+
+  翻译单元\#1：
+  \begin{lstlisting}
+  module M:Part;
+  \end{lstlisting}
+  翻译单元\#2：
+  \begin{lstlisting}
+  export module M;
+  export import :Part;    // error: exported partition :Part is an implementation unit
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 9
-<++>
+模块\tm{M}的非模块分区的模块实现单元不应该包含一个未确定\tm{M}的
+\nt{module-import-declaration}。
+
+\begin{example}
+  \begin{lstlisting}
+  module M;
+  import M;               // error: cannot import M in its own unit
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 10
-<++>
+一个翻译单元具有对翻译单元\nt{U}的\nt{接口依赖}，如果它包含一个导入\nt{U}的声明
+（可能是一个\nt{module-declaration}，或者它对一个翻译单元具有接口依赖，且该翻译
+单元具有对\tm{U}的接口依赖。翻译单元不应该对自身具有接口依赖。
 
+\begin{example}
+
+  接口单元\tm{M1}：
+  \begin{lstlisting}
+  export module M1;
+  import M2;
+  \end{lstlisting}
+  接口单元\tm{M2}：
+  \begin{lstlisting}
+  export module M2;
+  import M3;
+  \end{lstlisting}
+  接口单元\tm{M3}：
+  \begin{lstlisting}
+  export module M3;
+  import M1;              // error: cyclic interface dependency M3->M1->M2->M3
+  \end{lstlisting}
+\end{example}

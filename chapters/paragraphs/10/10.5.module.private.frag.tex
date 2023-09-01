@@ -1,10 +1,50 @@
 % 10.5 Private module fragment [module.private.frag]
+\synsym{private-module-fragment}
+  \synprd{\nt{module-keyword}\tm{ : private ; }\nt{declaration-seq\tsub{opt}}}
+
 \paragraph{} % 1
-<++>
+一个\nt{private-module-fragment}应该只出现在主模块接口单元中
+（\ref{module.unit}）。具有\nt{private-module-fragment}的模块单元应该是其模块的
+唯一模块单元；无需诊断。
 
 \paragraph{} % 2
-<++>
+\begin{note}
+  一个\nt{private-module-fragment}终止一个影响其他翻译单元行为的模块接口单元部
+  分。一个\nt{private-module-fragment}允许模块表示为单个翻译单元而不会使模块所
+  有内容对导入者可达。\nt{private-module-fragment}的存在会影响：
+  \begin{enumerate}
+    \item 要求一个导出内联函数定义的点（\ref{dcl.inline}），
+    \item 要求一个具有占位符返回类型的导出函数的点（\ref{dcl.spec.auto}），
+    \item 声明是否要求不被暴露（\ref{basic.link}），
+    \item 内联函数和模块定义必须出现的位置（\ref{basic.def.odr}，
+      \ref{dcl.inline}，\ref{temp.pre}），
+    \item 在其之前实例化的模板的实例化上下文，以及
+    \item 其内声明的可达性（\ref{module.reach}）。
+  \end{enumerate}
+\end{note}
 
 \paragraph{} % 3
-<++>
+\begin{example}
+  \begin{lstlisting}
+  export module A;
+  export inline void fn_e();  // error: exported inline function fn_e not defined
+                              // before private module fragment
+  inline void fn_m();         // OK, module-linkage inline function
+  static void fn_s();
+  export struct X;
+  export void g(X *x) {
+    fn_s();                   // OK, call to static function in same translation unit
+    fn_m();                   // OK, call to module-linkage inline function
+  }
+  export X *factory();        // OK
 
+  module :private;
+  struct X {};                // definition not reachable from importers of A
+  X *factory() {
+    return new X ();
+  }
+  void fn_e() {}
+  void fn_m() {}
+  void fn_s() {}
+  \end{lstlisting}
+\end{example}

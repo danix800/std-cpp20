@@ -1,16 +1,101 @@
 % 10.7 Reachability [module.reach]
 \paragraph{} % 1
-<++>
+翻译单元\nt{U}从点\nt{P}是\nt{必要可达的}，如果在\nt{P}之前，\nt{U}是一个模块接
+口单元，包含\nt{P}的翻译单元对其具有接口依赖，或者包含\nt{P}的翻译单元导入
+\nt{U}（\ref{module.import}）。
+
+\begin{note}
+  尽管模块接口单元在即使只是被一个非导出的导入声明传递性地导入的情况下可达时，
+  此模块接口单元中的命名空间作用域名字对名字查询（\ref{basic.scope.namespace}）
+  也是不可见的。
+\end{note}
 
 \paragraph{} % 2
-<++>
+所有必要可达的翻译单元是\nt{可达的}。额外的程序内某点对其具有接口依赖的翻译单元
+可能是可达的，但未指明哪些是以及在何种情况下如此。\footnote{因此不要求实现禁止
+编译中的额外翻译单元上的可见语义效果。}
+
+\begin{note}
+  建议避免可移植程序中出现依赖额外翻译单元可达性。
+\end{note}
 
 \paragraph{} % 3
-<++>
+声明\nt{D}是\nt{可达的}，如果对实例化上下文（\ref{module.context}）中任何点
+\nt{P}，
+\begin{enumerate}
+  \item 在同一翻译单元中\nt{D}出现在\nt{P}之前，或者
+  \item \nt{D}被废弃（\ref{module.global.frag}），出现在\nt{P}可达的翻译单元
+    中，且不出现在\nt{private-module-fragment}中。
+\end{enumerate}
+
+\begin{note}
+  声明是否被导出不依赖于其是否可达。
+\end{note}
 
 \paragraph{} % 4
-<++>
+一个上下文中实体的所有可达声明的累积属性确定其在此上下文中的行为。
+
+\begin{note}
+  这此可达语义属性包含类型完整性，类型定义，初始化，函数或模板声明的缺省实参，
+  属性，类或枚举成员名对常规查询可见性等等。因缺省实参在调用表达式上下文中求值，
+  对应形参类型的可达语义属性在该上下文中也适用。
+\end{note}
+
+\begin{example}
+
+  翻译单元\#1：
+  \begin{lstlisting}
+  export module M:A;
+  export struct B;
+  \end{lstlisting}
+  翻译单元\#2：
+  \begin{lstlisting}
+  module M:B;
+  struct B {
+    operator int();
+  };
+  \end{lstlisting}
+  翻译单元\#3：
+  \begin{lstlisting}
+  module M:C;
+  import :A;
+  B b1;                 // error: no reachable definition of struct B
+  \end{lstlisting}
+  翻译单元\#4：
+  \begin{lstlisting}
+  export module M;
+  export import :A;
+  import :B;
+  B b2;
+  export void f(B b = B());
+  \end{lstlisting}
+  翻译单元\#5：
+  \begin{lstlisting}
+  module X;
+  import M;
+  B b3;                 // error: no reachable definition of struct B
+  void g() { f(); }     // error: no reachable definition of struct B
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 5
-<++>
+\begin{note}
+  一个实体可以有可达声明，即使其对名字查询不可见。
+\end{note}
 
+\begin{example}
+
+  翻译单元\#1：
+  \begin{lstlisting}
+  export module A;
+  struct X {};
+  export using Y = X;
+  \end{lstlisting}
+  翻译单元\#2：
+  \begin{lstlisting}
+  module B;
+  import A;
+  Y y;                  // OK, definition of X is reachable
+  X x;                  // error: X not visible to unqualified lookup
+  \end{lstlisting}
+\end{example}

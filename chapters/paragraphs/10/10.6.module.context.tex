@@ -1,22 +1,81 @@
 % 10.6 Instantiation context [module.context]
 \paragraph{} % 1
-<++>
+\nt{实例化上下文}指程序点集合，用于确定哪些名字对依赖参数名查询
+（\ref{basic.lookup.argdep}）可见，以及一个特定声明或模板实例化的上下文中哪些
+声明可达（\ref{module.reach}）。
 
 \paragraph{} % 2
-<++>
+在缺省函数（\ref{special}，\ref{class.compare.default}）的隐式定义中，实例化上
+下文为来自类定义的实例化上下文和缺省函数的隐式定义中所产生程序结构的实例化上下
+文的并集。
 
 \paragraph{} % 3
-<++>
+在一个实例化点如其包含特例化（\ref{temp.point}）所指定的模板隐式实例化中，实例
+化上下文为包含特例化的实例化上下文以及，如果模板定义在模块\nt{M}的模块接口单元
+中且实例化点不在\nt{M}的模块接口单元中，\nt{M}主模块接口单元的
+\nt{declaration-seq}的结束点（在\nt{private-module-fragment}之前，如有）。
 
 \paragraph{} % 4
-<++>
+在一个因在缺省函数的隐式定义中被引用而进行了隐式实例化的模板隐式实例化中，其实
+例化上下文为缺省函数的实例化上下文。
 
 \paragraph{} % 5
-<++>
+在任何其他模板特例化的实例化中，实例化上下文包括模板实例化点。
 
 \paragraph{} % 6
-<++>
+在任何其他情况下，程序内某点的实例化上下文包括该点。
 
 \paragraph{} % 7
-<++>
+\begin{example}
 
+  翻译单元\#1：
+  \begin{lstlisting}
+  export module stuff;
+  export template<typename T, typename U> void foo(T, U u) { auto v = u; }
+  export template<typename T, typename U> void bar(T, U u) { auto v = *u; }
+  \end{lstlisting}
+  翻译单元\#2：
+  \begin{lstlisting}
+  export module M1;
+  import "defn.h";    // provides struct X {};
+  import stuff;
+  export template<typename T> void f(T t) {
+    X x;
+    foo(t, x);
+  }
+  \end{lstlisting}
+  翻译单元\#3：
+  \begin{lstlisting}
+  export module M2;
+  import "decl.h";    // provides struct X; (not a definition)
+  import stuff;
+  export template<typename T> void g(T t) {
+    X *x;
+    bar(t, x);
+  }
+  \end{lstlisting}
+  翻译单元\#4：
+  \begin{lstlisting}
+  import M1;
+  import M2;
+  void test() {
+    f(0);
+    g(0);
+  }
+  \end{lstlisting}
+  \tm{f(0)}的调用是有效的，\tm{foo<int, X>}的实例化上下文包括
+  \begin{enumerate}
+    \item 翻译单元\#1的结尾，
+    \item 翻译单元\#2的结尾，以及
+    \item \tm{f(0)}的调用点，
+
+      因此\tm{X}的定义是可达的（\ref{module.reach}）。
+
+      未指明\tm{g(0)}的调用是否有效：\tm{bar<int, X>}的实例化上下文包括
+    \item 翻译单元\#1的结尾，
+    \item 翻译单元\#3的结尾，以及
+    \item \tm{g(0)}的调用点，
+
+      因此\tm{X}的定义不一定可达，如\ref{module.reach}所述。
+  \end{enumerate}
+\end{example}
