@@ -5,6 +5,8 @@ set -eu -o pipefail
 function main() {
   local script_home=$(dirname $(realpath "$0"))
 
+  "${script_home}"/prepare.sh
+
   "${script_home}"/gen.figure.sh
   "${script_home}"/gen.toc.sh
 
