@@ -1,22 +1,91 @@
 % 7.6.1.5 Class member access [expr.ref]
 \paragraph{} % 1
-<++>
+后缀表达式后跟点\tm{.}或箭头\tm{->}，可选地跟上关键字\tm{template}
+（\ref{temp.names}），随后再跟上一个\nt{id-expression}，是一个后缀表达式。点或
+箭头前的后缀表达式被求值；\footnote{如果类成员访问表达式被求值，子表达式也将被
+求值，即使结果对于确定完整后缀表达式不是必须的，比如如果\nt{id-expression}表示
+静态成员。}求值的结果，连同\nt{id-expression}，确定整个后缀表达式的结果。
 
 \paragraph{} % 2
-<++>
+对于第一个选项（点），第一表达式应该是广义左值。对于第二个选项（箭头），第一表
+达式应该是一个指针类型的纯右值。表达式\tm{E1->E2}转换为等价形式
+\tm{(*(E1)).E2}；\ref{expr.ref}的剩余部分只描述第一个选项（点）。\footnote{注意
+\tm{(*(E1))}是一个左值。}
 
 \paragraph{} % 3
-<++>
+\nt{postfix-expression}\tm{.}\nt{id-expression}为\tm{E1.E2}，\tm{E1}称为
+\nt{对象表达式}。如果对象表达式为标量类型，\tm{E2}应该确定同类型伪析构（忽略cv
+限定），并且\tm{E1.E2}是一个左值，类型为“返回\tm{void}的函数()”。
+
+\begin{note}
+  该值只能用于函数调用（\ref{expr.prim.id.dtor}）。
+\end{note}
 
 \paragraph{} % 4
-<++>
+否则，对象表达式应该具有类类型。该类类型应该是完整类型，除非类成员访问出现在类
+的定义中。
+
+\begin{note}
+  如果类不完整，完整类类型中的查询应该引用的是相同声明
+  （\ref{basic.scope.class}）。
+\end{note}
+
+\nt{id-expression}应该确定的是一个类或其基类的成员。
+
+\begin{note}
+  因在类作用域（第\ref{class}条）中插入类名，类名也当作是该类的嵌套成员。
+\end{note}
+
+\begin{note}
+  \ref{basic.lookup.classref}描述了\tm{.}和\tm{->}运算符之后的名字如何查询。
+\end{note}
 
 \paragraph{} % 5
-<++>
+如果\tm{E2}是一个位域，则\tm{E1.E2}也是一个位域。\tm{E1.E2}的类型和值范畴按如下
+确定。在\ref{expr.ref}剩余部分，\nt{cq}表示有\tm{const}或不存在\tm{const}，
+\nt{vq}表示存在\tm{volatile}或不存在\tm{volatile}。\nt{cv}表示\nt{6.8.4}中
+定义的任意cv限定符集合。
 
 \paragraph{} % 6
-<++>
+如果\tm{E2}定义为具有类型“\tm{T}的引用”，则\tm{E1.E2}是一个左值；\tm{E1.E2}的类
+型为\tm{T}。否则适用以下规则之一。
+\begin{enumerate}
+  \item 如果\tm{E2}是一个静态数据成员且\tm{E2}的类型为\tm{T}，则\tm{E1.E2}是一
+        个左值；表达式表示类的命名成员。\tm{E1.E2}的类型为\tm{T}。
+  \item 如果\tm{E2}是一个非静态数据成员且\tm{E1}的类型为``\nt{cq1 vq1} \tm{X}''
+        并且\tm{E2}的类型为``\nt{cq2 vq2} \tm{T}''，则表达式表示的是第一个表达
+        式所表示的对象的对应成员子对象。如果\tm{E1}是个左值，则\tm{E1.E2}是个左
+        值；否则\tm{E1.E2}是个\xvalue。设符号\nt{vq12}表示\nt{vq1}和\nt{vq2}的
+        ``并集''；即如果\nt{vq1}或\nt{vq2}是\tm{volatile}，则\nt{vq12}为
+        \tm{volatile}。类似的，设符号\nt{cq12}表示\nt{cq1}和\nt{cq2}的``并集''；
+        即如果\nt{cq1}或\nt{cq2}为\tm{const}，则\nt{cq12}为\tm{const}。如果
+        \tm{E2}声明为\tm{mutable}成员，则\tm{E1.E2}的类型为
+        ``\nt{vq12} \tm{T}''。如果\tm{E2}未声明为\tm{mutable}成员，则\tm{E1.E2}
+        的类型为``\nt{cq12} \nt{vq12} \tm{T}''。
+  \item 如果\tm{E2}是一个（可能重载的）成员函数，则使用函数重载解析
+        （\ref{over.match}）来选择\tm{E2}所引用的函数。\tm{E1.E2}的类型即
+        \tm{E2}的类型，且\tm{E1.E2}引用的是\tm{E2}所引用的函数。
+        \begin{enumerate}
+          \item 如果\tm{E2}引用静态成员函数，则\tm{E1.E2}是左值。
+          \item 否则（当\tm{E2}引用一个非静态成员函数时），\tm{E1.E2}是一个
+                \prvalue。该表达式仅可用于一个成员函数调用（\ref{class.mfct}）
+                的左操作数。
+
+                \begin{note}
+                  忽略包含于此表达式之外的冗余括号集（\ref{expr.prim.paren}）。
+                \end{note}
+        \end{enumerate}
+  \item 如果\tm{E2}是一个嵌套类型，则\tm{E1.E2}为非法。
+  \item 如果\tm{E2}是一个成员枚举，且\tm{E2}的类型为\tm{T}，则表达式\tm{E1.E2}
+        是一个\prvalue。\tm{E1.E2}的类型为\tm{T}。
+\end{enumerate}
 
 \paragraph{} % 7
-<++>
+如果\tm{E2}是一个非静态数据成员或一个非静态成员函数，且如果\tm{E2}作为其直接成
+员的类是\tm{E2}所确定类（\ref{class.access.base}）的有歧义基类
+（\ref{class.member.lookup}），则程序为非法。
 
+\begin{note}
+  如果所确定类是对象表达式的类类型的有歧义基类，则程序也是非法；
+  见\ref{class.access.base}。
+\end{note}

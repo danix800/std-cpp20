@@ -1,7 +1,15 @@
 % 7.6.1.4 Explicit type conversion (functional notation) [expr.type.conv]
 \paragraph{} % 1
-<++>
+一个后跟可选的加括号\nt{expression-list}或一个\nt{braced-init-list}（初始化）的
+\nt{simple-type-specifier}（\ref{dcl.type.simple}）或\nt{typename-specifier}
+（\ref{temp.res}）在给定初始化的情况下构造一个指定类型的值。在本条后文中，如果
+类型是一个推导类类型的占位符，则将其替换为类模板推导
+（\ref{over.match.class.deduct}）重载解析所选函数的返回类型。
 
 \paragraph{} % 2
-<++>
-
+如果初始化是一个加括号的单一表达式，类型转换表达式等价于强制转换表达式
+（\ref{expr.cast}）。否则，如果类型是\nt{cv} \tm{void}且初始化为\tm{()}或
+\tm{\{\}}（在包展开后，如有），则表达式是一个指定类型的纯右值，不进行初始化。
+否则，表达式是指定类型的纯右值，其结果对象使用初始化表达式进行直接初始化
+（\ref{dcl.init}）。如果初始化是一个可选加括号的\nt{expression-list}，指定类型
+不应该是一个数组类型。
