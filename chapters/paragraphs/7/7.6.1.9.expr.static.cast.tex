@@ -1,12 +1,38 @@
 % 7.6.1.9 Static cast [expr.static.cast]
 \paragraph{} % 1
-<++>
+表达式\tm{static_cast<T>(v)}的结果是将表达式\tm{v}转换为类型\tm{T}的结果。如果
+\tm{T}是\lvalue{}引用类型或函数类型的\rvalue{}引用，则结果是\lvalue{}；如果
+\tm{T}是对象类型的\rvalue{}引用，则结果是\xvalue{}；否则，结果是\prvalue{}。
+\tm{static_cast}运算符不应去掉常属性（\ref{7.6.1.11}）。
 
 \paragraph{} % 2
-<++>
+``\nt{cv1} \tm{B}''类型的\lvalue{}（其中\tm{B}是类类型）可以转换为``对\nt{cv2}
+\tm{D}的引用''类型，其中\tm{D}是从\tm{B}派生的类（\ref{11.7}），如果\nt{cv2}与
+以下cv限定相同：或比\nt{cv1}更高的cv限定。如果\tm{B}是\tm{D}的虚拟基类或\tm{D}
+的虚基类的基类，或者如果不存在从``指向\tm{D}的指针''到``指向\tm{B}的指针''的有
+效标准转换（\ref{7.3.12}），则程序\illform{}。``\nt{cv1} \tm{B}''类型的
+\xvalue{}可以转换为``\nt{cv2} \tm{D}的\rvalue{}引用''类型，其约束与``\nt{cv1}
+\tm{B}''类型的\lvalue{}相同。如果类型``\nt{cv1} \tm{B}''的对象实际上是类型
+\tm{D}的对象的基类子对象，则结果引用类型\tm{D}的包含对象。否则其行为未定义。
+
+\begin{example}
+  \begin{lstlisting}
+  struct B { };
+  struct D : public B { };
+  D d;
+  B &br = d;
+
+  static_cast<D&>(br);        // produces lvalue denoting the original d object
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 3
-<++>
+如果``\nt{cv2} \tm{T2}''与``\nt{cv1} \tm{T1}''引用兼容，则``\nt{cv1} \tm{T1}''
+类型的\lvalue{}可以转换为``\nt{cv2} \tm{T2}的\rvalue{}引用''类型（\ref{9.4.4}）。
+如果该值不是位域，则结果引用该对象或其指定的基类子对象；否则，\lvalue{}到
+\rvalue{}的转换（\ref{7.3.2}）应用于位域，并且所得\prvalue{}用作本节其余部分的
+\tm{static_cast}的表达式。如果\tm{T2}是\tm{T1}的不可访问（\ref{11.9}）或不明确
+（\ref{11.8}）基类，则需要此类强制转换的程序是\illform{}的。
 
 \paragraph{} % 4
 <++>

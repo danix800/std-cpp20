@@ -1,7 +1,29 @@
 % 7.6.1.6 Increment and decrement [expr.post.incr]
 \paragraph{} % 1
-<++>
+后缀\tm{++}表达式的值为其操作数的值。
+
+\begin{note}
+  所取得的值为其原值的拷贝。
+\end{note}
+
+\oprnd{}应该是一个可修改的左值。\oprnd{}的类型应该是除\nt{cv} \tm{bool}之外的算
+术类型，或指向完整对象类型的指针。带有\volatile{}限定类型的\oprnd{}已废弃；见
+\ref{depr.volatile.type}。\oprnd{}对象修改为向其加\tm{1}之后的值。\tm{++}表达式
+的值计算前序于\oprnd{}对象的修改。相对于不确定性有序的函数调用而言，后缀\tm{++}
+操作是一个单一求值。
+
+\begin{note}
+  因此，函数调用不能交织于左值到右值转换和关联于任何单个后缀\tm{++}运算符的副作
+  用之间。
+\end{note}
+
+其结果为\prvalue{}。结果类型的\oprnd{}类型的无cv限定版本。如果\oprnd{}是一个不
+能表示其增长后结果的位域，则位域的结果由实现定义。另请参见\ref{expr.add}和
+\ref{expr.ass}。
 
 \paragraph{} % 2
-<++>
+后缀\tm{--}的\oprnd{}与后缀\tm{++}运算符类似地进行自减。
 
+\begin{note}
+  见\ref{expr.pre.incr}关于前缀自增与自减。
+\end{note}

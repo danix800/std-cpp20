@@ -1,28 +1,95 @@
 % 7.6.1.7 Dynamic cast [expr.dynamic.cast]
 \paragraph{} % 1
-<++>
+表达式\tm{dynamic_cast<T>}的结果为转换表达式\tm{v}到类型\tm{T}的结果。\tm{T}应
+该是一个完整类类型的指针或引用，或者是``指向\nt{cv} \tm{void}的指针''。
+\tm{dynamic_cast}不应该去掉常属性（\ref{expr.const.cast}）。
 
 \paragraph{} % 2
-<++>
+如果\tm{T}为指针类型，\tm{v}应该是一个完整类类型指针的\prvalue{}，结果是一个
+\tm{T}类型的\prvalue{}。如果\tm{T}是一个\lvalue{}引用类型，\tm{v}应该是一个完整
+类类型的\lvalue{}，结果是一个\tm{T}所引用类型的\lvalue{}。如果\tm{T}是一个
+\rvalue{}引用类型，\tm{v}应该是一个具有完整类类型的\glvalue{}，结果是一个\tm{T}
+所引用类型的\xvalue{}。
 
 \paragraph{} % 3
-<++>
+如果\tm{v}的类型与\tm{T}相同（忽略cv限定），则结果为（按需转换的）\tm{v}。
 
 \paragraph{} % 4
-<++>
+如果\tm{T}是``指向\nt{cv1} \tm{B}的指针''且\tm{v}的类型为
+``指向\nt{cv2} \tm{D}的指针''，其中\tm{B}是\tm{D}的基类，则结果是一个由\tm{v}
+所指向\tm{D}对象的唯一子对象\tm{B}的指针，或者如果\tm{v}是空指针的话，则结果为
+空指针。类似的，如果\tm{T}是``\nt{cv1} \tm{B}的引用''且\tm{v}具有类型\nt{cv2}
+\tm{D}，使得\tm{B}是\tm{D}的基类，则结果为由\tm{v}所引用的\tm{D}对象的唯一子对
+象\tm{B}。\footnote{\tm{v}所指向或引用的最终派生对象（\ref{intro.object}）可以
+包含其他 \tm{B}对象作为基类，但这些会被忽略。}在指针和引用这两种情形下，如果
+\tm{B}是\tm{D}的不可访问或有歧义基类，则程序为\illform{}。
+
+\begin{example}
+  \begin{lstlisting}
+  struct B { };
+  struct D : B { };
+  void foo(D* dp) {
+    B*  bp = dynamic_cast<B*>(dp);    // equivalent to B* bp = dp;
+  }
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 5
-<++>
+否则，\tm{v}应该是一个多态类型（\ref{class.virtual}）的指针或\glvalue{}。
 
 \paragraph{} % 6
-<++>
+如果\tm{v}是一个空指针值，则结果为空指针值。
 
 \paragraph{} % 7
-<++>
+如果\tm{T}是``指向\nt{cv} \tm{void}的指针''，则结果为\tm{v}所指向的最终派生对象
+的指针。否则进行运行时检查来确定\tm{v}所指向或引用的对象是否能转换成\tm{T}所指
+向或引用的类型。
 
 \paragraph{} % 8
-<++>
+如果\tm{C}是\tm{T}所指向或引用的类类型，则运行时检查逻辑上如下执行：
+\begin{enumerate}
+  \item 如果在\tm{v}所指向（引用）的最终派生对象中，\tm{v}指向（引用）一个
+        \tm{C}对象的公有基类子对象，且仅当一个\tm{C}类型对象派生自\tm{v}所指向
+        （引用）的子对象，则结果指向（引用）该\tm{C}对象。
+  \item 否则，如果\tm{v}指向（引用）最终派生对象的一个公有基类子对象，且最终派
+        生对象的类型为无歧义公有\tm{C}类型基类，则结果指向（引用）最终派生对象
+        的\tm{C}子对象。
+  \item 否则运行时检查失败。
+\end{enumerate}
 
 \paragraph{} % 9
-<++>
+到指针类型的失败转换的值为要求的结果类型的空指针值。失败的引用类型转换抛出一个
+该类型的异常（\ref{except.throw}），匹配一个\tm{std::bad_cast}类型的处理程序
+（\ref{except.handle}）。
 
+\begin{example}
+  \begin{lstlisting}
+  class A { virtual void f(); };
+  class B { virtual void g(); };
+  class D : public virtual A, private B { };
+  void g() {
+    D d;
+    B* bp = (B*)&d;                 // cast needed to break protection
+    A* ap = &d;                     // public derivation, no cast needed
+    D& dr = dynamic_cast<D&>(*bp);  // fails
+    ap = dynamic_cast<A*>(bp);      // fails
+    bp = dynamic_cast<B*>(ap);      // fails
+    ap = dynamic_cast<A*>(&d);      // succeeds
+    bp = dynamic_cast<B*>(&d);      // ill-formed (not a runtime check)
+  }
+
+  class E : public D, public B { };
+  class F : public E, public D { };
+  void h() {
+    F f;
+    A* ap = &f;                     // succeeds: finds unique A
+    D* dp = dynamic_cast<D*>(ap);   // fails: yields null; f has two D subobjects
+    E* ep = (E*)ap;                 // error: cast from virtual base
+    E* ep1 = dynamic_cast<E*>(ap);  // succeeds
+  }
+  \end{lstlisting}
+\end{example}
+
+\begin{note}
+  子章节\ref{class.cdtor}描述应用\tm{dynamic_cast}到正在构建或销毁对象时的行为。
+\end{note}

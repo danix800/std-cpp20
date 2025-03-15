@@ -1,22 +1,61 @@
 % 7.6.1.8 Type identification [expr.typeid]
 \paragraph{} % 1
-<++>
+\tm{typeid}表达式的结果是静态类型\tm{const std::type_info} (17.7.3) 和
+动态类型\tm{const std::type_info}或\tm{const} \nt{name}的\lvalue{}，其中
+\nt{name}是从\tm{std::type_info}公有派生的实现定义的类，保留\ref{type.info}中所
+述行为。\footnote{该类的推荐名称是\tm{extend_type_info}。}\lvalue{}引用的对象的
+生命周期延伸到程序结束。未指定是否在程序结束时为\tm{std::type_info}对象调用析构
+函数。
 
 \paragraph{} % 2
-<++>
+当\tm{typeid}应用于类型为多态类类型（\ref{class.virtual}）的\glvalue{}时，结果
+引用的是表示最终派生对象类型（\ref{intro.object}）的\tm{std::type_info}对象（即
+动态类型）\glvalue{}所指的。如果通过将一元\tm{*}运算符应用于指针\footnote{如果
+\tm{p}是指针类型的表达式，那么\tm{*p}、\tm{(*p)}、\tm{*(p)}、\tm{((*p))}、
+\tm{*((p))}等都满足这个要求。}来获得\glvalue{}，并且该指针是空指针值
+（\ref{basic.compound}），则\tm{typeid}表达式会抛出与\tm{std::bad_typeid}类型
+（\ref{bad.typeid}）的处理程序匹配的类型的异常（\ref{except.throw}）。
 
 \paragraph{} % 3
-<++>
+当\tm{typeid}应用于多态类类型的\glvalue{}以外的表达式时，结果引用的是表示表达式
+静态类型的\tm{std::type_info}对象。\lvalue{}到\rvalue{}（\ref{conv.lval}）、数
+组到指针（\ref{conv.array}）和函数到指针（\ref{conv.func}）转换不适用于表达式。
+如果表达式是\prvalue{}，则应用临时具化转换（\ref{conv.rval}）。该表达式是一个未
+求值的操作数（\ref{expr.prop}）。
 
 \paragraph{} % 4
-<++>
+当\tm{typeid}应用于\nt{type-id}时，结果引用的是表示\nt{type-id}类型的
+\tm{std::type_info}对象。如果\nt{type-id}的类型是对可能cv限定类型的引用，则
+\tm{typeid}表达式的结果引用表示无cv限定引用类型的\tm{std::type_info}对象。如果
+\nt{type-id}的类型是类类型或对类类型的引用，则该类应是完全定义的。
+
+\begin{note}
+  \nt{type-id}不能用\nt{cv-qualifier-seq}或\nt{ref-qualifier}表示函数类型
+  （\ref{dcl.fct}）。
+\end{note}
 
 \paragraph{} % 5
-<++>
+如果表达式或\nt{type-id}的类型是cv限定类型，则\tm{typeid}表达式的结果引用表示无
+cv限定类型的\tm{std::type_info}对象。
+
+\begin{example}
+  \begin{lstlisting}
+  class D { /* ... */ };
+  D d1;
+  const D d2;
+
+  typeid(d1) == typeid(d2);       // yields true
+  typeid(D)  == typeid(const D);  // yields true
+  typeid(D)  == typeid(d2);       // yields true
+  typeid(D)  == typeid(const D&); // yields true
+  \end{lstlisting}
+\end{example}
 
 \paragraph{} % 6
-<++>
+如果在使用\tm{typeid}之前未导入或包含标头\tm{<typeinfo>}（\ref{type.info}），则
+程序\illform{}。
 
 \paragraph{} % 7
-<++>
-
+\begin{note}
+  第\ref{class.cdtor}节描述了应用于正在构造或销毁的对象的\tm{typeid}的行为。
+\end{note}
